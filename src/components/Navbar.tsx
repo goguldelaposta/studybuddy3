@@ -56,6 +56,9 @@ export const Navbar = ({
               Explorează
             </Link>
             {isAuthenticated && <>
+                <Link to="/groups" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Grupuri
+                </Link>
                 <Link to="/messages" className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Mesaje
                   {unreadCount > 0 && (
@@ -91,6 +94,12 @@ export const Navbar = ({
                     <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
                       <User className="w-4 h-4" />
                       Profilul Meu
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/groups" className="flex items-center gap-2 cursor-pointer">
+                      <Users className="w-4 h-4" />
+                      Grupuri
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -145,6 +154,9 @@ export const Navbar = ({
                 Explorează
               </Link>
               {isAuthenticated ? <>
+                  <Link to="/groups" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                    Grupuri
+                  </Link>
                   <Link to="/messages" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg flex items-center justify-between" onClick={() => setMobileMenuOpen(false)}>
                     Mesaje
                     {unreadCount > 0 && (
