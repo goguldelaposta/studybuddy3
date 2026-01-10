@@ -6,6 +6,7 @@ import { MessageThread } from "@/components/MessageThread";
 import { useAuth } from "@/hooks/useAuth";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfiles } from "@/hooks/useProfiles";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { cn } from "@/lib/utils";
 
 const Messages = () => {
@@ -24,6 +25,7 @@ const Messages = () => {
     startConversation,
     setActiveConversationId,
   } = useMessages();
+  const { refreshUnreadCount } = useRealtimeNotifications();
 
   const [showMobileThread, setShowMobileThread] = useState(false);
 
@@ -51,6 +53,8 @@ const Messages = () => {
   const handleSelectConversation = (conversationId: string) => {
     fetchMessages(conversationId);
     setShowMobileThread(true);
+    // Refresh unread count after reading messages
+    setTimeout(() => refreshUnreadCount(), 500);
   };
 
   const handleSendMessage = (content: string) => {

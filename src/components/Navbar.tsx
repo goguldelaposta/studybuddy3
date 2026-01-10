@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+
 interface NavbarProps {
   isAuthenticated: boolean;
   user?: {
@@ -19,6 +22,8 @@ export const Navbar = ({
   onSignOut
 }: NavbarProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { unreadCount } = useRealtimeNotifications();
+  
   const getInitials = (name?: string, email?: string) => {
     if (name) {
       return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
@@ -51,8 +56,13 @@ export const Navbar = ({
               Explorează
             </Link>
             {isAuthenticated && <>
-                <Link to="/messages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/messages" className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Mesaje
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-2 -right-4 h-5 min-w-5 px-1 text-xs gradient-primary text-primary-foreground">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </Badge>
+                  )}
                 </Link>
                 <Link to="/profile" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Profilul Meu
@@ -87,6 +97,11 @@ export const Navbar = ({
                     <Link to="/messages" className="flex items-center gap-2 cursor-pointer">
                       <MessageCircle className="w-4 h-4" />
                       Mesaje
+                      {unreadCount > 0 && (
+                        <Badge className="ml-auto h-5 min-w-5 px-1 text-xs gradient-primary text-primary-foreground">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </Badge>
+                      )}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -130,8 +145,13 @@ export const Navbar = ({
                 Explorează
               </Link>
               {isAuthenticated ? <>
-                  <Link to="/messages" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/messages" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg flex items-center justify-between" onClick={() => setMobileMenuOpen(false)}>
                     Mesaje
+                    {unreadCount > 0 && (
+                      <Badge className="h-5 min-w-5 px-1 text-xs gradient-primary text-primary-foreground">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </Badge>
+                    )}
                   </Link>
                   <Link to="/profile" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                     Profilul Meu
