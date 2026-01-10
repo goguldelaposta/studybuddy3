@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Mail, Lock, ArrowRight, Check, X } from "lucide-react";
+import { Users, Lock, ArrowRight, Check, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 
-const emailSchema = z.string().email("Te rugăm să introduci un email valid");
-
-// Strong password validation for signup
 const strongPasswordSchema = z
   .string()
   .min(8, "Parola trebuie să aibă minim 8 caractere")
@@ -18,9 +15,6 @@ const strongPasswordSchema = z
   .regex(/[a-z]/, "Parola trebuie să conțină cel puțin o literă mică")
   .regex(/[0-9]/, "Parola trebuie să conțină cel puțin o cifră")
   .regex(/[^A-Za-z0-9]/, "Parola trebuie să conțină cel puțin un caracter special");
-
-// Simpler validation for login
-const loginPasswordSchema = z.string().min(1, "Parola este obligatorie");
 
 interface PasswordRequirement {
   label: string;
@@ -35,37 +29,37 @@ const passwordRequirements: PasswordRequirement[] = [
   { label: "Un caracter special (!@#$...)", test: (p) => /[^A-Za-z0-9]/.test(p) },
 ];
 
-const Auth = () => {
-  const [searchParams] = useSearchParams();
-  const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") === "signup");
-  const [email, setEmail] = useState("");
+const ResetPassword = () => {
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string }>({});
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { updatePassword, session } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate("/");
+    // If no session, redirect to auth page
+    if (!session) {
+      // Give it a moment to check for session from URL token
+      const timer = setTimeout(() => {
+        if (!session) {
+          navigate("/auth");
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [user, navigate]);
+  }, [session, navigate]);
 
   const validate = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { password?: string; confirmPassword?: string } = {};
     
-    const emailResult = emailSchema.safeParse(email);
-    if (!emailResult.success) {
-      newErrors.email = emailResult.error.errors[0].message;
-    }
-    
-    // Use strong password validation for signup, simple for login
-    const passwordResult = isSignUp 
-      ? strongPasswordSchema.safeParse(password)
-      : loginPasswordSchema.safeParse(password);
-      
+    const passwordResult = strongPasswordSchema.safeParse(password);
     if (!passwordResult.success) {
       newErrors.password = passwordResult.error.errors[0].message;
+    }
+    
+    if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Parolele nu se potrivesc";
     }
     
     setErrors(newErrors);
@@ -77,9 +71,7 @@ const Auth = () => {
     if (!validate()) return;
 
     setLoading(true);
-    const { error } = isSignUp
-      ? await signUp(email, password)
-      : await signIn(email, password);
+    const { error } = await updatePassword(password);
     setLoading(false);
 
     if (!error) {
@@ -98,35 +90,15 @@ const Auth = () => {
           <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4">
             <Users className="w-7 h-7 text-primary-foreground" />
           </div>
-          <CardTitle className="font-display text-2xl">
-            {isSignUp ? "Creează Cont" : "Bine ai revenit"}
-          </CardTitle>
+          <CardTitle className="font-display text-2xl">Resetează Parola</CardTitle>
           <CardDescription>
-            {isSignUp
-              ? "Alătură-te StudyBuddy și găsește parteneri de studiu"
-              : "Conectează-te pentru a continua"}
+            Introdu noua ta parolă
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="tu@universitate.ro"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Parolă</Label>
+              <Label htmlFor="password">Parolă Nouă</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -140,8 +112,7 @@ const Auth = () => {
               </div>
               {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
               
-              {/* Password requirements checklist for signup */}
-              {isSignUp && password.length > 0 && (
+              {password.length > 0 && (
                 <div className="mt-3 p-3 rounded-lg bg-muted/50 space-y-1.5">
                   <p className="text-xs font-medium text-muted-foreground mb-2">Cerințe parolă:</p>
                   {passwordRequirements.map((req) => {
@@ -163,40 +134,35 @@ const Auth = () => {
               )}
             </div>
 
-            {!isSignUp && (
-              <div className="text-right">
-                <Link to="/auth/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition-colors">
-                  Ai uitat parola?
-                </Link>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmă Parola</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-            )}
+              {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
+            </div>
 
             <Button
               type="submit"
               className="w-full gradient-primary text-primary-foreground h-11"
               disabled={loading}
             >
-              {loading ? "Te rugăm așteaptă..." : isSignUp ? "Creează Cont" : "Conectare"}
+              {loading ? "Te rugăm așteaptă..." : "Schimbă Parola"}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              {isSignUp ? "Ai deja cont?" : "Nu ai cont?"}{" "}
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="font-medium text-primary hover:underline"
-              >
-                {isSignUp ? "Conectează-te" : "Înregistrează-te"}
-              </button>
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
   );
 };
 
-export default Auth;
+export default ResetPassword;

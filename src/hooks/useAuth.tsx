@@ -10,6 +10,8 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (error) {
         toast({
-          title: "Sign up failed",
+          title: "Înregistrare eșuată",
           description: error.message,
           variant: "destructive",
         });
@@ -61,14 +63,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       toast({
-        title: "Welcome!",
-        description: "Your account has been created successfully.",
+        title: "Bine ai venit!",
+        description: "Contul tău a fost creat cu succes.",
       });
       return { error: null };
     } catch (err) {
       const error = err as Error;
       toast({
-        title: "Sign up failed",
+        title: "Înregistrare eșuată",
         description: error.message,
         variant: "destructive",
       });
@@ -85,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (error) {
         toast({
-          title: "Sign in failed",
+          title: "Autentificare eșuată",
           description: error.message,
           variant: "destructive",
         });
@@ -93,14 +95,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       toast({
-        title: "Welcome back!",
-        description: "You have signed in successfully.",
+        title: "Bine ai revenit!",
+        description: "Te-ai conectat cu succes.",
       });
       return { error: null };
     } catch (err) {
       const error = err as Error;
       toast({
-        title: "Sign in failed",
+        title: "Autentificare eșuată",
         description: error.message,
         variant: "destructive",
       });
@@ -111,13 +113,76 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     await supabase.auth.signOut();
     toast({
-      title: "Signed out",
-      description: "You have been signed out successfully.",
+      title: "Deconectat",
+      description: "Te-ai deconectat cu succes.",
     });
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      const redirectUrl = `${window.location.origin}/auth/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+      
+      if (error) {
+        toast({
+          title: "Eroare",
+          description: error.message,
+          variant: "destructive",
+        });
+        return { error };
+      }
+      
+      toast({
+        title: "Email trimis!",
+        description: "Verifică-ți emailul pentru linkul de resetare a parolei.",
+      });
+      return { error: null };
+    } catch (err) {
+      const error = err as Error;
+      toast({
+        title: "Eroare",
+        description: error.message,
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+      
+      if (error) {
+        toast({
+          title: "Eroare",
+          description: error.message,
+          variant: "destructive",
+        });
+        return { error };
+      }
+      
+      toast({
+        title: "Parolă actualizată!",
+        description: "Parola ta a fost schimbată cu succes.",
+      });
+      return { error: null };
+    } catch (err) {
+      const error = err as Error;
+      toast({
+        title: "Eroare",
+        description: error.message,
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, resetPassword, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );
