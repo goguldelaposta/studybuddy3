@@ -7,7 +7,7 @@ interface Profile {
   id: string;
   user_id: string;
   full_name: string;
-  email: string;
+  email: string | null; // Email can be null for other users' profiles (privacy)
   faculty: string;
   year_of_study: number;
   bio: string | null;
@@ -90,6 +90,7 @@ export const useProfiles = () => {
   const fetchProfiles = async (filters?: Filters) => {
     setLoading(true);
     try {
+      // Query profiles table - email protection is handled at database level via RLS
       let query = supabase.from("profiles").select("*");
 
       if (filters?.faculty) {
