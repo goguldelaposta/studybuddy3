@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin } from "lucide-react";
+import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -69,12 +69,20 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
               Explorează
             </Link>
             {isAuthenticated && (
-              <Link
-                to="/profile"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Profilul Meu
-              </Link>
+              <>
+                <Link
+                  to="/messages"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Mesaje
+                </Link>
+                <Link
+                  to="/profile"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Profilul Meu
+                </Link>
+              </>
             )}
           </div>
 
@@ -100,6 +108,12 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
                     <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
                       <User className="w-4 h-4" />
                       Profilul Meu
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/messages" className="flex items-center gap-2 cursor-pointer">
+                      <MessageCircle className="w-4 h-4" />
+                      Mesaje
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -164,6 +178,13 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
               </Link>
               {isAuthenticated ? (
                 <>
+                  <Link
+                    to="/messages"
+                    className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Mesaje
+                  </Link>
                   <Link
                     to="/profile"
                     className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
