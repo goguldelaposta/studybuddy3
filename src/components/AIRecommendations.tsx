@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sparkles, RefreshCw, UserPlus, MessageCircle, Star, TrendingUp, Zap } from "lucide-react";
+import { Sparkles, RefreshCw, UserPlus, MessageCircle, TrendingUp, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -21,6 +22,7 @@ interface Recommendation {
     lookingFor: string;
     skills: string[];
     subjects: string[];
+    userId?: string;
   };
 }
 
@@ -48,12 +50,13 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
   const [loading, setLoading] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const fetchRecommendations = async () => {
     if (!isAuthenticated) {
       toast({
-        title: "Sign in required",
-        description: "Please sign in to get personalized recommendations",
+        title: "Autentificare necesară",
+        description: "Te rugăm să te conectezi pentru recomandări personalizate",
         variant: "destructive",
       });
       return;
@@ -64,7 +67,7 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        throw new Error("No active session");
+        throw new Error("Nu există sesiune activă");
       }
 
       const { data, error } = await supabase.functions.invoke('ai-recommendations', {
@@ -77,7 +80,7 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
 
       if (data.error) {
         toast({
-          title: "Unable to get recommendations",
+          title: "Nu s-au putut obține recomandări",
           description: data.error,
           variant: "destructive",
         });
@@ -89,24 +92,46 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
 
       if (data.recommendations?.length > 0) {
         toast({
-          title: "Recommendations ready!",
-          description: `Found ${data.recommendations.length} potential teammates for you`,
+          title: "Recomandări gata!",
+          description: `Am găsit ${data.recommendations.length} colegi potriviți pentru tine`,
         });
       } else {
         toast({
-          title: "No matches yet",
-          description: data.message || "Try again when more students join",
+          title: "Nicio potrivire încă",
+          description: data.message || "Încearcă din nou când mai mulți studenți se alătură",
         });
       }
     } catch (error: any) {
       console.error("Error fetching recommendations:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to get recommendations",
-        variant: "destructive",
-      });
+      
+      // Handle rate limit and payment errors
+      if (error.message?.includes('429') || error.status === 429) {
+        toast({
+          title: "Prea multe cereri",
+          description: "Te rugăm să aștepți puțin și să încerci din nou",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes('402') || error.status === 402) {
+        toast({
+          title: "Credit insuficient",
+          description: "Contactează administratorul pentru mai multe credite AI",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Eroare",
+          description: error.message || "Nu s-au putut obține recomandările",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMessage = (userId: string | undefined) => {
+    if (userId) {
+      navigate(`/messages?userId=${userId}`);
     }
   };
 
@@ -117,10 +142,10 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
         <CardHeader className="relative">
           <CardTitle className="flex items-center gap-2 font-display">
             <Sparkles className="w-5 h-5 text-primary" />
-            AI-Powered Matches
+            Recomandări AI
           </CardTitle>
           <CardDescription>
-            Sign in to get personalized teammate recommendations powered by AI
+            Conectează-te pentru a primi recomandări personalizate de colegi folosind AI
           </CardDescription>
         </CardHeader>
       </Card>
@@ -135,10 +160,10 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
           <div>
             <CardTitle className="flex items-center gap-2 font-display">
               <Sparkles className="w-5 h-5 text-primary animate-pulse-soft" />
-              AI-Powered Matches
+              Recomandări AI
             </CardTitle>
             <CardDescription className="mt-1">
-              Smart recommendations based on your skills, subjects & goals
+              Potriviri inteligente bazate pe competențe, materii și obiective
             </CardDescription>
           </div>
           <Button
@@ -149,12 +174,12 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Analyzing...
+                Analizez...
               </>
             ) : (
               <>
                 <Zap className="w-4 h-4 mr-2" />
-                {hasLoaded ? "Refresh" : "Get Matches"}
+                {hasLoaded ? "Reîmprospătează" : "Găsește Colegi"}
               </>
             )}
           </Button>
@@ -168,7 +193,7 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
             <p className="text-muted-foreground">
-              Click "Get Matches" to find your ideal study partners using AI
+              Apasă "Găsește Colegi" pentru a descoperi parteneri de studiu folosind AI
             </p>
           </div>
         )}
@@ -179,7 +204,7 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
               <Sparkles className="w-8 h-8 text-primary-foreground" />
             </div>
             <p className="text-muted-foreground font-medium">
-              Analyzing profiles and finding your best matches...
+              Analizez profilurile și găsesc cele mai bune potriviri...
             </p>
           </div>
         )}
@@ -187,7 +212,7 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
         {hasLoaded && recommendations.length === 0 && !loading && (
           <div className="text-center py-8">
             <p className="text-muted-foreground">
-              No matches found yet. More students will join soon!
+              Nicio potrivire găsită încă. Mai mulți studenți se vor alătura în curând!
             </p>
           </div>
         )}
@@ -204,7 +229,7 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg ${getScoreColor(rec.matchScore)}`}>
                   {rec.matchScore}%
                 </div>
-                <span className="text-xs text-muted-foreground mt-1">Match</span>
+                <span className="text-xs text-muted-foreground mt-1">Potrivire</span>
               </div>
 
               {/* Profile Info */}
@@ -219,7 +244,7 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
                   <div>
                     <h4 className="font-display font-semibold">{rec.profile.fullName}</h4>
                     <p className="text-xs text-muted-foreground">
-                      {rec.profile.faculty} • Year {rec.profile.yearOfStudy}
+                      {rec.profile.faculty} • Anul {rec.profile.yearOfStudy}
                     </p>
                   </div>
                 </div>
@@ -248,13 +273,13 @@ export const AIRecommendations = ({ isAuthenticated }: AIRecommendationsProps) =
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <Button size="sm" className="gradient-primary text-primary-foreground">
-                    <UserPlus className="w-3 h-3 mr-1" />
-                    Connect
-                  </Button>
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleMessage(rec.profile.userId)}
+                  >
                     <MessageCircle className="w-3 h-3 mr-1" />
-                    Message
+                    Mesaj
                   </Button>
                 </div>
               </div>

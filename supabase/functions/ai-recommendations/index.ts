@@ -225,6 +225,7 @@ IMPORTANT: Only return the JSON array, no other text.`;
           ...rec,
           profile: {
             id: profile.id,
+            userId: profile.user_id,
             fullName: profile.full_name,
             faculty: profile.faculty,
             yearOfStudy: profile.year_of_study,
