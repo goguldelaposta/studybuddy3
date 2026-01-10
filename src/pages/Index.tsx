@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { StudentCard } from "@/components/StudentCard";
 import { FilterSection } from "@/components/FilterSection";
+import { AIRecommendations } from "@/components/AIRecommendations";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfiles } from "@/hooks/useProfiles";
 import { Users } from "lucide-react";
@@ -10,7 +11,7 @@ import { Users } from "lucide-react";
 const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { profiles, skills, subjects, faculties, loading, fetchProfiles } = useProfiles();
+  const { profiles, skills, subjects, faculties, loading, fetchProfiles, currentUserProfile } = useProfiles();
 
   const handleGetStarted = () => {
     if (user) {
@@ -29,7 +30,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar
         isAuthenticated={!!user}
-        user={user ? { email: user.email || "" } : null}
+        user={user ? { email: user.email || "", fullName: currentUserProfile?.full_name } : null}
         onSignOut={signOut}
       />
 
@@ -38,6 +39,13 @@ const Index = () => {
         onBrowse={handleBrowse}
         isAuthenticated={!!user}
       />
+
+      {/* AI Recommendations Section */}
+      <section className="py-12 bg-background">
+        <div className="container">
+          <AIRecommendations isAuthenticated={!!user && !!currentUserProfile} />
+        </div>
+      </section>
 
       {/* Browse Section */}
       <section id="browse" className="py-16 bg-muted/30">
