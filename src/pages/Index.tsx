@@ -93,6 +93,7 @@ const Index = () => {
                       skills={profile.skills}
                       subjects={profile.subjects}
                       universityShortName={profile.university?.short_name}
+                      userId={profile.user_id || undefined}
                       onConnect={(id) => console.log("Connect to:", id)}
                     />
                   </div>

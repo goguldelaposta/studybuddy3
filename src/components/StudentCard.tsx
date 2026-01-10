@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ interface StudentCardProps {
   skills: string[];
   subjects: string[];
   universityShortName?: string;
+  userId?: string;
   onConnect?: (id: string) => void;
 }
 
@@ -63,8 +65,17 @@ export const StudentCard = ({
   skills,
   subjects,
   universityShortName,
+  userId,
   onConnect,
 }: StudentCardProps) => {
+  const navigate = useNavigate();
+
+  const handleMessage = () => {
+    if (userId) {
+      navigate(`/messages?with=${userId}`);
+    }
+  };
+
   return (
     <Card className="group hover-lift bg-card shadow-card border-border/50 overflow-hidden">
       <CardContent className="p-6">
@@ -161,7 +172,7 @@ export const StudentCard = ({
             <UserPlus className="w-4 h-4 mr-2" />
             Conectează-te
           </Button>
-          <Button variant="outline" size="sm" className="px-3">
+          <Button variant="outline" size="sm" className="px-3" onClick={handleMessage}>
             <MessageCircle className="w-4 h-4" />
           </Button>
         </div>
