@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, createContext, useContext, ReactNode } from "react";
+import { useEffect, useCallback, useState, createContext, useContext, ReactNode, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
@@ -6,14 +6,75 @@ import { useToast } from "./use-toast";
 interface NotificationContextType {
   unreadCount: number;
   refreshUnreadCount: () => Promise<void>;
+  soundEnabled: boolean;
+  setSoundEnabled: (enabled: boolean) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+// Create a simple notification sound using Web Audio API
+const playNotificationSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Create a pleasant two-tone notification sound
+    const playTone = (frequency: number, startTime: number, duration: number) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = "sine";
+      
+      // Envelope for smooth sound
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    };
+    
+    const now = audioContext.currentTime;
+    playTone(880, now, 0.15); // A5
+    playTone(1108.73, now + 0.1, 0.2); // C#6
+    
+  } catch (error) {
+    console.log("Could not play notification sound:", error);
+  }
+};
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = localStorage.getItem("notificationSoundEnabled");
+    return saved !== null ? saved === "true" : true;
+  });
+  const hasInteracted = useRef(false);
+
+  // Track user interaction for audio autoplay policy
+  useEffect(() => {
+    const handleInteraction = () => {
+      hasInteracted.current = true;
+    };
+    
+    window.addEventListener("click", handleInteraction, { once: true });
+    window.addEventListener("keydown", handleInteraction, { once: true });
+    
+    return () => {
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("keydown", handleInteraction);
+    };
+  }, []);
+
+  // Save sound preference
+  useEffect(() => {
+    localStorage.setItem("notificationSoundEnabled", String(soundEnabled));
+  }, [soundEnabled]);
 
   // Fetch total unread message count
   const refreshUnreadCount = useCallback(async () => {
@@ -98,6 +159,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
           const senderName = senderProfile?.full_name || "Cineva";
 
+          // Play notification sound if enabled and user has interacted
+          if (soundEnabled && hasInteracted.current) {
+            playNotificationSound();
+          }
+
           // Show toast notification
           toast({
             title: "📩 Mesaj nou",
@@ -113,7 +179,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, toast, refreshUnreadCount]);
+  }, [user, toast, refreshUnreadCount, soundEnabled]);
 
   // Fetch initial unread count
   useEffect(() => {
@@ -121,7 +187,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [refreshUnreadCount]);
 
   return (
-    <NotificationContext.Provider value={{ unreadCount, refreshUnreadCount }}>
+    <NotificationContext.Provider value={{ unreadCount, refreshUnreadCount, soundEnabled, setSoundEnabled }}>
       {children}
     </NotificationContext.Provider>
   );
