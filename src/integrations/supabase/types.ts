@@ -90,6 +90,7 @@ export type Database = {
           full_name: string
           id: string
           looking_for: string | null
+          university_id: string | null
           updated_at: string
           user_id: string | null
           year_of_study: number | null
@@ -103,6 +104,7 @@ export type Database = {
           full_name: string
           id?: string
           looking_for?: string | null
+          university_id?: string | null
           updated_at?: string
           user_id?: string | null
           year_of_study?: number | null
@@ -116,11 +118,20 @@ export type Database = {
           full_name?: string
           id?: string
           looking_for?: string | null
+          university_id?: string | null
           updated_at?: string
           user_id?: string | null
           year_of_study?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       skills: {
         Row: {
@@ -146,18 +157,56 @@ export type Database = {
           faculty: string
           id: string
           name: string
+          university_id: string | null
         }
         Insert: {
           code?: string | null
           faculty: string
           id?: string
           name: string
+          university_id?: string | null
         }
         Update: {
           code?: string | null
           faculty?: string
           id?: string
           name?: string
+          university_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      universities: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          name: string
+          short_name: string
+          website: string | null
+        }
+        Insert: {
+          city?: string
+          created_at?: string
+          id?: string
+          name: string
+          short_name: string
+          website?: string | null
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          name?: string
+          short_name?: string
+          website?: string | null
         }
         Relationships: []
       }

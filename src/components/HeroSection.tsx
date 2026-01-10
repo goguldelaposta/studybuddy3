@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Users, Sparkles, ArrowRight, BookOpen, Code, Lightbulb } from "lucide-react";
+import { Users, Sparkles, ArrowRight, BookOpen, Code, Lightbulb, MapPin } from "lucide-react";
 
 interface HeroSectionProps {
   onGetStarted: () => void;
@@ -17,27 +17,27 @@ export const HeroSection = ({ onGetStarted, onBrowse, isAuthenticated }: HeroSec
 
       <div className="container relative z-10 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
+          {/* Location Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-fade-up">
-            <Sparkles className="w-4 h-4 text-secondary" />
+            <MapPin className="w-4 h-4 text-secondary" />
             <span className="text-sm font-medium text-foreground">
-              Find your perfect study partner
+              București • 15+ Universități
             </span>
           </div>
 
           {/* Main heading */}
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            Connect with{" "}
+            Găsește-ți{" "}
             <span className="gradient-text">
-              Students
+              Colegii
             </span>{" "}
-            Who Share Your Goals
+            de Studiu Potriviți
           </h1>
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-up" style={{ animationDelay: "0.2s" }}>
-            Find teammates for projects, study groups, and coursework based on your faculty, 
-            subjects, and skills. Collaborate smarter, achieve more.
+            Conectează-te cu studenți din universitățile din București pentru proiecte, 
+            grupuri de studiu și colaborări academice. Platformă dedicată comunității studențești din România.
           </p>
 
           {/* CTA Buttons */}
@@ -48,7 +48,7 @@ export const HeroSection = ({ onGetStarted, onBrowse, isAuthenticated }: HeroSec
               onClick={onGetStarted}
             >
               <Users className="w-5 h-5 mr-2" />
-              {isAuthenticated ? "Create Profile" : "Get Started Free"}
+              {isAuthenticated ? "Creează Profil" : "Începe Gratuit"}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <Button
@@ -57,7 +57,7 @@ export const HeroSection = ({ onGetStarted, onBrowse, isAuthenticated }: HeroSec
               className="h-14 px-8 text-lg font-semibold"
               onClick={onBrowse}
             >
-              Browse Teammates
+              Explorează Studenți
             </Button>
           </div>
 
@@ -67,28 +67,40 @@ export const HeroSection = ({ onGetStarted, onBrowse, isAuthenticated }: HeroSec
               <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-4 mx-auto">
                 <BookOpen className="w-6 h-6 text-primary-foreground" />
               </div>
-              <h3 className="font-display font-bold text-lg mb-2">Study Groups</h3>
+              <h3 className="font-display font-bold text-lg mb-2">Grupuri de Studiu</h3>
               <p className="text-sm text-muted-foreground">
-                Join study sessions with peers taking the same courses
+                Găsește colegi care studiază aceleași materii la facultatea ta
               </p>
             </div>
             <div className="glass rounded-xl p-6 hover-lift">
               <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-4 mx-auto">
                 <Code className="w-6 h-6 text-secondary-foreground" />
               </div>
-              <h3 className="font-display font-bold text-lg mb-2">Project Teams</h3>
+              <h3 className="font-display font-bold text-lg mb-2">Echipe de Proiect</h3>
               <p className="text-sm text-muted-foreground">
-                Find teammates with complementary skills for assignments
+                Formează echipe cu competențe complementare pentru proiecte
               </p>
             </div>
             <div className="glass rounded-xl p-6 hover-lift">
               <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center mb-4 mx-auto">
                 <Lightbulb className="w-6 h-6 text-accent-foreground" />
               </div>
-              <h3 className="font-display font-bold text-lg mb-2">Mentorship</h3>
+              <h3 className="font-display font-bold text-lg mb-2">Mentorat</h3>
               <p className="text-sm text-muted-foreground">
-                Connect with seniors and tutors for guidance
+                Conectează-te cu studenți din anii mai mari pentru îndrumare
               </p>
+            </div>
+          </div>
+
+          {/* Universities showcase */}
+          <div className="mt-16 animate-fade-up" style={{ animationDelay: "0.5s" }}>
+            <p className="text-sm text-muted-foreground mb-4">Universități partenere din București</p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm font-medium text-muted-foreground">
+              {["UPB", "ASE", "UB", "UMFCD", "SNSPA", "UAUIM", "UTCB", "USAMV"].map((uni) => (
+                <span key={uni} className="px-3 py-1 rounded-full bg-muted/50 hover:bg-muted transition-colors">
+                  {uni}
+                </span>
+              ))}
             </div>
           </div>
         </div>

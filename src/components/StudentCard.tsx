@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { GraduationCap, BookOpen, MessageCircle, UserPlus } from "lucide-react";
+import { GraduationCap, BookOpen, MessageCircle, UserPlus, Building } from "lucide-react";
 
 interface StudentCardProps {
   id: string;
@@ -14,21 +14,33 @@ interface StudentCardProps {
   lookingFor: string;
   skills: string[];
   subjects: string[];
+  universityShortName?: string;
   onConnect?: (id: string) => void;
 }
 
-const getFacultyColor = (faculty: string) => {
+const getUniversityColor = (shortName?: string) => {
   const colors: Record<string, string> = {
-    "Computer Science": "bg-primary/10 text-primary border-primary/20",
-    "Mathematics": "bg-purple-100 text-purple-700 border-purple-200",
-    "Business": "bg-orange-100 text-orange-700 border-orange-200",
-    "Chemistry": "bg-green-100 text-green-700 border-green-200",
-    "Physics": "bg-blue-100 text-blue-700 border-blue-200",
-    "Psychology": "bg-pink-100 text-pink-700 border-pink-200",
-    "English": "bg-rose-100 text-rose-700 border-rose-200",
-    "Economics": "bg-amber-100 text-amber-700 border-amber-200",
+    "UPB": "bg-blue-100 text-blue-700 border-blue-200",
+    "ASE": "bg-emerald-100 text-emerald-700 border-emerald-200",
+    "UB": "bg-purple-100 text-purple-700 border-purple-200",
+    "UMFCD": "bg-red-100 text-red-700 border-red-200",
+    "SNSPA": "bg-amber-100 text-amber-700 border-amber-200",
+    "UAUIM": "bg-pink-100 text-pink-700 border-pink-200",
+    "UTCB": "bg-orange-100 text-orange-700 border-orange-200",
+    "USAMV": "bg-green-100 text-green-700 border-green-200",
   };
-  return colors[faculty] || "bg-muted text-muted-foreground border-border";
+  return colors[shortName || ""] || "bg-muted text-muted-foreground border-border";
+};
+
+const getLookingForLabel = (value: string) => {
+  const labels: Record<string, string> = {
+    "teammates": "Colegi de proiect",
+    "study-group": "Grup de studiu",
+    "mentor": "Mentor",
+    "mentee": "Să fiu mentor",
+    "tutoring": "Meditații",
+  };
+  return labels[value] || value;
 };
 
 const getInitials = (name: string) => {
@@ -50,6 +62,7 @@ export const StudentCard = ({
   lookingFor,
   skills,
   subjects,
+  universityShortName,
   onConnect,
 }: StudentCardProps) => {
   return (
@@ -67,14 +80,22 @@ export const StudentCard = ({
             <h3 className="font-display font-bold text-lg text-foreground truncate">
               {fullName}
             </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="outline" className={`${getFacultyColor(faculty)} text-xs font-medium`}>
-                <GraduationCap className="w-3 h-3 mr-1" />
-                {faculty}
-              </Badge>
-              <span className="text-xs text-muted-foreground">Year {yearOfStudy}</span>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              {universityShortName && (
+                <Badge variant="outline" className={`${getUniversityColor(universityShortName)} text-xs font-medium`}>
+                  <Building className="w-3 h-3 mr-1" />
+                  {universityShortName}
+                </Badge>
+              )}
+              <span className="text-xs text-muted-foreground">Anul {yearOfStudy}</span>
             </div>
           </div>
+        </div>
+
+        {/* Faculty */}
+        <div className="flex items-center gap-2 mb-3 text-sm">
+          <GraduationCap className="w-4 h-4 text-primary" />
+          <span className="text-muted-foreground truncate">{faculty}</span>
         </div>
 
         {/* Bio */}
@@ -87,14 +108,14 @@ export const StudentCard = ({
         {/* Looking for */}
         <div className="flex items-center gap-2 mb-4 text-sm">
           <BookOpen className="w-4 h-4 text-secondary" />
-          <span className="text-muted-foreground">Looking for:</span>
-          <span className="font-medium text-foreground capitalize">{lookingFor}</span>
+          <span className="text-muted-foreground">Caută:</span>
+          <span className="font-medium text-foreground">{getLookingForLabel(lookingFor)}</span>
         </div>
 
         {/* Skills */}
         {skills.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Skills</p>
+            <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Competențe</p>
             <div className="flex flex-wrap gap-1.5">
               {skills.slice(0, 4).map((skill) => (
                 <Badge key={skill} variant="secondary" className="text-xs font-medium">
@@ -113,7 +134,7 @@ export const StudentCard = ({
         {/* Subjects */}
         {subjects.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Subjects</p>
+            <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Materii</p>
             <div className="flex flex-wrap gap-1.5">
               {subjects.slice(0, 3).map((subject) => (
                 <Badge key={subject} variant="outline" className="text-xs bg-muted/50">
@@ -138,7 +159,7 @@ export const StudentCard = ({
             onClick={() => onConnect?.(id)}
           >
             <UserPlus className="w-4 h-4 mr-2" />
-            Connect
+            Conectează-te
           </Button>
           <Button variant="outline" size="sm" className="px-3">
             <MessageCircle className="w-4 h-4" />

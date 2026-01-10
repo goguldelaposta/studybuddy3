@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, LogIn, LogOut, User, Settings, Menu, X } from "lucide-react";
+import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -45,7 +45,13 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
               <Users className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-xl">StudyMate</span>
+            <div className="flex flex-col">
+              <span className="font-display font-bold text-xl leading-tight">CollegaMea</span>
+              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <MapPin className="w-2.5 h-2.5" />
+                București
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -54,20 +60,20 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
               to="/"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Home
+              Acasă
             </Link>
             <Link
               to="/browse"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Browse
+              Explorează
             </Link>
             {isAuthenticated && (
               <Link
                 to="/profile"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                My Profile
+                Profilul Meu
               </Link>
             )}
           </div>
@@ -93,13 +99,13 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
                       <User className="w-4 h-4" />
-                      My Profile
+                      Profilul Meu
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/profile/edit" className="flex items-center gap-2 cursor-pointer">
                       <Settings className="w-4 h-4" />
-                      Settings
+                      Setări
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -108,7 +114,7 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
                     className="flex items-center gap-2 text-destructive cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
-                    Sign Out
+                    Deconectare
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -117,11 +123,11 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
                 <Button variant="ghost" asChild>
                   <Link to="/auth">
                     <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
+                    Autentificare
                   </Link>
                 </Button>
                 <Button asChild className="gradient-primary text-primary-foreground">
-                  <Link to="/auth?mode=signup">Get Started</Link>
+                  <Link to="/auth?mode=signup">Înregistrare</Link>
                 </Button>
               </>
             )}
@@ -147,14 +153,14 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
                 className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Home
+                Acasă
               </Link>
               <Link
                 to="/browse"
                 className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Browse
+                Explorează
               </Link>
               {isAuthenticated ? (
                 <>
@@ -163,7 +169,7 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
                     className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    My Profile
+                    Profilul Meu
                   </Link>
                   <Button
                     variant="ghost"
@@ -174,19 +180,19 @@ export const Navbar = ({ isAuthenticated, user, onSignOut }: NavbarProps) => {
                     }}
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
+                    Deconectare
                   </Button>
                 </>
               ) : (
                 <div className="flex gap-2 px-4 pt-2">
                   <Button variant="outline" asChild className="flex-1">
                     <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                      Sign In
+                      Autentificare
                     </Link>
                   </Button>
                   <Button asChild className="flex-1 gradient-primary text-primary-foreground">
                     <Link to="/auth?mode=signup" onClick={() => setMobileMenuOpen(false)}>
-                      Sign Up
+                      Înregistrare
                     </Link>
                   </Button>
                 </div>

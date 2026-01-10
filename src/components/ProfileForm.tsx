@@ -12,13 +12,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { User, GraduationCap, Sparkles, BookOpen, Save, X } from "lucide-react";
+import { User, GraduationCap, Sparkles, BookOpen, Save, X, Building } from "lucide-react";
+
+interface University {
+  id: string;
+  name: string;
+  short_name: string;
+}
 
 interface ProfileFormProps {
   onSubmit: (data: ProfileData) => void;
   initialData?: Partial<ProfileData>;
   availableSkills: { id: string; name: string }[];
-  availableSubjects: { id: string; name: string; faculty: string }[];
+  availableSubjects: { id: string; name: string; faculty: string; university_id: string | null }[];
+  universities: University[];
   faculties: string[];
   isLoading?: boolean;
 }
@@ -31,6 +38,7 @@ export interface ProfileData {
   lookingFor: string;
   skills: string[];
   subjects: string[];
+  universityId?: string;
 }
 
 export const ProfileForm = ({
@@ -38,6 +46,7 @@ export const ProfileForm = ({
   initialData,
   availableSkills,
   availableSubjects,
+  universities,
   faculties,
   isLoading = false,
 }: ProfileFormProps) => {
@@ -49,6 +58,7 @@ export const ProfileForm = ({
     lookingFor: initialData?.lookingFor || "teammates",
     skills: initialData?.skills || [],
     subjects: initialData?.subjects || [],
+    universityId: initialData?.universityId || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -74,9 +84,13 @@ export const ProfileForm = ({
     }));
   };
 
-  const filteredSubjects = formData.faculty
-    ? availableSubjects.filter((s) => s.faculty === formData.faculty)
+  // Filter subjects by selected university
+  const filteredSubjects = formData.universityId
+    ? availableSubjects.filter((s) => s.university_id === formData.universityId)
     : availableSubjects;
+
+  // Get unique faculties from filtered subjects
+  const availableFaculties = [...new Set(filteredSubjects.map((s) => s.faculty))];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -85,34 +99,53 @@ export const ProfileForm = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <User className="w-5 h-5 text-primary" />
-            Basic Information
+            Informații de Bază
           </CardTitle>
-          <CardDescription>Tell us about yourself</CardDescription>
+          <CardDescription>Spune-ne despre tine</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="fullName">Nume Complet</Label>
             <Input
               id="fullName"
-              placeholder="John Doe"
+              placeholder="Ion Popescu"
               value={formData.fullName}
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
               required
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="university">Universitate</Label>
+            <Select
+              value={formData.universityId}
+              onValueChange={(value) => setFormData({ ...formData, universityId: value, faculty: "", subjects: [] })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Alege universitatea" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border max-h-[300px]">
+                {universities.map((uni) => (
+                  <SelectItem key={uni.id} value={uni.id}>
+                    {uni.short_name} - {uni.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="faculty">Faculty</Label>
+              <Label htmlFor="faculty">Facultate</Label>
               <Select
                 value={formData.faculty}
-                onValueChange={(value) => setFormData({ ...formData, faculty: value, subjects: [] })}
+                onValueChange={(value) => setFormData({ ...formData, faculty: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select your faculty" />
+                  <SelectValue placeholder="Alege facultatea" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  {faculties.map((faculty) => (
+                <SelectContent className="bg-popover border-border max-h-[300px]">
+                  {availableFaculties.map((faculty) => (
                     <SelectItem key={faculty} value={faculty}>
                       {faculty}
                     </SelectItem>
@@ -122,7 +155,7 @@ export const ProfileForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="yearOfStudy">Year of Study</Label>
+              <Label htmlFor="yearOfStudy">Anul de Studiu</Label>
               <Select
                 value={formData.yearOfStudy.toString()}
                 onValueChange={(value) =>
@@ -130,24 +163,24 @@ export const ProfileForm = ({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select year" />
+                  <SelectValue placeholder="Selectează anul" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border">
-                  <SelectItem value="1">Year 1</SelectItem>
-                  <SelectItem value="2">Year 2</SelectItem>
-                  <SelectItem value="3">Year 3</SelectItem>
-                  <SelectItem value="4">Year 4</SelectItem>
-                  <SelectItem value="5">Year 5+</SelectItem>
+                  <SelectItem value="1">Anul 1</SelectItem>
+                  <SelectItem value="2">Anul 2</SelectItem>
+                  <SelectItem value="3">Anul 3</SelectItem>
+                  <SelectItem value="4">Anul 4</SelectItem>
+                  <SelectItem value="5">Master / Anul 5+</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
+            <Label htmlFor="bio">Despre Tine</Label>
             <Textarea
               id="bio"
-              placeholder="Tell others about your interests, goals, and what you're working on..."
+              placeholder="Spune-le celorlalți despre interesele, obiectivele și proiectele tale..."
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               rows={3}
@@ -161,9 +194,9 @@ export const ProfileForm = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <GraduationCap className="w-5 h-5 text-secondary" />
-            What are you looking for?
+            Ce cauți?
           </CardTitle>
-          <CardDescription>Help others understand how they can collaborate with you</CardDescription>
+          <CardDescription>Ajută-i pe ceilalți să înțeleagă cum pot colabora cu tine</CardDescription>
         </CardHeader>
         <CardContent>
           <Select
@@ -171,14 +204,14 @@ export const ProfileForm = ({
             onValueChange={(value) => setFormData({ ...formData, lookingFor: value })}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select what you're looking for" />
+              <SelectValue placeholder="Selectează ce cauți" />
             </SelectTrigger>
             <SelectContent className="bg-popover border-border">
-              <SelectItem value="teammates">Project Teammates</SelectItem>
-              <SelectItem value="study-group">Study Group Members</SelectItem>
-              <SelectItem value="mentor">A Mentor</SelectItem>
-              <SelectItem value="mentee">Mentees to Guide</SelectItem>
-              <SelectItem value="tutoring">Tutoring Help</SelectItem>
+              <SelectItem value="teammates">Colegi de Proiect</SelectItem>
+              <SelectItem value="study-group">Grup de Studiu</SelectItem>
+              <SelectItem value="mentor">Un Mentor</SelectItem>
+              <SelectItem value="mentee">Să fiu Mentor</SelectItem>
+              <SelectItem value="tutoring">Ajutor la Meditații</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -189,10 +222,10 @@ export const ProfileForm = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Sparkles className="w-5 h-5 text-accent" />
-            Skills
+            Competențe
           </CardTitle>
           <CardDescription>
-            Select skills you have ({formData.skills.length} selected)
+            Selectează competențele pe care le ai ({formData.skills.length} selectate)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -223,12 +256,12 @@ export const ProfileForm = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <BookOpen className="w-5 h-5 text-primary" />
-            Subjects
+            Materii
           </CardTitle>
           <CardDescription>
-            Select subjects you're taking or interested in ({formData.subjects.length} selected)
-            {formData.faculty && (
-              <span className="block mt-1 text-xs">Showing subjects for {formData.faculty}</span>
+            Selectează materiile pe care le studiezi ({formData.subjects.length} selectate)
+            {formData.universityId && (
+              <span className="block mt-1 text-xs">Afișăm materiile de la universitatea ta</span>
             )}
           </CardDescription>
         </CardHeader>
@@ -254,9 +287,9 @@ export const ProfileForm = ({
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                {formData.faculty
-                  ? "No subjects available for this faculty yet."
-                  : "Select a faculty to see available subjects."}
+                {formData.universityId
+                  ? "Nu există materii disponibile pentru această universitate încă."
+                  : "Selectează o universitate pentru a vedea materiile disponibile."}
               </p>
             )}
           </div>
@@ -267,10 +300,10 @@ export const ProfileForm = ({
       <Button
         type="submit"
         className="w-full gradient-primary text-primary-foreground h-12 font-semibold"
-        disabled={isLoading || !formData.fullName || !formData.faculty}
+        disabled={isLoading || !formData.fullName || !formData.universityId}
       >
         <Save className="w-5 h-5 mr-2" />
-        {isLoading ? "Saving..." : "Save Profile"}
+        {isLoading ? "Se salvează..." : "Salvează Profilul"}
       </Button>
     </form>
   );
