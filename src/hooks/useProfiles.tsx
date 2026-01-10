@@ -13,6 +13,7 @@ interface Profile {
   bio: string | null;
   avatar_url: string | null;
   looking_for: string;
+  university_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -28,11 +29,21 @@ interface Subject {
   name: string;
   code: string | null;
   faculty: string;
+  university_id: string | null;
+}
+
+interface University {
+  id: string;
+  name: string;
+  short_name: string;
+  city: string;
+  website: string | null;
 }
 
 interface ProfileWithRelations extends Profile {
   skills: string[];
   subjects: string[];
+  university?: University;
 }
 
 interface Filters {
@@ -41,24 +52,27 @@ interface Filters {
   skills: string[];
   subjects: string[];
   lookingFor: string;
+  universityId?: string;
 }
 
 export const useProfiles = () => {
   const [profiles, setProfiles] = useState<ProfileWithRelations[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [universities, setUniversities] = useState<University[]>([]);
   const [faculties, setFaculties] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserProfile, setCurrentUserProfile] = useState<ProfileWithRelations | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Fetch skills and subjects
+  // Fetch skills, subjects, and universities
   useEffect(() => {
     const fetchMetadata = async () => {
-      const [skillsResult, subjectsResult] = await Promise.all([
-        supabase.from("skills").select("*"),
-        supabase.from("subjects").select("*"),
+      const [skillsResult, subjectsResult, universitiesResult] = await Promise.all([
+        supabase.from("skills").select("*").order("name"),
+        supabase.from("subjects").select("*").order("name"),
+        supabase.from("universities").select("*").order("name"),
       ]);
 
       if (skillsResult.data) setSkills(skillsResult.data);
@@ -67,6 +81,7 @@ export const useProfiles = () => {
         const uniqueFaculties = [...new Set(subjectsResult.data.map((s) => s.faculty))];
         setFaculties(uniqueFaculties);
       }
+      if (universitiesResult.data) setUniversities(universitiesResult.data);
     };
     fetchMetadata();
   }, []);
@@ -75,7 +90,6 @@ export const useProfiles = () => {
   const fetchProfiles = async (filters?: Filters) => {
     setLoading(true);
     try {
-      // Fetch profiles
       let query = supabase.from("profiles").select("*");
 
       if (filters?.faculty) {
@@ -83,6 +97,9 @@ export const useProfiles = () => {
       }
       if (filters?.lookingFor) {
         query = query.eq("looking_for", filters.lookingFor);
+      }
+      if (filters?.universityId) {
+        query = query.eq("university_id", filters.universityId);
       }
       if (filters?.search) {
         query = query.or(
@@ -94,10 +111,9 @@ export const useProfiles = () => {
 
       if (error) throw error;
 
-      // Fetch profile skills and subjects for each profile
       const profilesWithRelations = await Promise.all(
         (profilesData || []).map(async (profile) => {
-          const [skillsResult, subjectsResult] = await Promise.all([
+          const [skillsResult, subjectsResult, universityResult] = await Promise.all([
             supabase
               .from("profile_skills")
               .select("skill_id, skills(name)")
@@ -106,17 +122,20 @@ export const useProfiles = () => {
               .from("profile_subjects")
               .select("subject_id, subjects(name)")
               .eq("profile_id", profile.id),
+            profile.university_id 
+              ? supabase.from("universities").select("*").eq("id", profile.university_id).single()
+              : Promise.resolve({ data: null }),
           ]);
 
           return {
             ...profile,
             skills: skillsResult.data?.map((ps: any) => ps.skills?.name).filter(Boolean) || [],
             subjects: subjectsResult.data?.map((ps: any) => ps.subjects?.name).filter(Boolean) || [],
+            university: universityResult.data || undefined,
           };
         })
       );
 
-      // Apply skill/subject filters client-side (since they require joins)
       let filteredProfiles = profilesWithRelations;
       
       if (filters?.skills && filters.skills.length > 0) {
@@ -135,8 +154,8 @@ export const useProfiles = () => {
     } catch (error) {
       console.error("Error fetching profiles:", error);
       toast({
-        title: "Error",
-        description: "Failed to load profiles",
+        title: "Eroare",
+        description: "Nu s-au putut încărca profilurile",
         variant: "destructive",
       });
     } finally {
@@ -161,7 +180,7 @@ export const useProfiles = () => {
       if (error) throw error;
 
       if (profile) {
-        const [skillsResult, subjectsResult] = await Promise.all([
+        const [skillsResult, subjectsResult, universityResult] = await Promise.all([
           supabase
             .from("profile_skills")
             .select("skill_id, skills(name)")
@@ -170,12 +189,16 @@ export const useProfiles = () => {
             .from("profile_subjects")
             .select("subject_id, subjects(name)")
             .eq("profile_id", profile.id),
+          profile.university_id 
+            ? supabase.from("universities").select("*").eq("id", profile.university_id).single()
+            : Promise.resolve({ data: null }),
         ]);
 
         setCurrentUserProfile({
           ...profile,
           skills: skillsResult.data?.map((ps: any) => ps.skills?.name).filter(Boolean) || [],
           subjects: subjectsResult.data?.map((ps: any) => ps.subjects?.name).filter(Boolean) || [],
+          university: universityResult.data || undefined,
         });
       } else {
         setCurrentUserProfile(null);
@@ -194,18 +217,18 @@ export const useProfiles = () => {
     lookingFor: string;
     skills: string[];
     subjects: string[];
+    universityId?: string;
   }) => {
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to save your profile",
+        title: "Eroare",
+        description: "Trebuie să fii autentificat pentru a salva profilul",
         variant: "destructive",
       });
       return false;
     }
 
     try {
-      // Upsert profile
       const profileData = {
         user_id: user.id,
         full_name: data.fullName,
@@ -214,12 +237,12 @@ export const useProfiles = () => {
         year_of_study: data.yearOfStudy,
         bio: data.bio,
         looking_for: data.lookingFor,
+        university_id: data.universityId || null,
       };
 
       let profileId: string;
 
       if (currentUserProfile) {
-        // Update existing profile
         const { error } = await supabase
           .from("profiles")
           .update(profileData)
@@ -227,7 +250,6 @@ export const useProfiles = () => {
         if (error) throw error;
         profileId = currentUserProfile.id;
       } else {
-        // Insert new profile
         const { data: newProfile, error } = await supabase
           .from("profiles")
           .insert(profileData)
@@ -264,8 +286,8 @@ export const useProfiles = () => {
       }
 
       toast({
-        title: "Success!",
-        description: "Your profile has been saved.",
+        title: "Succes!",
+        description: "Profilul tău a fost salvat.",
       });
 
       await fetchCurrentUserProfile();
@@ -273,8 +295,8 @@ export const useProfiles = () => {
     } catch (error) {
       console.error("Error saving profile:", error);
       toast({
-        title: "Error",
-        description: "Failed to save profile",
+        title: "Eroare",
+        description: "Nu s-a putut salva profilul",
         variant: "destructive",
       });
       return false;
@@ -293,6 +315,7 @@ export const useProfiles = () => {
     profiles,
     skills,
     subjects,
+    universities,
     faculties,
     loading,
     currentUserProfile,

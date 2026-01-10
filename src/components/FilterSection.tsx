@@ -9,12 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, X, Filter, SlidersHorizontal } from "lucide-react";
+import { Search, X, Filter, SlidersHorizontal, Building } from "lucide-react";
+
+interface University {
+  id: string;
+  name: string;
+  short_name: string;
+}
 
 interface FilterSectionProps {
   onFiltersChange: (filters: Filters) => void;
   skills: { id: string; name: string }[];
   subjects: { id: string; name: string; faculty: string }[];
+  universities: University[];
   faculties: string[];
 }
 
@@ -24,12 +31,14 @@ interface Filters {
   skills: string[];
   subjects: string[];
   lookingFor: string;
+  universityId?: string;
 }
 
 export const FilterSection = ({
   onFiltersChange,
   skills,
   subjects,
+  universities,
   faculties,
 }: FilterSectionProps) => {
   const [filters, setFilters] = useState<Filters>({
@@ -38,6 +47,7 @@ export const FilterSection = ({
     skills: [],
     subjects: [],
     lookingFor: "",
+    universityId: "",
   });
 
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -69,6 +79,7 @@ export const FilterSection = ({
       skills: [],
       subjects: [],
       lookingFor: "",
+      universityId: "",
     };
     setFilters(clearedFilters);
     onFiltersChange(clearedFilters);
@@ -79,7 +90,8 @@ export const FilterSection = ({
     filters.faculty ||
     filters.skills.length > 0 ||
     filters.subjects.length > 0 ||
-    filters.lookingFor;
+    filters.lookingFor ||
+    filters.universityId;
 
   return (
     <div className="glass rounded-xl p-6 space-y-4 animate-fade-up">
@@ -87,7 +99,7 @@ export const FilterSection = ({
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <Input
-          placeholder="Search by name, skills, or subjects..."
+          placeholder="Caută după nume, competențe sau materii..."
           value={filters.search}
           onChange={(e) => updateFilter("search", e.target.value)}
           className="pl-12 h-12 text-base bg-background/50 border-border focus:ring-2 focus:ring-primary/20"
@@ -97,17 +109,18 @@ export const FilterSection = ({
       {/* Quick Filters */}
       <div className="flex flex-wrap gap-3">
         <Select
-          value={filters.faculty}
-          onValueChange={(value) => updateFilter("faculty", value === "all" ? "" : value)}
+          value={filters.universityId}
+          onValueChange={(value) => updateFilter("universityId", value === "all" ? "" : value)}
         >
-          <SelectTrigger className="w-[180px] bg-background/50">
-            <SelectValue placeholder="All Faculties" />
+          <SelectTrigger className="w-[200px] bg-background/50">
+            <Building className="w-4 h-4 mr-2" />
+            <SelectValue placeholder="Toate universitățile" />
           </SelectTrigger>
-          <SelectContent className="bg-popover border-border">
-            <SelectItem value="all">All Faculties</SelectItem>
-            {faculties.map((faculty) => (
-              <SelectItem key={faculty} value={faculty}>
-                {faculty}
+          <SelectContent className="bg-popover border-border max-h-[300px]">
+            <SelectItem value="all">Toate universitățile</SelectItem>
+            {universities.map((uni) => (
+              <SelectItem key={uni.id} value={uni.id}>
+                {uni.short_name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -118,14 +131,14 @@ export const FilterSection = ({
           onValueChange={(value) => updateFilter("lookingFor", value === "all" ? "" : value)}
         >
           <SelectTrigger className="w-[180px] bg-background/50">
-            <SelectValue placeholder="Looking for..." />
+            <SelectValue placeholder="Caută..." />
           </SelectTrigger>
           <SelectContent className="bg-popover border-border">
-            <SelectItem value="all">Any type</SelectItem>
-            <SelectItem value="teammates">Project Teammates</SelectItem>
-            <SelectItem value="study-group">Study Group</SelectItem>
+            <SelectItem value="all">Oricare</SelectItem>
+            <SelectItem value="teammates">Colegi de proiect</SelectItem>
+            <SelectItem value="study-group">Grup de studiu</SelectItem>
             <SelectItem value="mentor">Mentor</SelectItem>
-            <SelectItem value="tutoring">Tutoring</SelectItem>
+            <SelectItem value="tutoring">Meditații</SelectItem>
           </SelectContent>
         </Select>
 
@@ -135,13 +148,13 @@ export const FilterSection = ({
           className="gap-2"
         >
           <SlidersHorizontal className="w-4 h-4" />
-          {showAdvanced ? "Hide" : "More"} Filters
+          {showAdvanced ? "Ascunde" : "Mai multe"} Filtre
         </Button>
 
         {hasActiveFilters && (
           <Button variant="ghost" onClick={clearFilters} className="gap-2 text-muted-foreground">
             <X className="w-4 h-4" />
-            Clear All
+            Șterge Tot
           </Button>
         )}
       </div>
@@ -153,7 +166,7 @@ export const FilterSection = ({
           <div>
             <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
               <Filter className="w-4 h-4" />
-              Filter by Skills
+              Filtrează după Competențe
             </p>
             <div className="flex flex-wrap gap-2">
               {skills.slice(0, 12).map((skill) => (
@@ -177,7 +190,7 @@ export const FilterSection = ({
           <div>
             <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
               <Filter className="w-4 h-4" />
-              Filter by Subjects
+              Filtrează după Materii
             </p>
             <div className="flex flex-wrap gap-2">
               {subjects.slice(0, 8).map((subject) => (
@@ -203,12 +216,12 @@ export const FilterSection = ({
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2 pt-2">
           <span className="text-xs text-muted-foreground">Active:</span>
-          {filters.faculty && (
+          {filters.universityId && (
             <Badge variant="secondary" className="text-xs">
-              {filters.faculty}
+              {universities.find(u => u.id === filters.universityId)?.short_name}
               <X
                 className="w-3 h-3 ml-1 cursor-pointer"
-                onClick={() => updateFilter("faculty", "")}
+                onClick={() => updateFilter("universityId", "")}
               />
             </Badge>
           )}

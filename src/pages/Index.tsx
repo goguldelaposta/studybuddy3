@@ -11,7 +11,7 @@ import { Users } from "lucide-react";
 const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { profiles, skills, subjects, faculties, loading, fetchProfiles, currentUserProfile } = useProfiles();
+  const { profiles, skills, subjects, universities, faculties, loading, fetchProfiles, currentUserProfile } = useProfiles();
 
   const handleGetStarted = () => {
     if (user) {
@@ -52,12 +52,11 @@ const Index = () => {
         <div className="container">
           <div className="text-center mb-10">
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Find Your Perfect{" "}
-              <span className="gradient-text">Study Partner</span>
+              Găsește-ți{" "}
+              <span className="gradient-text">Colegul Potrivit</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Browse through students from various faculties, filter by skills and subjects,
-              and connect with those who match your goals.
+              Explorează studenți din universitățile din București, filtrează după competențe și materii.
             </p>
           </div>
 
@@ -65,6 +64,7 @@ const Index = () => {
             onFiltersChange={fetchProfiles}
             skills={skills}
             subjects={subjects}
+            universities={universities}
             faculties={faculties}
           />
 
@@ -92,6 +92,7 @@ const Index = () => {
                       lookingFor={profile.looking_for}
                       skills={profile.skills}
                       subjects={profile.subjects}
+                      universityShortName={profile.university?.short_name}
                       onConnect={(id) => console.log("Connect to:", id)}
                     />
                   </div>
