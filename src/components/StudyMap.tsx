@@ -18,14 +18,12 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
   const [mapLoaded, setMapLoaded] = useState(false);
   const { resolvedTheme } = useTheme();
 
-  // Get map style based on theme
+  // Get map style based on theme - using standard style for 3D buildings
   const getMapStyle = () => {
-    return resolvedTheme === 'dark' 
-      ? 'mapbox://styles/mapbox/navigation-night-v1'
-      : 'mapbox://styles/mapbox/streets-v12';
+    return 'mapbox://styles/mapbox/standard';
   };
 
-  // Initialize map
+  // Initialize map with 3D view
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken) return;
 
@@ -35,7 +33,10 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
       container: mapContainer.current,
       style: getMapStyle(),
       center: [26.1025, 44.4268], // București
-      zoom: 13,
+      zoom: 15,
+      pitch: 60, // Tilt the map for 3D effect
+      bearing: -17.6, // Rotate for better 3D view
+      antialias: true, // Smoother 3D rendering
     });
 
     map.current.addControl(
@@ -63,10 +64,14 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
     };
   }, [mapboxToken]);
 
-  // Update map style when theme changes
+  // Update map style when theme changes - set light preset for light mode, night for dark
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
-    map.current.setStyle(getMapStyle());
+    
+    // Use config API to change light preset based on theme
+    if (map.current.getConfigProperty) {
+      map.current.setConfigProperty('basemap', 'lightPreset', resolvedTheme === 'dark' ? 'night' : 'day');
+    }
   }, [resolvedTheme, mapLoaded]);
 
   // Update markers when locations change
@@ -113,8 +118,9 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
 
     map.current.flyTo({
       center: [selectedLocation.longitude, selectedLocation.latitude],
-      zoom: 16,
-      duration: 1000,
+      zoom: 17,
+      pitch: 65,
+      duration: 1500,
     });
   }, [selectedLocation]);
 
