@@ -5,7 +5,9 @@ import { useToast } from "./use-toast";
 
 interface NotificationContextType {
   unreadCount: number;
+  friendRequestCount: number;
   refreshUnreadCount: () => Promise<void>;
+  refreshFriendRequestCount: () => Promise<void>;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
 }
@@ -50,6 +52,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [friendRequestCount, setFriendRequestCount] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem("notificationSoundEnabled");
     return saved !== null ? saved === "true" : true;
@@ -108,6 +111,26 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setUnreadCount(count || 0);
     } catch (error) {
       console.error("Error fetching unread count:", error);
+    }
+  }, [user]);
+
+  // Fetch friend request count
+  const refreshFriendRequestCount = useCallback(async () => {
+    if (!user) {
+      setFriendRequestCount(0);
+      return;
+    }
+
+    try {
+      const { count } = await supabase
+        .from("friendships")
+        .select("*", { count: "exact", head: true })
+        .eq("addressee_id", user.id)
+        .eq("status", "pending");
+
+      setFriendRequestCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching friend request count:", error);
     }
   }, [user]);
 
@@ -181,13 +204,98 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     };
   }, [user, toast, refreshUnreadCount, soundEnabled]);
 
-  // Fetch initial unread count
+  // Listen for new friend requests
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("friend-requests")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "friendships",
+        },
+        async (payload) => {
+          const newRequest = payload.new as {
+            id: string;
+            requester_id: string;
+            addressee_id: string;
+            status: string;
+          };
+
+          // Only notify if request is for current user
+          if (newRequest.addressee_id !== user.id) return;
+
+          // Get requester's profile
+          const { data: requesterProfile } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("user_id", newRequest.requester_id)
+            .single();
+
+          const requesterName = requesterProfile?.full_name || "Cineva";
+
+          // Play notification sound if enabled
+          if (soundEnabled && hasInteracted.current) {
+            playNotificationSound();
+          }
+
+          // Show toast notification
+          toast({
+            title: "👋 Cerere de prietenie",
+            description: `${requesterName} vrea să fie prieten cu tine!`,
+          });
+
+          // Refresh friend request count
+          refreshFriendRequestCount();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "friendships",
+        },
+        () => {
+          refreshFriendRequestCount();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "friendships",
+        },
+        () => {
+          refreshFriendRequestCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, toast, refreshFriendRequestCount, soundEnabled]);
+
+  // Fetch initial counts
   useEffect(() => {
     refreshUnreadCount();
-  }, [refreshUnreadCount]);
+    refreshFriendRequestCount();
+  }, [refreshUnreadCount, refreshFriendRequestCount]);
 
   return (
-    <NotificationContext.Provider value={{ unreadCount, refreshUnreadCount, soundEnabled, setSoundEnabled }}>
+    <NotificationContext.Provider value={{ 
+      unreadCount, 
+      friendRequestCount,
+      refreshUnreadCount, 
+      refreshFriendRequestCount,
+      soundEnabled, 
+      setSoundEnabled 
+    }}>
       {children}
     </NotificationContext.Provider>
   );
