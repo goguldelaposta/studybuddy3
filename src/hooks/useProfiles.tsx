@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { PrivacySettingsData, getDefaultPrivacySettings } from "@/components/PrivacySettings";
 
 interface Profile {
   id: string;
   user_id: string;
   full_name: string;
-  email: string | null; // Email can be null for other users' profiles (privacy)
+  email: string | null;
   faculty: string;
   year_of_study: number;
   bio: string | null;
@@ -16,6 +17,7 @@ interface Profile {
   university_id: string | null;
   created_at: string;
   updated_at: string;
+  privacy_settings: PrivacySettingsData | null;
 }
 
 interface Skill {
@@ -44,6 +46,7 @@ interface ProfileWithRelations extends Profile {
   skills: string[];
   subjects: string[];
   university?: University;
+  privacy_settings: PrivacySettingsData;
 }
 
 interface Filters {
@@ -133,6 +136,7 @@ export const useProfiles = () => {
             skills: skillsResult.data?.map((ps: any) => ps.skills?.name).filter(Boolean) || [],
             subjects: subjectsResult.data?.map((ps: any) => ps.subjects?.name).filter(Boolean) || [],
             university: universityResult.data || undefined,
+            privacy_settings: (profile.privacy_settings as unknown as PrivacySettingsData) || getDefaultPrivacySettings(),
           };
         })
       );
@@ -200,6 +204,7 @@ export const useProfiles = () => {
           skills: skillsResult.data?.map((ps: any) => ps.skills?.name).filter(Boolean) || [],
           subjects: subjectsResult.data?.map((ps: any) => ps.subjects?.name).filter(Boolean) || [],
           university: universityResult.data || undefined,
+          privacy_settings: (profile.privacy_settings as unknown as PrivacySettingsData) || getDefaultPrivacySettings(),
         });
       } else {
         setCurrentUserProfile(null);
@@ -304,6 +309,43 @@ export const useProfiles = () => {
     }
   };
 
+  // Save privacy settings
+  const savePrivacySettings = async (settings: PrivacySettingsData) => {
+    if (!user || !currentUserProfile) {
+      toast({
+        title: "Eroare",
+        description: "Trebuie să fii autentificat pentru a salva setările",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ privacy_settings: JSON.parse(JSON.stringify(settings)) })
+        .eq("id", currentUserProfile.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succes!",
+        description: "Setările de confidențialitate au fost salvate.",
+      });
+
+      await fetchCurrentUserProfile();
+      return true;
+    } catch (error) {
+      console.error("Error saving privacy settings:", error);
+      toast({
+        title: "Eroare",
+        description: "Nu s-au putut salva setările",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchProfiles();
   }, []);
@@ -322,6 +364,7 @@ export const useProfiles = () => {
     currentUserProfile,
     fetchProfiles,
     saveProfile,
+    savePrivacySettings,
     refetch: fetchProfiles,
   };
 };
