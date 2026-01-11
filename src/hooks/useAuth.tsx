@@ -127,21 +127,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      // Sign out from Supabase first and wait for it
-      const { error } = await supabase.auth.signOut();
+      // Check if there's an active session first
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
       
-      if (error) {
-        console.error('Sign out error:', error);
-        toast({
-          title: "Eroare la deconectare",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
+      if (currentSession) {
+        // Sign out from Supabase
+        const { error } = await supabase.auth.signOut();
+        
+        if (error) {
+          console.error('Sign out error:', error);
+        }
       }
       
-      // The onAuthStateChange listener will automatically update user/session to null
-      // But we also force clear just to be safe
+      // Clear local state regardless
       setUser(null);
       setSession(null);
       
@@ -150,10 +148,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: "Te-ai deconectat cu succes.",
       });
       
-      // Force reload to clear any cached state
+      // Redirect to auth page
       window.location.href = '/auth';
     } catch (err) {
       console.error('Sign out error:', err);
+      // Clear state and redirect anyway
       setUser(null);
       setSession(null);
       window.location.href = '/auth';
