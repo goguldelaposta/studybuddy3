@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, gdprConsent?: boolean) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
@@ -42,10 +42,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, gdprConsent: boolean = false) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -60,6 +60,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           variant: "destructive",
         });
         return { error };
+      }
+
+      // Update profile with GDPR consent if user was created
+      if (data.user && gdprConsent) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            gdpr_consent: true,
+            gdpr_consent_at: new Date().toISOString(),
+          })
+          .eq('user_id', data.user.id);
+
+        if (profileError) {
+          console.error('Failed to save GDPR consent:', profileError);
+        }
       }
       
       toast({
