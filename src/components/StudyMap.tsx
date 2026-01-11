@@ -18,12 +18,12 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
   const [mapLoaded, setMapLoaded] = useState(false);
   const { resolvedTheme } = useTheme();
 
-  // Get map style based on theme - using standard style for 3D buildings
+  // Custom Mapbox style
   const getMapStyle = () => {
-    return 'mapbox://styles/mapbox/standard';
+    return 'mapbox://styles/spilee/cmka1c03h002801r1hfqlgrws';
   };
 
-  // Initialize map with 3D view
+  // Initialize map with 3D view matching the custom style settings
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken) return;
 
@@ -33,10 +33,10 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
       container: mapContainer.current,
       style: getMapStyle(),
       center: [26.1025, 44.4268], // București
-      zoom: 15,
-      pitch: 60, // Tilt the map for 3D effect
-      bearing: -17.6, // Rotate for better 3D view
-      antialias: true, // Smoother 3D rendering
+      zoom: 15.62,
+      pitch: 56, // Match the URL pitch
+      bearing: 0, // Match the URL bearing
+      antialias: true,
     });
 
     map.current.addControl(
