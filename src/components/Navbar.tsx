@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle, Megaphone } from "lucide-react";
+import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle, Megaphone, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
@@ -109,6 +109,12 @@ export const Navbar = ({
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link to="/friends" className="flex items-center gap-2 cursor-pointer">
+                      <UserPlus className="w-4 h-4" />
+                      Prieteni
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link to="/announcements" className="flex items-center gap-2 cursor-pointer">
                       <Megaphone className="w-4 h-4" />
                       Anunțuri
@@ -188,6 +194,9 @@ export const Navbar = ({
                         {unreadCount > 99 ? "99+" : unreadCount}
                       </Badge>
                     )}
+                  </Link>
+                  <Link to="/friends" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                    Prieteni
                   </Link>
                   <Link to="/profile" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                     Profilul Meu

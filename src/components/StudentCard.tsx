@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { GraduationCap, BookOpen, MessageCircle, UserPlus, Building } from "lucide-react";
+import { GraduationCap, BookOpen, MessageCircle, Building } from "lucide-react";
 import { PrivacySettingsData } from "@/components/PrivacySettings";
+import { FriendRequestButton } from "@/components/FriendRequestButton";
 
 interface StudentCardProps {
   id: string;
@@ -181,15 +182,9 @@ export const StudentCard = ({
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2 border-t border-border/50">
-          <Button
-            variant="default"
-            size="sm"
-            className="flex-1 gradient-primary text-primary-foreground"
-            onClick={() => onConnect?.(id)}
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Conectează-te
-          </Button>
+          {userId && (
+            <FriendRequestButton targetUserId={userId} variant="compact" />
+          )}
           <Button variant="outline" size="sm" className="px-3" onClick={handleMessage}>
             <MessageCircle className="w-4 h-4" />
           </Button>
