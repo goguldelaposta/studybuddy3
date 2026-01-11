@@ -58,7 +58,19 @@ export function AnnouncementCard({
         <h3 className="font-semibold text-lg mt-2 line-clamp-2">{announcement.title}</h3>
       </CardHeader>
 
-      <CardContent className="pb-3">
+      {announcement.image_url && (
+        <div className="px-6">
+          <div className="relative w-full h-48 rounded-lg overflow-hidden">
+            <img
+              src={announcement.image_url}
+              alt={announcement.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      )}
+
+      <CardContent className="pb-3 pt-3">
         <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
           {announcement.description}
         </p>

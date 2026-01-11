@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,9 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, ImagePlus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CreateAnnouncementData, AnnouncementCategory, CATEGORY_LABELS, CATEGORY_ICONS } from "@/hooks/useAnnouncements";
+import { CreateAnnouncementData, AnnouncementCategory, CATEGORY_LABELS, CATEGORY_ICONS, uploadAnnouncementImage } from "@/hooks/useAnnouncements";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CreateAnnouncementDialogProps {
   onCreateAnnouncement: (data: CreateAnnouncementData) => Promise<string | null>;
@@ -34,9 +35,11 @@ interface University {
 }
 
 export function CreateAnnouncementDialog({ onCreateAnnouncement }: CreateAnnouncementDialogProps) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [universities, setUniversities] = useState<University[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -44,6 +47,9 @@ export function CreateAnnouncementDialog({ onCreateAnnouncement }: CreateAnnounc
   const [price, setPrice] = useState("");
   const [contactInfo, setContactInfo] = useState("");
   const [universityId, setUniversityId] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Fetch universities
   useEffect(() => {
@@ -59,11 +65,48 @@ export function CreateAnnouncementDialog({ onCreateAnnouncement }: CreateAnnounc
     fetchData();
   }, []);
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Imaginea trebuie să fie mai mică de 5MB");
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) return;
+    if (!title.trim() || !description.trim() || !user) return;
 
     setLoading(true);
+    
+    let imageUrl: string | undefined;
+    
+    // Upload image if selected
+    if (imageFile) {
+      setUploadingImage(true);
+      const uploadedUrl = await uploadAnnouncementImage(imageFile, user.id);
+      setUploadingImage(false);
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl;
+      }
+    }
+
     const result = await onCreateAnnouncement({
       title: title.trim(),
       description: description.trim(),
@@ -71,6 +114,7 @@ export function CreateAnnouncementDialog({ onCreateAnnouncement }: CreateAnnounc
       price: price ? parseFloat(price) : undefined,
       contact_info: contactInfo.trim() || undefined,
       university_id: universityId || undefined,
+      image_url: imageUrl,
     });
 
     setLoading(false);
@@ -83,6 +127,8 @@ export function CreateAnnouncementDialog({ onCreateAnnouncement }: CreateAnnounc
       setPrice("");
       setContactInfo("");
       setUniversityId("");
+      setImageFile(null);
+      setImagePreview(null);
       setOpen(false);
     }
   };
@@ -195,6 +241,47 @@ export function CreateAnnouncementDialog({ onCreateAnnouncement }: CreateAnnounc
                 onChange={(e) => setContactInfo(e.target.value)}
               />
             </div>
+
+            <div className="grid gap-2">
+              <Label>Imagine (opțional)</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              {imagePreview ? (
+                <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8"
+                    onClick={removeImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-40 border-dashed flex flex-col gap-2"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    Adaugă imagine (max 5MB)
+                  </span>
+                </Button>
+              )}
+            </div>
           </div>
 
           <DialogFooter>
@@ -211,7 +298,7 @@ export function CreateAnnouncementDialog({ onCreateAnnouncement }: CreateAnnounc
               className="gradient-primary text-primary-foreground"
               disabled={loading || !title.trim() || !description.trim()}
             >
-              {loading ? "Se publică..." : "Publică Anunț"}
+              {loading ? (uploadingImage ? "Se încarcă imaginea..." : "Se publică...") : "Publică Anunț"}
             </Button>
           </DialogFooter>
         </form>

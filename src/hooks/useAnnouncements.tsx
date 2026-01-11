@@ -42,6 +42,31 @@ export interface CreateAnnouncementData {
   contact_info?: string;
   university_id?: string;
   expires_at?: string;
+  image_url?: string;
+}
+
+// Upload image to storage
+export async function uploadAnnouncementImage(
+  file: File,
+  userId: string
+): Promise<string | null> {
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+  const { error } = await supabase.storage
+    .from("announcement-images")
+    .upload(fileName, file);
+
+  if (error) {
+    console.error("Error uploading image:", error);
+    return null;
+  }
+
+  const { data } = supabase.storage
+    .from("announcement-images")
+    .getPublicUrl(fileName);
+
+  return data.publicUrl;
 }
 
 export const CATEGORY_LABELS: Record<AnnouncementCategory, string> = {
@@ -165,6 +190,7 @@ export function useAnnouncements() {
             contact_info: data.contact_info || null,
             university_id: data.university_id || null,
             expires_at: data.expires_at || null,
+            image_url: data.image_url || null,
           })
           .select("id")
           .single();
