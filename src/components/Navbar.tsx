@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle, Megaphone, UserPlus } from "lucide-react";
+import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle, Megaphone, UserPlus, Shield } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 interface NavbarProps {
   isAuthenticated: boolean;
@@ -23,6 +24,7 @@ export const Navbar = ({
 }: NavbarProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { unreadCount, friendRequestCount } = useRealtimeNotifications();
+  const { isAdmin } = useUserRoles();
   
   const getInitials = (name?: string, email?: string) => {
     if (name) {
@@ -148,6 +150,17 @@ export const Navbar = ({
                       Setări
                     </Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="flex items-center gap-2 cursor-pointer text-amber-600">
+                          <Shield className="w-4 h-4" />
+                          Administrare
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="flex items-center gap-2 text-destructive cursor-pointer">
                     <LogOut className="w-4 h-4" />
@@ -211,6 +224,12 @@ export const Navbar = ({
                   <Link to="/profile" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                     Profilul Meu
                   </Link>
+                  {isAdmin && (
+                    <Link to="/admin" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg text-amber-600 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                      <Shield className="w-4 h-4" />
+                      Administrare
+                    </Link>
+                  )}
                   <Button variant="ghost" className="justify-start text-destructive" onClick={() => {
               onSignOut();
               setMobileMenuOpen(false);

@@ -18,6 +18,7 @@ import Announcements from "./pages/Announcements";
 import StudySpots from "./pages/StudySpots";
 import Friends from "./pages/Friends";
 import ProfileView from "./pages/ProfileView";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/study-spots" element={<StudySpots />} />
               <Route path="/friends" element={<Friends />} />
               <Route path="/user/:userId" element={<ProfileView />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="/browse" element={<Index />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
