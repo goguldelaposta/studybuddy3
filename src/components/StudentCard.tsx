@@ -96,14 +96,20 @@ export const StudentCard = ({
       <CardContent className="p-6">
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">
-          <Avatar className="h-14 w-14 ring-2 ring-primary/10 ring-offset-2">
+          <Avatar 
+            className="h-14 w-14 ring-2 ring-primary/10 ring-offset-2 cursor-pointer hover:ring-primary/30 transition-all"
+            onClick={() => userId && navigate(`/user/${userId}`)}
+          >
             <AvatarImage src={avatarUrl} alt={fullName} />
             <AvatarFallback className="gradient-primary text-primary-foreground font-display font-semibold">
               {getInitials(fullName)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <h3 className="font-display font-bold text-lg text-foreground truncate">
+            <h3 
+              className="font-display font-bold text-lg text-foreground truncate cursor-pointer hover:text-primary transition-colors"
+              onClick={() => userId && navigate(`/user/${userId}`)}
+            >
               {fullName}
             </h3>
             <div className="flex flex-wrap items-center gap-2 mt-1">

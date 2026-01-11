@@ -22,7 +22,7 @@ export const Navbar = ({
   onSignOut
 }: NavbarProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { unreadCount } = useRealtimeNotifications();
+  const { unreadCount, friendRequestCount } = useRealtimeNotifications();
   
   const getInitials = (name?: string, email?: string) => {
     if (name) {
@@ -112,6 +112,11 @@ export const Navbar = ({
                     <Link to="/friends" className="flex items-center gap-2 cursor-pointer">
                       <UserPlus className="w-4 h-4" />
                       Prieteni
+                      {friendRequestCount > 0 && (
+                        <Badge className="ml-auto h-5 min-w-5 px-1 text-xs bg-destructive text-destructive-foreground">
+                          {friendRequestCount > 99 ? "99+" : friendRequestCount}
+                        </Badge>
+                      )}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -195,8 +200,13 @@ export const Navbar = ({
                       </Badge>
                     )}
                   </Link>
-                  <Link to="/friends" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/friends" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg flex items-center justify-between" onClick={() => setMobileMenuOpen(false)}>
                     Prieteni
+                    {friendRequestCount > 0 && (
+                      <Badge className="h-5 min-w-5 px-1 text-xs bg-destructive text-destructive-foreground">
+                        {friendRequestCount > 99 ? "99+" : friendRequestCount}
+                      </Badge>
+                    )}
                   </Link>
                   <Link to="/profile" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                     Profilul Meu

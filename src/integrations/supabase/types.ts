@@ -73,6 +73,39 @@ export type Database = {
           },
         ]
       }
+      badges: {
+        Row: {
+          category: string
+          color: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          points_required: number | null
+        }
+        Insert: {
+          category?: string
+          color?: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          points_required?: number | null
+        }
+        Update: {
+          category?: string
+          color?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          points_required?: number | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -513,6 +546,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       announcements_public: {
@@ -583,6 +645,14 @@ export type Database = {
       are_users_connected: {
         Args: { profile_user_id: string; viewer_id: string }
         Returns: boolean
+      }
+      award_badge: {
+        Args: { p_badge_name: string; p_user_id: string }
+        Returns: boolean
+      }
+      check_and_award_badges: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
       get_profile_visibility: {
         Args: { profile_user_id: string }
