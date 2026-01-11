@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Users, Mail, Lock, ArrowRight, Check, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { LegalModal } from "@/components/LegalModal";
 import { z } from "zod";
 
 const emailSchema = z.string().email("Te rugăm să introduci un email valid");
@@ -44,6 +45,7 @@ const Auth = () => {
   const [gdprConsent, setGdprConsent] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; gdpr?: string }>({});
   const [loading, setLoading] = useState(false);
+  const [legalModalType, setLegalModalType] = useState<"terms" | "privacy" | null>(null);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
@@ -182,13 +184,21 @@ const Auth = () => {
                   />
                   <Label htmlFor="gdpr" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
                     Am citit și sunt de acord cu{" "}
-                    <Link to="/privacy-policy" className="text-primary hover:underline" target="_blank">
+                    <button
+                      type="button"
+                      onClick={() => setLegalModalType("privacy")}
+                      className="text-primary hover:underline"
+                    >
                       Politica de confidențialitate
-                    </Link>{" "}
+                    </button>{" "}
                     și{" "}
-                    <Link to="/terms" className="text-primary hover:underline" target="_blank">
+                    <button
+                      type="button"
+                      onClick={() => setLegalModalType("terms")}
+                      className="text-primary hover:underline"
+                    >
                       Termenii și condițiile
-                    </Link>
+                    </button>
                     . Înțeleg că datele mele vor fi procesate conform GDPR.
                   </Label>
                 </div>
@@ -228,6 +238,13 @@ const Auth = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Legal Modals */}
+      <LegalModal
+        open={legalModalType !== null}
+        onOpenChange={(open) => !open && setLegalModalType(null)}
+        type={legalModalType || "terms"}
+      />
     </div>
   );
 };
