@@ -3,19 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { ProfileForm } from "@/components/ProfileForm";
 import { PrivacySettings, PrivacySettingsData, getDefaultPrivacySettings } from "@/components/PrivacySettings";
+import { AvatarUpload } from "@/components/AvatarUpload";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfiles } from "@/hooks/useProfiles";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Shield } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { User, Shield, Camera } from "lucide-react";
 
 const ProfileEdit = () => {
   const { user, loading: authLoading, signOut } = useAuth();
-  const { skills, subjects, universities, faculties, currentUserProfile, saveProfile, savePrivacySettings, loading } = useProfiles();
+  const { skills, subjects, universities, faculties, currentUserProfile, saveProfile, savePrivacySettings, saveAvatarUrl, loading } = useProfiles();
   const navigate = useNavigate();
   
   const [privacySettings, setPrivacySettings] = useState<PrivacySettingsData>(getDefaultPrivacySettings());
   const [savingPrivacy, setSavingPrivacy] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -27,7 +30,15 @@ const ProfileEdit = () => {
     if (currentUserProfile?.privacy_settings) {
       setPrivacySettings(currentUserProfile.privacy_settings);
     }
+    if (currentUserProfile?.avatar_url) {
+      setAvatarUrl(currentUserProfile.avatar_url);
+    }
   }, [currentUserProfile]);
+
+  const handleAvatarUpload = async (url: string) => {
+    setAvatarUrl(url || null);
+    await saveAvatarUrl(url || null);
+  };
 
   const handleSavePrivacy = async () => {
     setSavingPrivacy(true);
@@ -55,10 +66,14 @@ const ProfileEdit = () => {
           </p>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Profil
+              </TabsTrigger>
+              <TabsTrigger value="avatar" className="flex items-center gap-2">
+                <Camera className="w-4 h-4" />
+                Poză
               </TabsTrigger>
               <TabsTrigger value="privacy" className="flex items-center gap-2">
                 <Shield className="w-4 h-4" />
@@ -92,6 +107,28 @@ const ProfileEdit = () => {
                 faculties={faculties}
                 isLoading={loading}
               />
+            </TabsContent>
+
+            <TabsContent value="avatar">
+              <Card className="shadow-card border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-display">
+                    <Camera className="w-5 h-5 text-primary" />
+                    Poză de Profil
+                  </CardTitle>
+                  <CardDescription>
+                    Adaugă o poză pentru a te face mai ușor de recunoscut
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-center py-8">
+                  <AvatarUpload
+                    currentAvatarUrl={avatarUrl}
+                    userId={user.id}
+                    fullName={currentUserProfile?.full_name}
+                    onUploadComplete={handleAvatarUpload}
+                  />
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="privacy" className="space-y-6">
