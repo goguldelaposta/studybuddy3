@@ -62,6 +62,9 @@ export const Navbar = ({
                 <Link to="/announcements" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Anunțuri
                 </Link>
+                <Link to="/study-spots" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Locuri de studiu
+                </Link>
                 <Link to="/messages" className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Mesaje
                   {unreadCount > 0 && (
@@ -109,6 +112,12 @@ export const Navbar = ({
                     <Link to="/announcements" className="flex items-center gap-2 cursor-pointer">
                       <Megaphone className="w-4 h-4" />
                       Anunțuri
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/study-spots" className="flex items-center gap-2 cursor-pointer">
+                      <MapPin className="w-4 h-4" />
+                      Locuri de studiu
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -168,6 +177,9 @@ export const Navbar = ({
                   </Link>
                   <Link to="/announcements" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                     Anunțuri
+                  </Link>
+                  <Link to="/study-spots" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                    Locuri de studiu
                   </Link>
                   <Link to="/messages" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg flex items-center justify-between" onClick={() => setMobileMenuOpen(false)}>
                     Mesaje

@@ -15,6 +15,7 @@ import Messages from "./pages/Messages";
 import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
 import Announcements from "./pages/Announcements";
+import StudySpots from "./pages/StudySpots";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/groups" element={<Groups />} />
               <Route path="/groups/:id" element={<GroupDetail />} />
               <Route path="/announcements" element={<Announcements />} />
+              <Route path="/study-spots" element={<StudySpots />} />
               <Route path="/browse" element={<Index />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
