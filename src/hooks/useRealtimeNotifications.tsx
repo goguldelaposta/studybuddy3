@@ -6,8 +6,10 @@ import { useToast } from "./use-toast";
 interface NotificationContextType {
   unreadCount: number;
   friendRequestCount: number;
+  newBadgeCount: number;
   refreshUnreadCount: () => Promise<void>;
   refreshFriendRequestCount: () => Promise<void>;
+  refreshNewBadgeCount: () => Promise<void>;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
 }
@@ -53,11 +55,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const [unreadCount, setUnreadCount] = useState(0);
   const [friendRequestCount, setFriendRequestCount] = useState(0);
+  const [newBadgeCount, setNewBadgeCount] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem("notificationSoundEnabled");
     return saved !== null ? saved === "true" : true;
   });
   const hasInteracted = useRef(false);
+  const seenBadgesRef = useRef<Set<string>>(new Set());
 
   // Track user interaction for audio autoplay policy
   useEffect(() => {
@@ -131,6 +135,35 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setFriendRequestCount(count || 0);
     } catch (error) {
       console.error("Error fetching friend request count:", error);
+    }
+  }, [user]);
+
+  // Fetch new badge count (badges earned in last 24h that haven't been seen)
+  const refreshNewBadgeCount = useCallback(async () => {
+    if (!user) {
+      setNewBadgeCount(0);
+      return;
+    }
+
+    try {
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+      const { data, count } = await supabase
+        .from("user_badges")
+        .select("id", { count: "exact" })
+        .eq("user_id", user.id)
+        .gte("earned_at", oneDayAgo.toISOString());
+
+      // Update seen badges
+      if (data) {
+        data.forEach((b: any) => seenBadgesRef.current.add(b.id));
+      }
+
+      // We'll show new badge count as 0 after initial load since we show toast instead
+      setNewBadgeCount(0);
+    } catch (error) {
+      console.error("Error fetching new badge count:", error);
     }
   }, [user]);
 
@@ -281,18 +314,74 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     };
   }, [user, toast, refreshFriendRequestCount, soundEnabled]);
 
+  // Listen for new badges
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("user-badges")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "user_badges",
+          filter: `user_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const newBadge = payload.new as {
+            id: string;
+            badge_id: string;
+            user_id: string;
+          };
+
+          // Skip if we've already seen this badge
+          if (seenBadgesRef.current.has(newBadge.id)) return;
+          seenBadgesRef.current.add(newBadge.id);
+
+          // Get badge details
+          const { data: badgeData } = await supabase
+            .from("badges")
+            .select("name, description, icon, color")
+            .eq("id", newBadge.badge_id)
+            .single();
+
+          if (!badgeData) return;
+
+          // Play notification sound if enabled
+          if (soundEnabled && hasInteracted.current) {
+            playNotificationSound();
+          }
+
+          // Show toast notification
+          toast({
+            title: "🏆 Insignă nouă câștigată!",
+            description: `Ai primit insigna "${badgeData.name}"!`,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, toast, soundEnabled]);
+
   // Fetch initial counts
   useEffect(() => {
     refreshUnreadCount();
     refreshFriendRequestCount();
-  }, [refreshUnreadCount, refreshFriendRequestCount]);
+    refreshNewBadgeCount();
+  }, [refreshUnreadCount, refreshFriendRequestCount, refreshNewBadgeCount]);
 
   return (
     <NotificationContext.Provider value={{ 
       unreadCount, 
       friendRequestCount,
+      newBadgeCount,
       refreshUnreadCount, 
       refreshFriendRequestCount,
+      refreshNewBadgeCount,
       soundEnabled, 
       setSoundEnabled 
     }}>
