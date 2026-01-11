@@ -113,7 +113,7 @@ export default function StudySpots() {
         </div>
 
         {/* Map container */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-h-[500px]">
           {loading ? (
             <div className="absolute inset-0 flex items-center justify-center bg-muted">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
