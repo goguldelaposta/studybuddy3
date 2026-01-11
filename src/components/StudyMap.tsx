@@ -111,8 +111,8 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
   }
 
   return (
-    <div className="relative w-full h-full">
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+    <div className="relative w-full h-full min-h-[500px]">
+      <div ref={mapContainer} className="absolute inset-0 rounded-lg" style={{ minHeight: '500px' }} />
     </div>
   );
 }
