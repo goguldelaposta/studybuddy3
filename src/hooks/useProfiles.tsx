@@ -346,6 +346,38 @@ export const useProfiles = () => {
     }
   };
 
+  // Save avatar URL
+  const saveAvatarUrl = async (avatarUrl: string | null) => {
+    if (!user || !currentUserProfile) {
+      toast({
+        title: "Eroare",
+        description: "Trebuie să fii autentificat pentru a salva poza",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: avatarUrl })
+        .eq("id", currentUserProfile.id);
+
+      if (error) throw error;
+
+      await fetchCurrentUserProfile();
+      return true;
+    } catch (error) {
+      console.error("Error saving avatar:", error);
+      toast({
+        title: "Eroare",
+        description: "Nu s-a putut salva poza de profil",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchProfiles();
   }, []);
@@ -365,6 +397,7 @@ export const useProfiles = () => {
     fetchProfiles,
     saveProfile,
     savePrivacySettings,
+    saveAvatarUrl,
     refetch: fetchProfiles,
   };
 };
