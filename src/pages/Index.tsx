@@ -31,7 +31,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar
         isAuthenticated={!!user}
-        user={user ? { email: user.email || "", fullName: currentUserProfile?.full_name } : null}
+        user={user ? { email: user.email || "", fullName: currentUserProfile?.full_name, avatarUrl: currentUserProfile?.avatar_url || undefined } : null}
         onSignOut={signOut}
       />
 
