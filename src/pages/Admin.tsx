@@ -21,8 +21,11 @@ import { GroupsModeration } from "@/components/admin/GroupsModeration";
 import { 
   Shield, Users, Search, Loader2, Trash2, 
   Crown, ShieldCheck, User as UserIcon, AlertTriangle,
-  Flag, Ban, Megaphone
+  Flag, Ban, Megaphone, UserX
 } from "lucide-react";
+import { useModeration } from "@/hooks/useModeration";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface UserWithRoles {
   id: string;
@@ -70,6 +73,13 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  
+  // Suspension dialog state
+  const { suspendUser, refreshSuspensions } = useModeration();
+  const [showSuspendDialog, setShowSuspendDialog] = useState(false);
+  const [userToSuspend, setUserToSuspend] = useState<UserWithRoles | null>(null);
+  const [suspensionReason, setSuspensionReason] = useState("");
+  const [suspensionDuration, setSuspensionDuration] = useState("permanent");
 
   const fetchUsers = async () => {
     try {
@@ -123,6 +133,45 @@ const Admin = () => {
       fetchUsers();
     } else {
       toast({ title: "Eroare", description: result.error, variant: "destructive" });
+    }
+    setActionLoading(null);
+  };
+
+  const handleSuspendUser = async () => {
+    if (!userToSuspend || !suspensionReason) return;
+
+    setActionLoading(userToSuspend.user_id);
+    
+    let suspendedUntil: string | undefined;
+    if (suspensionDuration !== "permanent") {
+      const date = new Date();
+      switch (suspensionDuration) {
+        case "1day": date.setDate(date.getDate() + 1); break;
+        case "3days": date.setDate(date.getDate() + 3); break;
+        case "7days": date.setDate(date.getDate() + 7); break;
+        case "30days": date.setDate(date.getDate() + 30); break;
+      }
+      suspendedUntil = date.toISOString();
+    }
+
+    const result = await suspendUser(userToSuspend.user_id, suspensionReason, suspendedUntil);
+    
+    if (result.success) {
+      toast({
+        title: "Utilizator suspendat",
+        description: `${userToSuspend.full_name} a fost suspendat cu succes.`,
+      });
+      setShowSuspendDialog(false);
+      setUserToSuspend(null);
+      setSuspensionReason("");
+      setSuspensionDuration("permanent");
+      refreshSuspensions();
+    } else {
+      toast({
+        title: "Eroare la suspendare",
+        description: result.error || "Nu s-a putut suspenda utilizatorul.",
+        variant: "destructive",
+      });
     }
     setActionLoading(null);
   };
@@ -211,14 +260,90 @@ const Admin = () => {
                 {loading ? <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div> : (
                   <div className="rounded-md border overflow-x-auto">
                     <Table>
-                      <TableHeader><TableRow><TableHead>Utilizator</TableHead><TableHead>Roluri</TableHead><TableHead>Data</TableHead>{isAdmin && <TableHead className="text-right">Acțiuni</TableHead>}</TableRow></TableHeader>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Utilizator</TableHead>
+                          <TableHead>Roluri</TableHead>
+                          <TableHead>Data</TableHead>
+                          {(isAdmin || isModerator) && <TableHead className="text-right">Acțiuni</TableHead>}
+                        </TableRow>
+                      </TableHeader>
                       <TableBody>
                         {filteredUsers.map((u) => (
                           <TableRow key={u.id}>
-                            <TableCell><div className="flex items-center gap-3"><Avatar className="h-8 w-8"><AvatarImage src={u.avatar_url || undefined} /><AvatarFallback className="gradient-primary text-primary-foreground text-xs">{getInitials(u.full_name)}</AvatarFallback></Avatar><div><p className="font-medium">{u.full_name}</p><p className="text-xs text-muted-foreground">{u.email}</p></div></div></TableCell>
-                            <TableCell><div className="flex flex-wrap gap-1">{u.roles.map((role) => <div key={role}>{getRoleBadge(role)}</div>)}</div></TableCell>
-                            <TableCell className="text-muted-foreground">{new Date(u.created_at).toLocaleDateString("ro-RO")}</TableCell>
-                            {isAdmin && <TableCell><div className="flex items-center justify-end gap-2">{actionLoading === u.user_id ? <Loader2 className="w-4 h-4 animate-spin" /> : (<>{!u.roles.includes("admin") && <Button size="sm" variant="outline" onClick={() => handleAssignRole(u.user_id, "admin")}><Crown className="w-4 h-4" /></Button>}{!u.roles.includes("moderator") && <Button size="sm" variant="outline" onClick={() => handleAssignRole(u.user_id, "moderator")}><ShieldCheck className="w-4 h-4" /></Button>}{u.roles.includes("admin") && u.user_id !== user?.id && <Button size="sm" variant="destructive" onClick={() => handleRemoveRole(u.user_id, "admin")}><Trash2 className="w-4 h-4" /></Button>}{u.roles.includes("moderator") && <Button size="sm" variant="destructive" onClick={() => handleRemoveRole(u.user_id, "moderator")}><Trash2 className="w-4 h-4" /></Button>}</>)}</div></TableCell>}
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={u.avatar_url || undefined} />
+                                  <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
+                                    {getInitials(u.full_name)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium">{u.full_name}</p>
+                                  <p className="text-xs text-muted-foreground">{u.email}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {u.roles.map((role) => <div key={role}>{getRoleBadge(role)}</div>)}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {new Date(u.created_at).toLocaleDateString("ro-RO")}
+                            </TableCell>
+                            {(isAdmin || isModerator) && (
+                              <TableCell>
+                                <div className="flex items-center justify-end gap-2">
+                                  {actionLoading === u.user_id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <>
+                                      {/* Suspend button - visible for admin/mod, not for self */}
+                                      {u.user_id !== user?.id && (
+                                        <Button 
+                                          size="sm" 
+                                          variant="outline"
+                                          className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                          onClick={() => {
+                                            setUserToSuspend(u);
+                                            setShowSuspendDialog(true);
+                                          }}
+                                        >
+                                          <UserX className="w-4 h-4" />
+                                        </Button>
+                                      )}
+                                      {/* Admin-only role actions */}
+                                      {isAdmin && (
+                                        <>
+                                          {!u.roles.includes("admin") && (
+                                            <Button size="sm" variant="outline" onClick={() => handleAssignRole(u.user_id, "admin")}>
+                                              <Crown className="w-4 h-4" />
+                                            </Button>
+                                          )}
+                                          {!u.roles.includes("moderator") && (
+                                            <Button size="sm" variant="outline" onClick={() => handleAssignRole(u.user_id, "moderator")}>
+                                              <ShieldCheck className="w-4 h-4" />
+                                            </Button>
+                                          )}
+                                          {u.roles.includes("admin") && u.user_id !== user?.id && (
+                                            <Button size="sm" variant="destructive" onClick={() => handleRemoveRole(u.user_id, "admin")}>
+                                              <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                          )}
+                                          {u.roles.includes("moderator") && (
+                                            <Button size="sm" variant="destructive" onClick={() => handleRemoveRole(u.user_id, "moderator")}>
+                                              <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                          )}
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              </TableCell>
+                            )}
                           </TableRow>
                         ))}
                       </TableBody>
@@ -234,6 +359,84 @@ const Admin = () => {
           <TabsContent value="announcements"><ContentModeration /></TabsContent>
           <TabsContent value="groups"><GroupsModeration /></TabsContent>
         </Tabs>
+
+        {/* Suspension Dialog */}
+        <Dialog open={showSuspendDialog} onOpenChange={setShowSuspendDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Suspendă Utilizator</DialogTitle>
+              <DialogDescription>
+                {userToSuspend && `Suspendează contul lui ${userToSuspend.full_name}`}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {userToSuspend && (
+                <>
+                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={userToSuspend.avatar_url || undefined} />
+                      <AvatarFallback>{getInitials(userToSuspend.full_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-medium">{userToSuspend.full_name}</p>
+                      <p className="text-sm text-muted-foreground">{userToSuspend.email}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Durată suspendare</label>
+                    <Select value={suspensionDuration} onValueChange={setSuspensionDuration}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1day">1 zi</SelectItem>
+                        <SelectItem value="3days">3 zile</SelectItem>
+                        <SelectItem value="7days">7 zile</SelectItem>
+                        <SelectItem value="30days">30 zile</SelectItem>
+                        <SelectItem value="permanent">Permanent</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Motiv suspendare *</label>
+                    <Textarea
+                      value={suspensionReason}
+                      onChange={(e) => setSuspensionReason(e.target.value)}
+                      placeholder="Descrie motivul suspendării..."
+                      className="mt-1"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSuspendDialog(false);
+                  setUserToSuspend(null);
+                  setSuspensionReason("");
+                }}
+              >
+                Anulează
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleSuspendUser}
+                disabled={!suspensionReason || actionLoading === userToSuspend?.user_id}
+              >
+                {actionLoading === userToSuspend?.user_id ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Ban className="w-4 h-4 mr-2" />
+                    Suspendă
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
