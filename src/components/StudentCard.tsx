@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GraduationCap, BookOpen, MessageCircle, UserPlus, Building } from "lucide-react";
+import { PrivacySettingsData } from "@/components/PrivacySettings";
 
 interface StudentCardProps {
   id: string;
@@ -17,6 +18,7 @@ interface StudentCardProps {
   subjects: string[];
   universityShortName?: string;
   userId?: string;
+  privacySettings?: PrivacySettingsData;
   onConnect?: (id: string) => void;
 }
 
@@ -66,9 +68,21 @@ export const StudentCard = ({
   subjects,
   universityShortName,
   userId,
+  privacySettings,
   onConnect,
 }: StudentCardProps) => {
   const navigate = useNavigate();
+
+  // Default privacy settings - show everything if not specified
+  const privacy = privacySettings || {
+    show_email: false,
+    show_faculty: true,
+    show_year: true,
+    show_bio: true,
+    show_skills: true,
+    show_subjects: true,
+    profile_visibility: 'authenticated' as const,
+  };
 
   const handleMessage = () => {
     if (userId) {
@@ -98,19 +112,23 @@ export const StudentCard = ({
                   {universityShortName}
                 </Badge>
               )}
-              <span className="text-xs text-muted-foreground">Anul {yearOfStudy}</span>
+              {privacy.show_year && (
+                <span className="text-xs text-muted-foreground">Anul {yearOfStudy}</span>
+              )}
             </div>
           </div>
         </div>
 
         {/* Faculty */}
-        <div className="flex items-center gap-2 mb-3 text-sm">
-          <GraduationCap className="w-4 h-4 text-primary" />
-          <span className="text-muted-foreground truncate">{faculty}</span>
-        </div>
+        {privacy.show_faculty && (
+          <div className="flex items-center gap-2 mb-3 text-sm">
+            <GraduationCap className="w-4 h-4 text-primary" />
+            <span className="text-muted-foreground truncate">{faculty}</span>
+          </div>
+        )}
 
         {/* Bio */}
-        {bio && (
+        {privacy.show_bio && bio && (
           <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
             {bio}
           </p>
@@ -124,7 +142,7 @@ export const StudentCard = ({
         </div>
 
         {/* Skills */}
-        {skills.length > 0 && (
+        {privacy.show_skills && skills.length > 0 && (
           <div className="mb-4">
             <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Competențe</p>
             <div className="flex flex-wrap gap-1.5">
@@ -143,7 +161,7 @@ export const StudentCard = ({
         )}
 
         {/* Subjects */}
-        {subjects.length > 0 && (
+        {privacy.show_subjects && subjects.length > 0 && (
           <div className="mb-4">
             <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Materii</p>
             <div className="flex flex-wrap gap-1.5">
