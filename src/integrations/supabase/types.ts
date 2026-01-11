@@ -358,6 +358,72 @@ export type Database = {
         }
         Relationships: []
       }
+      study_locations: {
+        Row: {
+          added_by: string | null
+          address: string
+          amenities: string[] | null
+          city: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_verified: boolean | null
+          latitude: number
+          longitude: number
+          name: string
+          opening_hours: string | null
+          price_range: string | null
+          rating: number | null
+          reviews_count: number | null
+          type: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          address: string
+          amenities?: string[] | null
+          city?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          latitude: number
+          longitude: number
+          name: string
+          opening_hours?: string | null
+          price_range?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          type: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          address?: string
+          amenities?: string[] | null
+          city?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          latitude?: number
+          longitude?: number
+          name?: string
+          opening_hours?: string | null
+          price_range?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          type?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           code: string | null
