@@ -24,7 +24,7 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/mapbox/standard',
       center: [26.1025, 44.4268], // București
       zoom: 12,
     });
