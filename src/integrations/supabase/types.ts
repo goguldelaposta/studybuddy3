@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          category: string
+          contact_info: string | null
+          created_at: string
+          currency: string | null
+          description: string
+          expires_at: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          price: number | null
+          title: string
+          university_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          contact_info?: string | null
+          created_at?: string
+          currency?: string | null
+          description: string
+          expires_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          price?: number | null
+          title: string
+          university_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          contact_info?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string
+          expires_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          price?: number | null
+          title?: string
+          university_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
