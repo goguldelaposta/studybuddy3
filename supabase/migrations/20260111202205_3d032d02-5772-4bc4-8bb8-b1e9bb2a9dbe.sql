@@ -1,0 +1,2 @@
+INSERT INTO public.study_locations (name, description, type, address, city, latitude, longitude, price_range, amenities, opening_hours, website, rating, reviews_count, is_verified) VALUES
+('Doda5 Cafenea', 'Cafenea modernă cu spațiu generos pentru studiu și lucru.', 'cafe', 'București', 'București', 44.4473, 26.1121, 'moderate', ARRAY['wifi', 'prize', 'cafea', 'aer_conditionat'], 'Zilnic: 08:00-22:00', NULL, 4.2, 45, true);
