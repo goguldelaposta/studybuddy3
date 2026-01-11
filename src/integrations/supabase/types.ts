@@ -411,6 +411,8 @@ export type Database = {
           email: string
           faculty: string
           full_name: string
+          gdpr_consent: boolean | null
+          gdpr_consent_at: string | null
           id: string
           looking_for: string | null
           privacy_settings: Json | null
@@ -426,6 +428,8 @@ export type Database = {
           email: string
           faculty: string
           full_name: string
+          gdpr_consent?: boolean | null
+          gdpr_consent_at?: string | null
           id?: string
           looking_for?: string | null
           privacy_settings?: Json | null
@@ -441,6 +445,8 @@ export type Database = {
           email?: string
           faculty?: string
           full_name?: string
+          gdpr_consent?: boolean | null
+          gdpr_consent_at?: string | null
           id?: string
           looking_for?: string | null
           privacy_settings?: Json | null

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Users, Mail, Lock, ArrowRight, Check, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
@@ -40,7 +41,8 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [gdprConsent, setGdprConsent] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string; gdpr?: string }>({});
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -52,7 +54,7 @@ const Auth = () => {
   }, [user, navigate]);
 
   const validate = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; gdpr?: string } = {};
     
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
@@ -67,6 +69,11 @@ const Auth = () => {
     if (!passwordResult.success) {
       newErrors.password = passwordResult.error.errors[0].message;
     }
+
+    // GDPR consent required for signup
+    if (isSignUp && !gdprConsent) {
+      newErrors.gdpr = "Trebuie să accepți Politica de confidențialitate pentru a continua";
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -78,7 +85,7 @@ const Auth = () => {
 
     setLoading(true);
     const { error } = isSignUp
-      ? await signUp(email, password)
+      ? await signUp(email, password, gdprConsent)
       : await signIn(email, password);
     setLoading(false);
 
@@ -162,6 +169,32 @@ const Auth = () => {
                 </div>
               )}
             </div>
+
+            {/* GDPR Consent for signup */}
+            {isSignUp && (
+              <div className="space-y-2">
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="gdpr"
+                    checked={gdprConsent}
+                    onCheckedChange={(checked) => setGdprConsent(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <Label htmlFor="gdpr" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                    Am citit și sunt de acord cu{" "}
+                    <Link to="/privacy-policy" className="text-primary hover:underline" target="_blank">
+                      Politica de confidențialitate
+                    </Link>{" "}
+                    și{" "}
+                    <Link to="/terms" className="text-primary hover:underline" target="_blank">
+                      Termenii și condițiile
+                    </Link>
+                    . Înțeleg că datele mele vor fi procesate conform GDPR.
+                  </Label>
+                </div>
+                {errors.gdpr && <p className="text-xs text-destructive">{errors.gdpr}</p>}
+              </div>
+            )}
 
             {!isSignUp && (
               <div className="text-right">
