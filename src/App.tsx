@@ -21,6 +21,8 @@ import Friends from "./pages/Friends";
 import ProfileView from "./pages/ProfileView";
 import Admin from "./pages/Admin";
 import Badges from "./pages/Badges";
+import Terms from "./pages/Terms";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +52,8 @@ const App = () => (
                 <Route path="/user/:userId" element={<ProfileView />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/badges" element={<Badges />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/browse" element={<Index />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
