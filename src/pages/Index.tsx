@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/HeroSection";
 import { StudentCard } from "@/components/StudentCard";
 import { FilterSection } from "@/components/FilterSection";
 import { AIRecommendations } from "@/components/AIRecommendations";
+import { PendingFriendRequests } from "@/components/PendingFriendRequests";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfiles } from "@/hooks/useProfiles";
 import { Users } from "lucide-react";
@@ -39,6 +40,15 @@ const Index = () => {
         onBrowse={handleBrowse}
         isAuthenticated={!!user}
       />
+
+      {/* Pending Friend Requests Section - only for authenticated users */}
+      {user && currentUserProfile && (
+        <section className="py-8 bg-background">
+          <div className="container max-w-2xl">
+            <PendingFriendRequests maxItems={3} />
+          </div>
+        </section>
+      )}
 
       {/* AI Recommendations Section */}
       <section className="py-12 bg-background">
