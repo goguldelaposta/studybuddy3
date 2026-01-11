@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
-import { Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft, Check, CheckCheck } from "lucide-react";
 import { Message, Conversation } from "@/hooks/useMessages";
 import { useMessageReactions } from "@/hooks/useMessageReactions";
 import { EmojiPicker } from "@/components/EmojiPicker";
@@ -20,6 +20,8 @@ interface MessageThreadProps {
   onSendMessage: (content: string) => void;
   onBack?: () => void;
   loading?: boolean;
+  isOtherUserTyping?: boolean;
+  onTyping?: (isTyping: boolean) => void;
 }
 
 export function MessageThread({
@@ -29,10 +31,13 @@ export function MessageThread({
   onSendMessage,
   onBack,
   loading,
+  isOtherUserTyping,
+  onTyping,
 }: MessageThreadProps) {
   const [newMessage, setNewMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const { 
     fetchReactions, 
@@ -46,7 +51,7 @@ export function MessageThread({
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isOtherUserTyping]);
 
   // Focus input on conversation change
   useEffect(() => {
@@ -60,17 +65,53 @@ export function MessageThread({
     }
   }, [messages, fetchReactions]);
 
+  // Handle typing indicator
+  const handleTyping = useCallback(() => {
+    if (!onTyping) return;
+
+    onTyping(true);
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set new timeout to stop typing indicator
+    typingTimeoutRef.current = setTimeout(() => {
+      onTyping(false);
+    }, 2000);
+  }, [onTyping]);
+
+  // Cleanup typing timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim()) {
       onSendMessage(newMessage);
       setNewMessage("");
+      if (onTyping) onTyping(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    handleTyping();
   };
 
   const handleEmojiSelect = (emoji: string) => {
     setNewMessage(prev => prev + emoji);
     inputRef.current?.focus();
+    handleTyping();
   };
 
   const handleGifSelect = (gifUrl: string) => {
@@ -91,6 +132,19 @@ export function MessageThread({
            content.includes(".gif") || 
            content.includes("giphy.com");
   };
+
+  // Find the last own message that has been read
+  const getLastReadOwnMessageId = () => {
+    const ownMessages = messages.filter(m => m.sender_id === currentUserId);
+    for (let i = ownMessages.length - 1; i >= 0; i--) {
+      if (ownMessages[i].read_at) {
+        return ownMessages[i].id;
+      }
+    }
+    return null;
+  };
+
+  const lastReadOwnMessageId = getLastReadOwnMessageId();
 
   if (!conversation) {
     return (
@@ -153,6 +207,8 @@ export function MessageThread({
                   format(new Date(messages[index - 1].created_at), "PP");
               const messageReactions = getReactionsForMessage(message.id);
               const isGif = isGifUrl(message.content);
+              const isLastReadMessage = isOwn && message.id === lastReadOwnMessageId;
+              const isDelivered = isOwn && !message.read_at;
 
               return (
                 <div key={message.id}>
@@ -198,25 +254,61 @@ export function MessageThread({
                           <p className="text-sm break-words whitespace-pre-wrap">{message.content}</p>
                         )}
                         {!isGif && (
+                          <div className={cn(
+                            "flex items-center gap-1 mt-1",
+                            isOwn ? "justify-end" : ""
+                          )}>
+                            <p
+                              className={cn(
+                                "text-[10px]",
+                                isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                              )}
+                            >
+                              {format(new Date(message.created_at), "HH:mm")}
+                            </p>
+                            {isOwn && (
+                              message.read_at ? (
+                                <CheckCheck className={cn(
+                                  "h-3 w-3",
+                                  isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                                )} />
+                              ) : (
+                                <Check className={cn(
+                                  "h-3 w-3",
+                                  isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                                )} />
+                              )
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {isGif && (
+                        <div className={cn(
+                          "flex items-center gap-1 mt-1",
+                          isOwn ? "justify-end" : ""
+                        )}>
                           <p
                             className={cn(
-                              "text-[10px] mt-1",
-                              isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                              "text-[10px]",
+                              "text-muted-foreground"
                             )}
                           >
                             {format(new Date(message.created_at), "HH:mm")}
                           </p>
-                        )}
-                      </div>
-                      {isGif && (
-                        <p
-                          className={cn(
-                            "text-[10px] mt-1",
-                            isOwn ? "text-right" : "",
-                            "text-muted-foreground"
+                          {isOwn && (
+                            message.read_at ? (
+                              <CheckCheck className="h-3 w-3 text-muted-foreground" />
+                            ) : (
+                              <Check className="h-3 w-3 text-muted-foreground" />
+                            )
                           )}
-                        >
-                          {format(new Date(message.created_at), "HH:mm")}
+                        </div>
+                      )}
+                      
+                      {/* Seen indicator for last read message */}
+                      {isLastReadMessage && (
+                        <p className="text-[10px] text-muted-foreground text-right mt-0.5">
+                          Văzut
                         </p>
                       )}
                       
@@ -232,6 +324,25 @@ export function MessageThread({
                 </div>
               );
             })}
+            
+            {/* Typing indicator */}
+            {isOtherUserTyping && (
+              <div className="flex gap-2 max-w-[80%]">
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarImage src={conversation.otherParticipant?.avatar_url || ""} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    {conversation.otherParticipant?.full_name?.charAt(0) || "?"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </ScrollArea>
@@ -244,7 +355,7 @@ export function MessageThread({
           <Input
             ref={inputRef}
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Scrie un mesaj..."
             className="flex-1"
           />

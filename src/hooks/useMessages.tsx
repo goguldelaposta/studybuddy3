@@ -11,6 +11,7 @@ export interface Conversation {
   updated_at: string;
   otherParticipant?: {
     id: string;
+    user_id: string;
     full_name: string;
     avatar_url: string | null;
     faculty: string;
@@ -39,6 +40,8 @@ export function useMessages() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
+  const [typingChannel, setTypingChannel] = useState<ReturnType<typeof supabase.channel> | null>(null);
 
   // Fetch all conversations for the current user
   const fetchConversations = useCallback(async () => {
@@ -64,7 +67,7 @@ export function useMessages() {
           // Get other participant's profile
           const { data: profile } = await supabase
             .from("profiles")
-            .select("id, full_name, avatar_url, faculty")
+            .select("id, user_id, full_name, avatar_url, faculty")
             .eq("user_id", otherParticipantId)
             .single();
 
@@ -202,6 +205,47 @@ export function useMessages() {
     }
   }, [user, toast]);
 
+  // Send typing indicator
+  const sendTypingIndicator = useCallback((isTyping: boolean) => {
+    if (!typingChannel || !user) return;
+    
+    typingChannel.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { userId: user.id, isTyping },
+    });
+  }, [typingChannel, user]);
+
+  // Set up typing channel for a conversation
+  useEffect(() => {
+    if (!activeConversationId || !user) {
+      setIsOtherUserTyping(false);
+      return;
+    }
+
+    const channel = supabase.channel(`typing-${activeConversationId}`);
+    
+    channel
+      .on("broadcast", { event: "typing" }, (payload) => {
+        if (payload.payload.userId !== user.id) {
+          setIsOtherUserTyping(payload.payload.isTyping);
+          
+          // Auto-clear typing indicator after 3 seconds
+          if (payload.payload.isTyping) {
+            setTimeout(() => setIsOtherUserTyping(false), 3000);
+          }
+        }
+      })
+      .subscribe();
+
+    setTypingChannel(channel);
+
+    return () => {
+      supabase.removeChannel(channel);
+      setTypingChannel(null);
+    };
+  }, [activeConversationId, user]);
+
   // Set up realtime subscription for messages
   useEffect(() => {
     if (!activeConversationId) return;
@@ -229,6 +273,23 @@ export function useMessages() {
           }
         }
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${activeConversationId}`,
+        },
+        (payload) => {
+          const updatedMessage = payload.new as Message;
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === updatedMessage.id ? updatedMessage : msg
+            )
+          );
+        }
+      )
       .subscribe();
 
     return () => {
@@ -246,10 +307,12 @@ export function useMessages() {
     messages,
     loading,
     activeConversationId,
+    isOtherUserTyping,
     fetchConversations,
     fetchMessages,
     sendMessage,
     startConversation,
     setActiveConversationId,
+    sendTypingIndicator,
   };
 }
