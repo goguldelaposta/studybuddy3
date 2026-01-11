@@ -19,11 +19,13 @@ const Messages = () => {
     messages,
     loading,
     activeConversationId,
+    isOtherUserTyping,
     fetchConversations,
     fetchMessages,
     sendMessage,
     startConversation,
     setActiveConversationId,
+    sendTypingIndicator,
   } = useMessages();
   const { refreshUnreadCount } = useRealtimeNotifications();
 
@@ -124,6 +126,8 @@ const Messages = () => {
               onSendMessage={handleSendMessage}
               onBack={handleBack}
               loading={loading}
+              isOtherUserTyping={isOtherUserTyping}
+              onTyping={sendTypingIndicator}
             />
           </div>
         </div>
