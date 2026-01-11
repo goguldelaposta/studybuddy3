@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -60,6 +60,22 @@ export const ProfileForm = ({
     subjects: initialData?.subjects || [],
     universityId: initialData?.universityId || "",
   });
+
+  // Sync form data when initialData changes (e.g., when profile is loaded async)
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        fullName: initialData.fullName || "",
+        faculty: initialData.faculty || "",
+        yearOfStudy: initialData.yearOfStudy || 1,
+        bio: initialData.bio || "",
+        lookingFor: initialData.lookingFor || "teammates",
+        skills: initialData.skills || [],
+        subjects: initialData.subjects || [],
+        universityId: initialData.universityId || "",
+      });
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
