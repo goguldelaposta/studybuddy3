@@ -25,6 +25,10 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_notes: string | null
+          moderation_status: string
           price: number | null
           title: string
           university_id: string | null
@@ -41,6 +45,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
+          moderation_status?: string
           price?: number | null
           title: string
           university_id?: string | null
@@ -57,6 +65,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
+          moderation_status?: string
           price?: number | null
           title?: string
           university_id?: string | null
@@ -198,6 +210,10 @@ export type Database = {
           id: string
           is_public: boolean
           max_members: number | null
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_notes: string | null
+          moderation_status: string
           name: string
           subject_id: string | null
           university_id: string | null
@@ -211,6 +227,10 @@ export type Database = {
           id?: string
           is_public?: boolean
           max_members?: number | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
+          moderation_status?: string
           name: string
           subject_id?: string | null
           university_id?: string | null
@@ -224,6 +244,10 @@ export type Database = {
           id?: string
           is_public?: boolean
           max_members?: number | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
+          moderation_status?: string
           name?: string
           subject_id?: string | null
           university_id?: string | null
@@ -402,6 +426,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reason: string
+          reported_content_id: string
+          reported_content_type: string
+          reported_user_id: string | null
+          reporter_id: string
+          resolution_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: string
+          reported_content_id: string
+          reported_content_type: string
+          reported_user_id?: string | null
+          reporter_id: string
+          resolution_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: string
+          reported_content_id?: string
+          reported_content_type?: string
+          reported_user_id?: string | null
+          reporter_id?: string
+          resolution_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       skills: {
         Row: {
@@ -596,6 +668,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_suspensions: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          lifted_at: string | null
+          lifted_by: string | null
+          reason: string
+          suspended_at: string
+          suspended_by: string
+          suspended_until: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason: string
+          suspended_at?: string
+          suspended_by: string
+          suspended_until?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason?: string
+          suspended_at?: string
+          suspended_by?: string
+          suspended_until?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       announcements_public: {
@@ -687,6 +798,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_user_suspended: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
