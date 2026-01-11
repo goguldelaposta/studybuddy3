@@ -18,10 +18,15 @@ import { ReportsManagement } from "@/components/admin/ReportsManagement";
 import { SuspensionsManagement } from "@/components/admin/SuspensionsManagement";
 import { ContentModeration } from "@/components/admin/ContentModeration";
 import { GroupsModeration } from "@/components/admin/GroupsModeration";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { UserProfileEditor } from "@/components/admin/UserProfileEditor";
+import { UniversitiesManagement } from "@/components/admin/UniversitiesManagement";
+import { SubjectsManagement } from "@/components/admin/SubjectsManagement";
+import { SkillsManagement } from "@/components/admin/SkillsManagement";
 import { 
   Shield, Users, Search, Loader2, Trash2, 
   Crown, ShieldCheck, User as UserIcon, AlertTriangle,
-  Flag, Ban, Megaphone, UserX
+  Flag, Ban, Megaphone, UserX, LayoutDashboard, Edit, Building2, BookOpen, Lightbulb
 } from "lucide-react";
 import { useModeration } from "@/hooks/useModeration";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -240,14 +245,21 @@ const Admin = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span></TabsTrigger>
             <TabsTrigger value="users" className="gap-2"><Users className="w-4 h-4" /><span className="hidden sm:inline">Utilizatori</span></TabsTrigger>
+            <TabsTrigger value="profiles" className="gap-2"><Edit className="w-4 h-4" /><span className="hidden sm:inline">Profiluri</span></TabsTrigger>
             <TabsTrigger value="reports" className="gap-2"><Flag className="w-4 h-4" /><span className="hidden sm:inline">Rapoarte</span></TabsTrigger>
             <TabsTrigger value="suspensions" className="gap-2"><Ban className="w-4 h-4" /><span className="hidden sm:inline">Suspendări</span></TabsTrigger>
             <TabsTrigger value="announcements" className="gap-2"><Megaphone className="w-4 h-4" /><span className="hidden sm:inline">Anunțuri</span></TabsTrigger>
             <TabsTrigger value="groups" className="gap-2"><Users className="w-4 h-4" /><span className="hidden sm:inline">Grupuri</span></TabsTrigger>
+            <TabsTrigger value="universities" className="gap-2"><Building2 className="w-4 h-4" /><span className="hidden sm:inline">Universități</span></TabsTrigger>
+            <TabsTrigger value="subjects" className="gap-2"><BookOpen className="w-4 h-4" /><span className="hidden sm:inline">Materii</span></TabsTrigger>
+            <TabsTrigger value="skills" className="gap-2"><Lightbulb className="w-4 h-4" /><span className="hidden sm:inline">Skills</span></TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dashboard"><AdminDashboard /></TabsContent>
 
           <TabsContent value="users">
             <Card>
@@ -354,10 +366,14 @@ const Admin = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="profiles"><UserProfileEditor /></TabsContent>
           <TabsContent value="reports"><ReportsManagement /></TabsContent>
           <TabsContent value="suspensions"><SuspensionsManagement /></TabsContent>
           <TabsContent value="announcements"><ContentModeration /></TabsContent>
           <TabsContent value="groups"><GroupsModeration /></TabsContent>
+          <TabsContent value="universities"><UniversitiesManagement /></TabsContent>
+          <TabsContent value="subjects"><SubjectsManagement /></TabsContent>
+          <TabsContent value="skills"><SkillsManagement /></TabsContent>
         </Tabs>
 
         {/* Suspension Dialog */}
