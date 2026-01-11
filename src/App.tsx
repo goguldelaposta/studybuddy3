@@ -6,10 +6,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { NotificationProvider } from "@/hooks/useRealtimeNotifications";
+import { EmailVerificationGuard } from "@/components/EmailVerificationGuard";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import Messages from "./pages/Messages";
@@ -41,17 +43,18 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/auth/forgot-password" element={<ForgotPassword />} />
                 <Route path="/auth/reset-password" element={<ResetPassword />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/edit" element={<ProfileEdit />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/groups" element={<Groups />} />
-                <Route path="/groups/:id" element={<GroupDetail />} />
-                <Route path="/announcements" element={<Announcements />} />
-                <Route path="/study-spots" element={<StudySpots />} />
-                <Route path="/friends" element={<Friends />} />
-                <Route path="/user/:userId" element={<ProfileView />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/badges" element={<Badges />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/profile" element={<EmailVerificationGuard><Profile /></EmailVerificationGuard>} />
+                <Route path="/profile/edit" element={<EmailVerificationGuard><ProfileEdit /></EmailVerificationGuard>} />
+                <Route path="/messages" element={<EmailVerificationGuard><Messages /></EmailVerificationGuard>} />
+                <Route path="/groups" element={<EmailVerificationGuard><Groups /></EmailVerificationGuard>} />
+                <Route path="/groups/:id" element={<EmailVerificationGuard><GroupDetail /></EmailVerificationGuard>} />
+                <Route path="/announcements" element={<EmailVerificationGuard><Announcements /></EmailVerificationGuard>} />
+                <Route path="/study-spots" element={<EmailVerificationGuard><StudySpots /></EmailVerificationGuard>} />
+                <Route path="/friends" element={<EmailVerificationGuard><Friends /></EmailVerificationGuard>} />
+                <Route path="/user/:userId" element={<EmailVerificationGuard><ProfileView /></EmailVerificationGuard>} />
+                <Route path="/admin" element={<EmailVerificationGuard><Admin /></EmailVerificationGuard>} />
+                <Route path="/badges" element={<EmailVerificationGuard><Badges /></EmailVerificationGuard>} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/browse" element={<Index />} />

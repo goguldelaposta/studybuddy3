@@ -78,8 +78,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       toast({
-        title: "Bine ai venit!",
-        description: "Contul tău a fost creat cu succes.",
+        title: "Verifică-ți email-ul!",
+        description: "Ți-am trimis un email de confirmare. Verifică inbox-ul pentru a-ți activa contul.",
       });
       return { error: null };
     } catch (err) {
