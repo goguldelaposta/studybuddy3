@@ -142,20 +142,13 @@ export function AnnouncementCard({
             </Button>
           </>
         ) : (
-          <>
-            <Button
-              className="flex-1 gradient-primary text-primary-foreground gap-2"
-              onClick={() => onContact?.(announcement.user_id)}
-            >
-              <MessageCircle className="h-4 w-4" />
-              Contactează
-            </Button>
-            {announcement.contact_info && (
-              <Button variant="outline" asChild>
-                <a href={`mailto:${announcement.contact_info}`}>Email</a>
-              </Button>
-            )}
-          </>
+          <Button
+            className="flex-1 gradient-primary text-primary-foreground gap-2"
+            onClick={() => onContact?.(announcement.user_id)}
+          >
+            <MessageCircle className="h-4 w-4" />
+            Contactează
+          </Button>
         )}
       </CardFooter>
     </Card>

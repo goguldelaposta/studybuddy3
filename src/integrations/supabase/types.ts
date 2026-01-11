@@ -488,7 +488,65 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      announcements_public: {
+        Row: {
+          category: string | null
+          contact_info: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          expires_at: string | null
+          id: string | null
+          image_url: string | null
+          is_active: boolean | null
+          price: number | null
+          title: string | null
+          university_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          contact_info?: never
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_active?: boolean | null
+          price?: number | null
+          title?: string | null
+          university_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          contact_info?: never
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_active?: boolean | null
+          price?: number | null
+          title?: string | null
+          university_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       are_users_connected: {

@@ -100,12 +100,10 @@ export function useAnnouncements() {
 
     setLoading(true);
     try {
+      // Use the secure view that masks contact_info for non-owners
       let query = supabase
-        .from("announcements")
-        .select(`
-          *,
-          university:universities(id, name, short_name)
-        `)
+        .from("announcements_public" as any)
+        .select("*")
         .eq("is_active", true)
         .order("created_at", { ascending: false });
 
@@ -113,7 +111,27 @@ export function useAnnouncements() {
         query = query.eq("category", category);
       }
 
-      const { data, error } = await query;
+      const { data: announcementsData, error } = await query;
+      
+      if (error) throw error;
+      
+      // Fetch university info separately since view doesn't support joins
+      const enrichedWithUniversity = await Promise.all(
+        (announcementsData || []).map(async (announcement: any) => {
+          let university = null;
+          if (announcement.university_id) {
+            const { data: uniData } = await supabase
+              .from("universities")
+              .select("id, name, short_name")
+              .eq("id", announcement.university_id)
+              .single();
+            university = uniData;
+          }
+          return { ...announcement, university };
+        })
+      );
+
+      const data = enrichedWithUniversity;
 
       if (error) throw error;
 
