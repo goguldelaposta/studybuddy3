@@ -126,11 +126,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Deconectat",
-      description: "Te-ai deconectat cu succes.",
-    });
+    try {
+      // Clear local state first
+      setUser(null);
+      setSession(null);
+      
+      // Then sign out from Supabase
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      if (error) {
+        console.error('Sign out error:', error);
+      }
+      
+      toast({
+        title: "Deconectat",
+        description: "Te-ai deconectat cu succes.",
+      });
+    } catch (err) {
+      console.error('Sign out error:', err);
+      // Still clear local state even if there's an error
+      setUser(null);
+      setSession(null);
+    }
   };
 
   const resetPassword = async (email: string) => {
