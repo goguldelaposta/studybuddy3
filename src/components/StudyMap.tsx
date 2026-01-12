@@ -37,6 +37,8 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
       pitch: 56, // Match the URL pitch
       bearing: 0, // Match the URL bearing
       antialias: true,
+      attributionControl: false, // Hide attribution
+      logoPosition: 'bottom-left', // Position logo (will be hidden via CSS)
     });
 
     map.current.addControl(

@@ -179,6 +179,14 @@
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
+
+  /* Hide Mapbox branding */
+  .mapboxgl-ctrl-logo,
+  .mapboxgl-ctrl-attrib,
+  .mapboxgl-ctrl-attrib-inner {
+    display: none !important;
+    visibility: hidden !important;
+  }
 }
 
 @keyframes fadeUp {
