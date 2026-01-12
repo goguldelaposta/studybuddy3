@@ -180,12 +180,22 @@
     animation: float 6s ease-in-out infinite;
   }
 
-  /* Hide Mapbox branding */
+  /* Hide Mapbox branding completely */
   .mapboxgl-ctrl-logo,
   .mapboxgl-ctrl-attrib,
-  .mapboxgl-ctrl-attrib-inner {
+  .mapboxgl-ctrl-attrib-inner,
+  .mapboxgl-ctrl-attrib-button,
+  .mapboxgl-ctrl.mapboxgl-ctrl-attrib,
+  a.mapboxgl-ctrl-logo,
+  .mapboxgl-ctrl-bottom-left,
+  .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-attrib {
     display: none !important;
     visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
 }
 
