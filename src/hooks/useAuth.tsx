@@ -42,6 +42,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const getAuthErrorMessage = (errorMessage: string): string => {
+    const errorMap: Record<string, string> = {
+      "User already registered": "Un cont cu acest email există deja. Te rugăm să te autentifici.",
+      "Email already registered": "Acest email este deja înregistrat. Te rugăm să te autentifici.",
+      "Email address already exists": "Acest email este deja folosit. Te rugăm să folosești alt email sau să te autentifici.",
+      "A user with this email address has already been registered": "Un utilizator cu acest email există deja.",
+      "Invalid login credentials": "Email sau parolă incorectă.",
+      "Email not confirmed": "Email-ul nu a fost confirmat. Verifică-ți inbox-ul.",
+      "Invalid email or password": "Email sau parolă incorectă.",
+      "Password should be at least 6 characters": "Parola trebuie să aibă minim 6 caractere.",
+      "Signup requires a valid password": "Te rugăm să introduci o parolă validă.",
+      "Unable to validate email address: invalid format": "Format de email invalid.",
+    };
+
+    for (const [key, value] of Object.entries(errorMap)) {
+      if (errorMessage.toLowerCase().includes(key.toLowerCase())) {
+        return value;
+      }
+    }
+    return errorMessage;
+  };
+
   const signUp = async (email: string, password: string, gdprConsent: boolean = false) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
@@ -56,10 +78,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) {
         toast({
           title: "Înregistrare eșuată",
-          description: error.message,
+          description: getAuthErrorMessage(error.message),
           variant: "destructive",
         });
         return { error };
+      }
+
+      // Check if user already exists (Supabase returns user with identities = [] for existing email)
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        toast({
+          title: "Înregistrare eșuată",
+          description: "Un cont cu acest email există deja. Te rugăm să te autentifici.",
+          variant: "destructive",
+        });
+        return { error: new Error("Email already registered") };
       }
 
       // Update profile with GDPR consent if user was created
@@ -86,7 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const error = err as Error;
       toast({
         title: "Înregistrare eșuată",
-        description: error.message,
+        description: getAuthErrorMessage(error.message),
         variant: "destructive",
       });
       return { error };
@@ -103,7 +135,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) {
         toast({
           title: "Autentificare eșuată",
-          description: error.message,
+          description: getAuthErrorMessage(error.message),
           variant: "destructive",
         });
         return { error };
@@ -118,7 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const error = err as Error;
       toast({
         title: "Autentificare eșuată",
-        description: error.message,
+        description: getAuthErrorMessage(error.message),
         variant: "destructive",
       });
       return { error };
