@@ -34,11 +34,14 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
       style: getMapStyle(),
       center: [26.1025, 44.4268], // București
       zoom: 15.62,
-      pitch: 56, // Match the URL pitch
-      bearing: 0, // Match the URL bearing
-      antialias: true,
-      attributionControl: false, // Hide attribution
-      logoPosition: 'bottom-left', // Position logo (will be hidden via CSS)
+      pitch: 56,
+      bearing: 0,
+      antialias: false, // Disable for better performance
+      attributionControl: false,
+      logoPosition: 'bottom-left',
+      fadeDuration: 0, // Instant tile transitions
+      trackResize: true,
+      refreshExpiredTiles: false,
     });
 
     map.current.addControl(
@@ -122,7 +125,8 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
       center: [selectedLocation.longitude, selectedLocation.latitude],
       zoom: 17,
       pitch: 65,
-      duration: 1500,
+      duration: 800, // Faster animation
+      essential: true,
     });
   }, [selectedLocation]);
 
