@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, Mail, Lock, ArrowRight, Check, X } from "lucide-react";
+import { Users, Mail, Lock, ArrowRight, Check, X, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useRateLimiter } from "@/hooks/useRateLimiter";
 import { LegalModal } from "@/components/LegalModal";
 import { z } from "zod";
 
@@ -48,6 +49,20 @@ const Auth = () => {
   const [legalModalType, setLegalModalType] = useState<"terms" | "privacy" | null>(null);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  
+  // Rate limiting - 5 attempts per minute, 5 minute block
+  const { 
+    isBlocked, 
+    getRemainingAttempts, 
+    recordAttempt, 
+    resetAttempts,
+    formatRemainingTime 
+  } = useRateLimiter({
+    maxAttempts: 5,
+    windowMs: 60 * 1000,
+    blockDurationMs: 5 * 60 * 1000,
+    storageKey: "auth_rate_limit",
+  });
 
   useEffect(() => {
     if (user) {
@@ -85,6 +100,10 @@ const Auth = () => {
     e.preventDefault();
     if (!validate()) return;
 
+    // Check rate limiting
+    if (isBlocked()) return;
+    if (!recordAttempt()) return;
+
     setLoading(true);
     const { error } = isSignUp
       ? await signUp(email, password, gdprConsent)
@@ -92,6 +111,7 @@ const Auth = () => {
     setLoading(false);
 
     if (!error) {
+      resetAttempts(); // Reset on successful auth
       navigate("/");
     }
   };
@@ -217,11 +237,28 @@ const Auth = () => {
             <Button
               type="submit"
               className="w-full gradient-primary text-primary-foreground h-11"
-              disabled={loading}
+              disabled={loading || isBlocked()}
             >
-              {loading ? "Te rugăm așteaptă..." : isSignUp ? "Creează Cont" : "Conectare"}
-              <ArrowRight className="w-4 h-4 ml-2" />
+              {isBlocked() ? (
+                <>
+                  <Clock className="w-4 h-4 mr-2" />
+                  Blocat ({formatRemainingTime()})
+                </>
+              ) : loading ? (
+                "Te rugăm așteaptă..."
+              ) : (
+                <>
+                  {isSignUp ? "Creează Cont" : "Conectare"}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </>
+              )}
             </Button>
+            
+            {!isBlocked() && getRemainingAttempts() < 5 && (
+              <p className="text-xs text-center text-muted-foreground mt-2">
+                {getRemainingAttempts()} {getRemainingAttempts() === 1 ? "încercare rămasă" : "încercări rămase"}
+              </p>
+            )}
           </form>
 
           <div className="mt-6 text-center">
