@@ -46,7 +46,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'StudyBuddy <notifications@studybuddy.app>',
+        from: 'StudyBuddy <contact@studybuddy.ro>',
         to: [to],
         subject,
         html,
