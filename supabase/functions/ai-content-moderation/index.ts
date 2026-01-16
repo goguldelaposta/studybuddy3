@@ -37,7 +37,7 @@ serve(async (req) => {
       .replace(/[<>]/g, '')
       .slice(0, 2000);
 
-    const systemPrompt = `You are a content moderation AI for an academic platform called StudyBuddy3. 
+    const systemPrompt = `You are a content moderation AI for an academic platform called StudyBuddy. 
 Your task is to analyze content and determine if it's appropriate for a university student community.
 
 Flag content that contains:
