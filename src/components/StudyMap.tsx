@@ -3,6 +3,8 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { StudyLocation, TYPE_ICONS, TYPE_LABELS } from '@/hooks/useStudyLocations';
 import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
+import { Box, Layers } from 'lucide-react';
 
 interface StudyMapProps {
   locations: StudyLocation[];
@@ -16,7 +18,20 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [is3D, setIs3D] = useState(true);
   const { resolvedTheme } = useTheme();
+
+  // Toggle between 2D and 3D view
+  const toggle3D = () => {
+    if (!map.current) return;
+    const newIs3D = !is3D;
+    setIs3D(newIs3D);
+    
+    map.current.easeTo({
+      pitch: newIs3D ? 56 : 0,
+      duration: 500,
+    });
+  };
 
   // Custom Mapbox style
   const getMapStyle = () => {
@@ -141,6 +156,20 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
   return (
     <div className="relative w-full h-full" style={{ minHeight: 'calc(100vh - 180px)' }}>
       <div ref={mapContainer} className="absolute inset-0" />
+      
+      {/* 2D/3D Toggle Button */}
+      {mapLoaded && (
+        <Button
+          onClick={toggle3D}
+          variant="secondary"
+          size="sm"
+          className="absolute top-2 left-2 z-10 gap-2 shadow-md bg-background/90 backdrop-blur-sm"
+          title={is3D ? 'Comută la vizualizare 2D' : 'Comută la vizualizare 3D'}
+        >
+          {is3D ? <Layers className="h-4 w-4" /> : <Box className="h-4 w-4" />}
+          <span className="text-xs font-medium">{is3D ? '2D' : '3D'}</span>
+        </Button>
+      )}
     </div>
   );
 }
