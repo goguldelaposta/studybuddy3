@@ -78,8 +78,8 @@ const TermsContent = () => (
       <h2 className="text-base font-semibold text-foreground mb-2">6. Contact</h2>
       <p className="text-sm text-muted-foreground">
         Pentru întrebări sau nelămuriri, ne puteți contacta la:{" "}
-        <a href="mailto:contact@studybuddy3.co.uk" className="text-primary hover:underline">
-          contact@studybuddy3.co.uk
+        <a href="mailto:contact@studybuddy.co.uk" className="text-primary hover:underline">
+          contact@studybuddy.co.uk
         </a>
       </p>
     </section>
@@ -155,8 +155,8 @@ const PrivacyContent = () => (
       <p className="text-sm text-muted-foreground">
         Pentru exercitarea drepturilor GDPR sau pentru orice întrebări privind 
         datele personale, ne puteți contacta la:{" "}
-        <a href="mailto:contact@studybuddy3.co.uk" className="text-primary hover:underline">
-          contact@studybuddy3.co.uk
+        <a href="mailto:contact@studybuddy.co.uk" className="text-primary hover:underline">
+          contact@studybuddy.co.uk
         </a>
       </p>
     </section>

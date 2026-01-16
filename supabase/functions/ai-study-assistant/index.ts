@@ -54,7 +54,7 @@ serve(async (req) => {
       tips: 'Give practical study tips and learning strategies for this topic.',
     };
 
-    const systemPrompt = `You are a helpful study assistant for Romanian university students using StudyBuddy3 platform.
+    const systemPrompt = `You are a helpful study assistant for Romanian university students using StudyBuddy platform.
 Your role is to help students understand academic concepts, prepare for exams, and improve their learning.
 
 Guidelines:

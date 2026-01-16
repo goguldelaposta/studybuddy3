@@ -85,8 +85,8 @@ const PrivacyPolicy = () => {
               <p className="text-muted-foreground">
                 Pentru exercitarea drepturilor GDPR sau pentru orice întrebări privind 
                 datele personale, ne puteți contacta la:{" "}
-                <a href="mailto:contact@studybuddy3.co.uk" className="text-primary hover:underline">
-                  contact@studybuddy3.co.uk
+                <a href="mailto:contact@studybuddy.co.uk" className="text-primary hover:underline">
+                  contact@studybuddy.co.uk
                 </a>
               </p>
             </section>
