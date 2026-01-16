@@ -68,8 +68,8 @@ const Terms = () => {
               <h2 className="text-lg font-semibold text-foreground">6. Contact</h2>
               <p className="text-muted-foreground">
                 Pentru întrebări sau nelămuriri, ne puteți contacta la:{" "}
-                <a href="mailto:contact@studybuddy.co.uk" className="text-primary hover:underline">
-                  contact@studybuddy.co.uk
+                <a href="mailto:contact@studybuddy.ro" className="text-primary hover:underline">
+                  contact@studybuddy.ro
                 </a>
               </p>
             </section>
