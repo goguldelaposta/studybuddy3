@@ -3,11 +3,18 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+interface SignUpProfileData {
+  fullName: string;
+  universityId: string;
+  faculty: string;
+  yearOfStudy: number;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, gdprConsent?: boolean) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, gdprConsent?: boolean, profileData?: SignUpProfileData) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
@@ -64,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return errorMessage;
   };
 
-  const signUp = async (email: string, password: string, gdprConsent: boolean = false) => {
+  const signUp = async (email: string, password: string, gdprConsent: boolean = false, profileData?: SignUpProfileData) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       const { data, error } = await supabase.auth.signUp({
@@ -94,18 +101,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: new Error("Email already registered") };
       }
 
-      // Update profile with GDPR consent if user was created
-      if (data.user && gdprConsent) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            gdpr_consent: true,
-            gdpr_consent_at: new Date().toISOString(),
-          })
-          .eq('user_id', data.user.id);
+      // Update profile with GDPR consent and profile data if user was created
+      if (data.user) {
+        const updateData: Record<string, unknown> = {};
+        
+        if (gdprConsent) {
+          updateData.gdpr_consent = true;
+          updateData.gdpr_consent_at = new Date().toISOString();
+        }
+        
+        if (profileData) {
+          updateData.full_name = profileData.fullName;
+          updateData.university_id = profileData.universityId;
+          updateData.faculty = profileData.faculty;
+          updateData.year_of_study = profileData.yearOfStudy;
+        }
 
-        if (profileError) {
-          console.error('Failed to save GDPR consent:', profileError);
+        if (Object.keys(updateData).length > 0) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .update(updateData)
+            .eq('user_id', data.user.id);
+
+          if (profileError) {
+            console.error('Failed to save profile data:', profileError);
+          }
         }
       }
       

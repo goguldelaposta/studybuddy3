@@ -5,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, Mail, Lock, ArrowRight, Check, X, Clock } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, Mail, Lock, ArrowRight, Check, X, Clock, User, GraduationCap, Building, Calendar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRateLimiter } from "@/hooks/useRateLimiter";
 import { LegalModal } from "@/components/LegalModal";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 const emailSchema = z.string().email("Te rugăm să introduci un email valid");
@@ -30,6 +32,12 @@ interface PasswordRequirement {
   test: (password: string) => boolean;
 }
 
+interface University {
+  id: string;
+  name: string;
+  short_name: string;
+}
+
 const passwordRequirements: PasswordRequirement[] = [
   { label: "Minim 8 caractere", test: (p) => p.length >= 8 },
   { label: "O literă mare (A-Z)", test: (p) => /[A-Z]/.test(p) },
@@ -38,16 +46,42 @@ const passwordRequirements: PasswordRequirement[] = [
   { label: "Un caracter special (!@#$...)", test: (p) => /[^A-Za-z0-9]/.test(p) },
 ];
 
+const yearOptions = [
+  { value: "1", label: "Anul 1" },
+  { value: "2", label: "Anul 2" },
+  { value: "3", label: "Anul 3" },
+  { value: "4", label: "Anul 4" },
+  { value: "5", label: "Anul 5" },
+  { value: "6", label: "Anul 6" },
+];
+
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [universityId, setUniversityId] = useState("");
+  const [faculty, setFaculty] = useState("");
+  const [yearOfStudy, setYearOfStudy] = useState("");
+  const [universities, setUniversities] = useState<University[]>([]);
   const [gdprConsent, setGdprConsent] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; gdpr?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; gdpr?: string; fullName?: string; university?: string; faculty?: string; year?: string }>({});
   const [loading, setLoading] = useState(false);
   const [legalModalType, setLegalModalType] = useState<"terms" | "privacy" | null>(null);
   const { signIn, signUp, user } = useAuth();
+
+  // Fetch universities
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      const { data } = await supabase
+        .from('universities')
+        .select('id, name, short_name')
+        .order('name');
+      if (data) setUniversities(data);
+    };
+    fetchUniversities();
+  }, []);
   const navigate = useNavigate();
   
   // Rate limiting - 5 attempts per minute, 5 minute block
@@ -71,7 +105,7 @@ const Auth = () => {
   }, [user, navigate]);
 
   const validate = () => {
-    const newErrors: { email?: string; password?: string; gdpr?: string } = {};
+    const newErrors: { email?: string; password?: string; gdpr?: string; fullName?: string; university?: string; faculty?: string; year?: string } = {};
     
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
@@ -87,9 +121,23 @@ const Auth = () => {
       newErrors.password = passwordResult.error.errors[0].message;
     }
 
-    // GDPR consent required for signup
-    if (isSignUp && !gdprConsent) {
-      newErrors.gdpr = "Trebuie să accepți Politica de confidențialitate pentru a continua";
+    // Signup-specific validations
+    if (isSignUp) {
+      if (!fullName.trim()) {
+        newErrors.fullName = "Numele complet este obligatoriu";
+      }
+      if (!universityId) {
+        newErrors.university = "Te rugăm să selectezi universitatea";
+      }
+      if (!faculty.trim()) {
+        newErrors.faculty = "Facultatea este obligatorie";
+      }
+      if (!yearOfStudy) {
+        newErrors.year = "Te rugăm să selectezi anul de studiu";
+      }
+      if (!gdprConsent) {
+        newErrors.gdpr = "Trebuie să accepți Politica de confidențialitate pentru a continua";
+      }
     }
     
     setErrors(newErrors);
@@ -106,7 +154,12 @@ const Auth = () => {
 
     setLoading(true);
     const { error } = isSignUp
-      ? await signUp(email, password, gdprConsent)
+      ? await signUp(email, password, gdprConsent, {
+          fullName: fullName.trim(),
+          universityId,
+          faculty: faculty.trim(),
+          yearOfStudy: parseInt(yearOfStudy),
+        })
       : await signIn(email, password);
     setLoading(false);
 
@@ -191,6 +244,67 @@ const Auth = () => {
                 </div>
               )}
             </div>
+
+            {/* University, Faculty, Year - only for signup */}
+            {isSignUp && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="university">Universitate</Label>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+                    <Select value={universityId} onValueChange={setUniversityId}>
+                      <SelectTrigger className="pl-10">
+                        <SelectValue placeholder="Selectează universitatea" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {universities.map((uni) => (
+                          <SelectItem key={uni.id} value={uni.id}>
+                            {uni.short_name} - {uni.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {errors.university && <p className="text-xs text-destructive">{errors.university}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="faculty">Facultate</Label>
+                  <div className="relative">
+                    <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="faculty"
+                      type="text"
+                      placeholder="ex: Facultatea de Informatică"
+                      value={faculty}
+                      onChange={(e) => setFaculty(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  {errors.faculty && <p className="text-xs text-destructive">{errors.faculty}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="year">Anul de studiu</Label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+                    <Select value={yearOfStudy} onValueChange={setYearOfStudy}>
+                      <SelectTrigger className="pl-10">
+                        <SelectValue placeholder="Selectează anul" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {yearOptions.map((year) => (
+                          <SelectItem key={year.value} value={year.value}>
+                            {year.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {errors.year && <p className="text-xs text-destructive">{errors.year}</p>}
+                </div>
+              </>
+            )}
 
             {/* GDPR Consent for signup */}
             {isSignUp && (
