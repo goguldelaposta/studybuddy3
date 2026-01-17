@@ -110,14 +110,25 @@ export function useMessages() {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("messages")
         .update({ read_at: new Date().toISOString() })
         .eq("conversation_id", conversationId)
         .neq("sender_id", user.id)
-        .is("read_at", null);
+        .is("read_at", null)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error marking messages as read:", error.message, error.code, error.details);
+        toast({
+          title: "Eroare",
+          description: "Nu am putut marca mesajele ca citite.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log(`Marked ${data?.length || 0} messages as read in conversation ${conversationId}`);
 
       // Immediately update local conversation state to clear the badge
       setConversations((prev) =>
@@ -125,10 +136,10 @@ export function useMessages() {
           convo.id === conversationId ? { ...convo, unreadCount: 0 } : convo
         )
       );
-    } catch (error) {
-      console.error("Error marking messages as read:", error);
+    } catch (error: any) {
+      console.error("Unexpected error marking messages as read:", error);
     }
-  }, [user]);
+  }, [user, toast]);
 
   // Fetch messages for a specific conversation
   const fetchMessages = useCallback(async (conversationId: string) => {
