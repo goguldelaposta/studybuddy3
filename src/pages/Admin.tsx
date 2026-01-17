@@ -26,10 +26,11 @@ import { SkillsManagement } from "@/components/admin/SkillsManagement";
 import { 
   Shield, Users, Search, Loader2, Trash2, 
   Crown, ShieldCheck, User as UserIcon, AlertTriangle,
-  Flag, Ban, Megaphone, UserX, LayoutDashboard, Edit, Building2, BookOpen, Lightbulb, Mail, ShieldAlert
+  Flag, Ban, Megaphone, UserX, LayoutDashboard, Edit, Building2, BookOpen, Lightbulb, Mail, ShieldAlert, ShieldBan
 } from "lucide-react";
 import { NewsletterSender } from "@/components/admin/NewsletterSender";
 import { SecurityLogs } from "@/components/admin/SecurityLogs";
+import { BlockedIPsManagement } from "@/components/admin/BlockedIPsManagement";
 import { useModeration } from "@/hooks/useModeration";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -248,7 +249,7 @@ const Admin = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-13 lg:w-auto lg:inline-grid">
             <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span></TabsTrigger>
             <TabsTrigger value="users" className="gap-2"><Users className="w-4 h-4" /><span className="hidden sm:inline">Utilizatori</span></TabsTrigger>
             <TabsTrigger value="profiles" className="gap-2"><Edit className="w-4 h-4" /><span className="hidden sm:inline">Profiluri</span></TabsTrigger>
@@ -261,6 +262,7 @@ const Admin = () => {
             <TabsTrigger value="skills" className="gap-2"><Lightbulb className="w-4 h-4" /><span className="hidden sm:inline">Skills</span></TabsTrigger>
             <TabsTrigger value="newsletter" className="gap-2"><Mail className="w-4 h-4" /><span className="hidden sm:inline">Newsletter</span></TabsTrigger>
             <TabsTrigger value="security" className="gap-2"><ShieldAlert className="w-4 h-4" /><span className="hidden sm:inline">Securitate</span></TabsTrigger>
+            <TabsTrigger value="blocked-ips" className="gap-2"><ShieldBan className="w-4 h-4" /><span className="hidden sm:inline">IP Blocate</span></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard"><AdminDashboard /></TabsContent>
@@ -380,6 +382,7 @@ const Admin = () => {
           <TabsContent value="skills"><SkillsManagement /></TabsContent>
           <TabsContent value="newsletter"><NewsletterSender /></TabsContent>
           <TabsContent value="security"><SecurityLogs /></TabsContent>
+          <TabsContent value="blocked-ips"><BlockedIPsManagement /></TabsContent>
         </Tabs>
 
         {/* Suspension Dialog */}
