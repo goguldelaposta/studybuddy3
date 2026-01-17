@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -217,7 +216,7 @@ export function MessageThread({
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-pulse text-muted-foreground">Se încarcă...</div>
@@ -376,7 +375,7 @@ export function MessageThread({
             )}
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t bg-card/50">

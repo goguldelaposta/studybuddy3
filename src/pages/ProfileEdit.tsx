@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { ProfileForm } from "@/components/ProfileForm";
 import { PrivacySettings, PrivacySettingsData, getDefaultPrivacySettings } from "@/components/PrivacySettings";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { BlockedUsersManagement } from "@/components/BlockedUsersManagement";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfiles } from "@/hooks/useProfiles";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { User, Shield, Camera, Trash2, Loader2 } from "lucide-react";
+import { User, Shield, Camera, Trash2, Loader2, Ban } from "lucide-react";
 
 const ProfileEdit = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -112,18 +113,22 @@ const ProfileEdit = () => {
           </p>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Profil
+                <span className="hidden sm:inline">Profil</span>
               </TabsTrigger>
               <TabsTrigger value="avatar" className="flex items-center gap-2">
                 <Camera className="w-4 h-4" />
-                Poză
+                <span className="hidden sm:inline">Poză</span>
               </TabsTrigger>
               <TabsTrigger value="privacy" className="flex items-center gap-2">
                 <Shield className="w-4 h-4" />
-                Confidențialitate
+                <span className="hidden sm:inline">Setări</span>
+              </TabsTrigger>
+              <TabsTrigger value="blocked" className="flex items-center gap-2">
+                <Ban className="w-4 h-4" />
+                <span className="hidden sm:inline">Blocați</span>
               </TabsTrigger>
             </TabsList>
 
@@ -260,6 +265,10 @@ const ProfileEdit = () => {
                   </AlertDialog>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="blocked">
+              <BlockedUsersManagement />
             </TabsContent>
           </Tabs>
         </div>
