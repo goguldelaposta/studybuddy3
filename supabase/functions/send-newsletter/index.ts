@@ -22,15 +22,45 @@ interface NewsletterRequest {
   message: string;
 }
 
+// Helper function to log security events
+// deno-lint-ignore no-explicit-any
+const logSecurityEvent = async (
+  supabaseClient: any,
+  eventType: string,
+  userId: string | null,
+  endpoint: string,
+  req: Request,
+  details?: Record<string, unknown>
+) => {
+  try {
+    await supabaseClient.from("security_logs").insert({
+      event_type: eventType,
+      user_id: userId,
+      ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown",
+      user_agent: req.headers.get("user-agent") || "unknown",
+      endpoint,
+      request_details: details || null,
+    });
+  } catch (err) {
+    console.error("Failed to log security event:", err);
+  }
+};
+
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+  // Initialize supabase client early for logging
+  const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY 
+    ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    : null;
+
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!RESEND_API_KEY) {
       console.log("RESEND_API_KEY not configured");
@@ -43,26 +73,46 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    if (!supabase) {
       throw new Error("Missing Supabase configuration");
     }
 
     // Verify the request is from an admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
+      // Log unauthorized access attempt
+      if (supabase) {
+        await logSecurityEvent(
+          supabase,
+          "unauthorized_access",
+          null,
+          "send-newsletter",
+          req,
+          { reason: "missing_auth_header" }
+        );
+      }
       return new Response(
         JSON.stringify({ success: false, error: "Autorizare necesară" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
     // Get the user from the token
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
+      // Log failed authentication
+      if (supabase) {
+        await logSecurityEvent(
+          supabase,
+          "failed_auth",
+          null,
+          "send-newsletter",
+          req,
+          { reason: "invalid_token", error: authError?.message }
+        );
+      }
       return new Response(
         JSON.stringify({ success: false, error: "Sesiune invalidă" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -77,6 +127,15 @@ serve(async (req: Request): Promise<Response> => {
       .eq("role", "admin");
 
     if (!roles || roles.length === 0) {
+      // Log permission denied - user trying to access admin function
+      await logSecurityEvent(
+        supabase,
+        "permission_denied",
+        user.id,
+        "send-newsletter",
+        req,
+        { reason: "not_admin", user_email: user.email }
+      );
       return new Response(
         JSON.stringify({ success: false, error: "Doar administratorii pot trimite newsletter-uri" }),
         { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
