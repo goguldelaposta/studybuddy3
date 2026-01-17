@@ -116,35 +116,98 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   // Request desktop notification permission
   const requestDesktopPermission = useCallback(async () => {
+    // Check if Notifications API is supported
     if (!("Notification" in window)) {
       toast({
-        title: "Eroare",
+        title: "Notificări indisponibile",
         description: "Browserul tău nu suportă notificări desktop.",
         variant: "destructive",
       });
       return;
     }
 
+    // Check current permission state first
+    const currentPermission = Notification.permission;
+    console.log("Current notification permission:", currentPermission);
+
+    // If already denied, show instructions
+    if (currentPermission === "denied") {
+      toast({
+        title: "Notificări blocate",
+        description: "Te rog activează notificările din setările browserului (click pe iconița 🔒 lângă URL).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // If already granted, send test notification
+    if (currentPermission === "granted") {
+      setDesktopNotificationsEnabled(true);
+      sendTestNotification();
+      toast({
+        title: "Notificări deja active!",
+        description: "Am trimis o notificare de test.",
+      });
+      return;
+    }
+
+    // Permission is "default" - need to request
     try {
       const permission = await Notification.requestPermission();
+      console.log("New notification permission:", permission);
+      
       setDesktopNotificationsEnabled(permission === "granted");
       
       if (permission === "granted") {
+        // Send test notification immediately
+        sendTestNotification();
         toast({
-          title: "Notificări activate!",
+          title: "Notificări activate! 🎉",
           description: "Vei primi notificări desktop pentru mesaje noi.",
         });
       } else if (permission === "denied") {
         toast({
           title: "Notificări blocate",
-          description: "Activează notificările din setările browserului.",
+          description: "Te rog activează notificările din setările browserului (click pe iconița 🔒 lângă URL).",
           variant: "destructive",
+        });
+      } else {
+        // "default" - user dismissed the prompt
+        toast({
+          title: "Permisiune necesară",
+          description: "Apasă din nou pentru a activa notificările.",
         });
       }
     } catch (error) {
       console.error("Error requesting notification permission:", error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut solicita permisiunea pentru notificări.",
+        variant: "destructive",
+      });
     }
   }, [toast]);
+
+  // Send a test notification
+  const sendTestNotification = () => {
+    try {
+      const notification = new Notification("✅ Notificările funcționează!", {
+        body: "Vei primi notificări când primești mesaje noi.",
+        icon: "/favicon.png",
+        tag: "studybuddy-test",
+      });
+
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+
+      // Auto-close after 5 seconds
+      setTimeout(() => notification.close(), 5000);
+    } catch (error) {
+      console.error("Error sending test notification:", error);
+    }
+  };
 
   // Fetch total unread message count
   const refreshUnreadCount = useCallback(async () => {
