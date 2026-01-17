@@ -6,12 +6,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
-import { Send, ArrowLeft, Check, CheckCheck } from "lucide-react";
+import { Send, ArrowLeft, Check, CheckCheck, Trash2, Ban } from "lucide-react";
 import { Message, Conversation } from "@/hooks/useMessages";
 import { useMessageReactions } from "@/hooks/useMessageReactions";
 import { EmojiPicker } from "@/components/EmojiPicker";
 import { GifPicker } from "@/components/GifPicker";
 import { MessageReactions } from "@/components/MessageReactions";
+import { ChatActionsMenu } from "@/components/ChatActionsMenu";
 
 interface MessageThreadProps {
   conversation: Conversation | null;
@@ -22,6 +23,11 @@ interface MessageThreadProps {
   loading?: boolean;
   isOtherUserTyping?: boolean;
   onTyping?: (isTyping: boolean) => void;
+  isBlocked?: boolean;
+  onBlock?: () => void;
+  onUnblock?: () => void;
+  onDeleteConversation?: () => void;
+  onDeleteMessage?: (messageId: string) => void;
 }
 
 export function MessageThread({
@@ -33,6 +39,11 @@ export function MessageThread({
   loading,
   isOtherUserTyping,
   onTyping,
+  isBlocked,
+  onBlock,
+  onUnblock,
+  onDeleteConversation,
+  onDeleteMessage,
 }: MessageThreadProps) {
   const [newMessage, setNewMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -188,8 +199,21 @@ export function MessageThread({
           </h3>
           <p className="text-xs text-muted-foreground truncate">
             {conversation.otherParticipant?.faculty}
+            {isBlocked && (
+              <span className="ml-2 text-orange-500">• Blocat</span>
+            )}
           </p>
         </div>
+        {conversation.otherParticipant?.user_id && onBlock && onUnblock && onDeleteConversation && (
+          <ChatActionsMenu
+            otherUserId={conversation.otherParticipant.user_id}
+            otherUserName={conversation.otherParticipant.full_name || "Utilizator"}
+            isBlocked={isBlocked || false}
+            onBlock={onBlock}
+            onUnblock={onUnblock}
+            onDeleteConversation={onDeleteConversation}
+          />
+        )}
       </div>
 
       {/* Messages */}
@@ -356,20 +380,27 @@ export function MessageThread({
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t bg-card/50">
-        <div className="flex gap-2 items-center">
-          <EmojiPicker onEmojiSelect={handleEmojiSelect} />
-          <GifPicker onGifSelect={handleGifSelect} />
-          <Input
-            ref={inputRef}
-            value={newMessage}
-            onChange={handleInputChange}
-            placeholder="Scrie un mesaj..."
-            className="flex-1"
-          />
-          <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
+        {isBlocked ? (
+          <div className="flex items-center justify-center gap-2 py-2 text-muted-foreground">
+            <Ban className="h-4 w-4" />
+            <span className="text-sm">Ai blocat acest utilizator</span>
+          </div>
+        ) : (
+          <div className="flex gap-2 items-center">
+            <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+            <GifPicker onGifSelect={handleGifSelect} />
+            <Input
+              ref={inputRef}
+              value={newMessage}
+              onChange={handleInputChange}
+              placeholder="Scrie un mesaj..."
+              className="flex-1"
+            />
+            <Button type="submit" size="icon" disabled={!newMessage.trim()}>
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );
