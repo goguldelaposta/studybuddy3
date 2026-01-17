@@ -160,6 +160,84 @@ export function useMessages() {
     }
   }, [user, toast]);
 
+  // Delete a conversation and all its messages
+  const deleteConversation = useCallback(async (conversationId: string) => {
+    if (!user) return false;
+
+    try {
+      // Delete all messages first
+      const { error: messagesError } = await supabase
+        .from("messages")
+        .delete()
+        .eq("conversation_id", conversationId);
+
+      if (messagesError) throw messagesError;
+
+      // Delete the conversation
+      const { error: convoError } = await supabase
+        .from("conversations")
+        .delete()
+        .eq("id", conversationId);
+
+      if (convoError) throw convoError;
+
+      // Update local state
+      setConversations((prev) => prev.filter((c) => c.id !== conversationId));
+      if (activeConversationId === conversationId) {
+        setActiveConversationId(null);
+        setMessages([]);
+      }
+
+      toast({
+        title: "Conversație ștearsă",
+        description: "Toate mesajele au fost șterse.",
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error("Error deleting conversation:", error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut șterge conversația.",
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [user, toast, activeConversationId]);
+
+  // Delete a single message
+  const deleteMessage = useCallback(async (messageId: string) => {
+    if (!user) return false;
+
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .delete()
+        .eq("id", messageId)
+        .eq("sender_id", user.id); // Only delete own messages
+
+      if (error) throw error;
+
+      // Update local state
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+
+      toast({
+        title: "Mesaj șters",
+        description: "Mesajul a fost șters.",
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error("Error deleting message:", error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut șterge mesajul.",
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [user, toast]);
+
   // Start a new conversation or get existing one
   const startConversation = useCallback(async (otherUserId: string): Promise<string | null> => {
     if (!user) return null;
@@ -314,5 +392,7 @@ export function useMessages() {
     startConversation,
     setActiveConversationId,
     sendTypingIndicator,
+    deleteConversation,
+    deleteMessage,
   };
 }

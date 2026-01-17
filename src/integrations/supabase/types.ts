@@ -190,6 +190,27 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_users: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -943,6 +964,10 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_ip_blocked: { Args: { check_ip: string }; Returns: boolean }
       is_ip_whitelisted: { Args: { check_ip: string }; Returns: boolean }
+      is_user_blocked: {
+        Args: { checker_id: string; target_id: string }
+        Returns: boolean
+      }
       is_user_suspended: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

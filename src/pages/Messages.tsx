@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { ConversationList } from "@/components/ConversationList";
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfiles } from "@/hooks/useProfiles";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import { useBlockedUsers } from "@/hooks/useBlockedUsers";
 import { cn } from "@/lib/utils";
 
 const Messages = () => {
@@ -27,8 +28,11 @@ const Messages = () => {
     startConversation,
     setActiveConversationId,
     sendTypingIndicator,
+    deleteConversation,
+    deleteMessage,
   } = useMessages();
   const { refreshUnreadCount } = useRealtimeNotifications();
+  const { isUserBlocked, blockUser, unblockUser } = useBlockedUsers();
 
   const [showMobileThread, setShowMobileThread] = useState(false);
 
@@ -72,6 +76,31 @@ const Messages = () => {
   };
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId) || null;
+  const otherUserId = activeConversation?.otherParticipant?.user_id;
+  const isCurrentUserBlocked = otherUserId ? isUserBlocked(otherUserId) : false;
+
+  const handleBlock = useCallback(async () => {
+    if (otherUserId) {
+      await blockUser(otherUserId);
+    }
+  }, [otherUserId, blockUser]);
+
+  const handleUnblock = useCallback(async () => {
+    if (otherUserId) {
+      await unblockUser(otherUserId);
+    }
+  }, [otherUserId, unblockUser]);
+
+  const handleDeleteConversation = useCallback(async () => {
+    if (activeConversationId) {
+      await deleteConversation(activeConversationId);
+      setShowMobileThread(false);
+    }
+  }, [activeConversationId, deleteConversation]);
+
+  const handleDeleteMessage = useCallback(async (messageId: string) => {
+    await deleteMessage(messageId);
+  }, [deleteMessage]);
 
   if (authLoading) {
     return (
@@ -132,6 +161,11 @@ const Messages = () => {
               loading={loading}
               isOtherUserTyping={isOtherUserTyping}
               onTyping={sendTypingIndicator}
+              isBlocked={isCurrentUserBlocked}
+              onBlock={handleBlock}
+              onUnblock={handleUnblock}
+              onDeleteConversation={handleDeleteConversation}
+              onDeleteMessage={handleDeleteMessage}
             />
           </div>
         </div>
