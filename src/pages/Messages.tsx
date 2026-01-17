@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { ConversationList } from "@/components/ConversationList";
 import { MessageThread } from "@/components/MessageThread";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfiles } from "@/hooks/useProfiles";
@@ -93,9 +94,12 @@ const Messages = () => {
       />
 
       <div className="flex-1 container py-6 flex flex-col">
-        <h1 className="font-display text-2xl md:text-3xl font-bold mb-6">
-          <span className="gradient-text">Mesaje</span>
-        </h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="font-display text-2xl md:text-3xl font-bold">
+            <span className="gradient-text">Mesaje</span>
+          </h1>
+          <NotificationSettings />
+        </div>
 
         <div className="flex-1 grid md:grid-cols-[320px_1fr] gap-4 min-h-0">
           {/* Conversation List */}

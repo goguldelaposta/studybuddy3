@@ -12,6 +12,8 @@ interface NotificationContextType {
   refreshNewBadgeCount: () => Promise<void>;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
+  desktopNotificationsEnabled: boolean;
+  requestDesktopPermission: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -50,6 +52,31 @@ const playNotificationSound = () => {
   }
 };
 
+// Send desktop notification
+const sendDesktopNotification = (title: string, body: string, icon?: string) => {
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+  if (document.hasFocus()) return; // Don't show if tab is active
+
+  try {
+    const notification = new Notification(title, {
+      body,
+      icon: icon || "/favicon.png",
+      tag: "studybuddy-message",
+    });
+
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+    };
+
+    // Auto-close after 5 seconds
+    setTimeout(() => notification.close(), 5000);
+  } catch (error) {
+    console.log("Could not send desktop notification:", error);
+  }
+};
+
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -59,6 +86,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem("notificationSoundEnabled");
     return saved !== null ? saved === "true" : true;
+  });
+  const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(() => {
+    if (!("Notification" in window)) return false;
+    return Notification.permission === "granted";
   });
   const hasInteracted = useRef(false);
   const seenBadgesRef = useRef<Set<string>>(new Set());
@@ -82,6 +113,38 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem("notificationSoundEnabled", String(soundEnabled));
   }, [soundEnabled]);
+
+  // Request desktop notification permission
+  const requestDesktopPermission = useCallback(async () => {
+    if (!("Notification" in window)) {
+      toast({
+        title: "Eroare",
+        description: "Browserul tău nu suportă notificări desktop.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      setDesktopNotificationsEnabled(permission === "granted");
+      
+      if (permission === "granted") {
+        toast({
+          title: "Notificări activate!",
+          description: "Vei primi notificări desktop pentru mesaje noi.",
+        });
+      } else if (permission === "denied") {
+        toast({
+          title: "Notificări blocate",
+          description: "Activează notificările din setările browserului.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error requesting notification permission:", error);
+    }
+  }, [toast]);
 
   // Fetch total unread message count
   const refreshUnreadCount = useCallback(async () => {
@@ -214,16 +277,23 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             .single();
 
           const senderName = senderProfile?.full_name || "Cineva";
+          const messagePreview = newMessage.content.substring(0, 50) + (newMessage.content.length > 50 ? "..." : "");
 
           // Play notification sound if enabled and user has interacted
           if (soundEnabled && hasInteracted.current) {
             playNotificationSound();
           }
 
+          // Send desktop notification when tab is not active
+          sendDesktopNotification(
+            `📩 Mesaj nou de la ${senderName}`,
+            messagePreview
+          );
+
           // Show toast notification
           toast({
             title: "📩 Mesaj nou",
-            description: `${senderName}: ${newMessage.content.substring(0, 50)}${newMessage.content.length > 50 ? "..." : ""}`,
+            description: `${senderName}: ${messagePreview}`,
           });
 
           // Refresh unread count
@@ -383,7 +453,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       refreshFriendRequestCount,
       refreshNewBadgeCount,
       soundEnabled, 
-      setSoundEnabled 
+      setSoundEnabled,
+      desktopNotificationsEnabled,
+      requestDesktopPermission,
     }}>
       {children}
     </NotificationContext.Provider>
