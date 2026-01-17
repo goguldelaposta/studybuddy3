@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { HeroSection } from "@/components/HeroSection";
 import { StudentCard } from "@/components/StudentCard";
 import { FilterSection } from "@/components/FilterSection";
@@ -122,6 +123,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };
