@@ -149,13 +149,20 @@ export function MessageThread({
   if (!conversation) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4">
-          <span className="text-3xl">💬</span>
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6">
+          <span className="text-5xl">👋</span>
         </div>
-        <h3 className="font-semibold text-xl mb-2">Mesaje</h3>
-        <p className="text-muted-foreground">
-          Selectează o conversație pentru a vedea mesajele
+        <h3 className="font-semibold text-xl mb-3">Începe o conversație nouă</h3>
+        <p className="text-muted-foreground mb-6 max-w-sm">
+          Selectează o conversație din listă sau conectează-te cu alți studenți pentru a începe să conversezi!
         </p>
+        <a 
+          href="/friends" 
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+        >
+          <span className="text-lg">👋</span>
+          Începe o conversație nouă
+        </a>
       </div>
     );
   }

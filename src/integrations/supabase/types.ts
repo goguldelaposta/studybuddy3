@@ -513,7 +513,9 @@ export type Database = {
           gdpr_consent: boolean | null
           gdpr_consent_at: string | null
           id: string
+          last_seen: string | null
           looking_for: string | null
+          online_status: string | null
           privacy_settings: Json | null
           university_id: string | null
           updated_at: string
@@ -530,7 +532,9 @@ export type Database = {
           gdpr_consent?: boolean | null
           gdpr_consent_at?: string | null
           id?: string
+          last_seen?: string | null
           looking_for?: string | null
+          online_status?: string | null
           privacy_settings?: Json | null
           university_id?: string | null
           updated_at?: string
@@ -547,7 +551,9 @@ export type Database = {
           gdpr_consent?: boolean | null
           gdpr_consent_at?: string | null
           id?: string
+          last_seen?: string | null
           looking_for?: string | null
+          online_status?: string | null
           privacy_settings?: Json | null
           university_id?: string | null
           updated_at?: string
