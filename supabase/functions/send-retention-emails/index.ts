@@ -18,6 +18,7 @@ const getEmailSignature = () => `
   </div>
 `;
 
+// Welcome Day 3 Email
 const getWelcomeDay3Email = (userName: string) => `
 <!DOCTYPE html>
 <html>
@@ -67,6 +68,152 @@ const getWelcomeDay3Email = (userName: string) => `
 </html>
 `;
 
+// Welcome Day 7 Email - Encourages group creation
+const getWelcomeDay7Email = (userName: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+      <h1 style="color: white; margin: 0; font-size: 24px;">👥 Hai să formăm un grup de studiu!</h1>
+    </div>
+    
+    <div style="background-color: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      <h2 style="color: #374151; margin-top: 0;">Salut${userName ? `, ${userName}` : ''}! 🎓</h2>
+      
+      <p style="color: #6b7280; line-height: 1.6;">
+        A trecut o săptămână de când ești parte din comunitatea StudyBuddy! Sperăm că ai avut ocazia să explorezi platforma.
+      </p>
+      
+      <p style="color: #6b7280; line-height: 1.6;">
+        <strong>Știai că poți crea un grup de studiu?</strong> Grupurile sunt o modalitate excelentă de a:
+      </p>
+      
+      <ul style="color: #6b7280; line-height: 1.8; padding-left: 20px;">
+        <li>📚 <strong>Organiza sesiuni</strong> de învățat cu colegi de la aceeași facultate</li>
+        <li>🤝 <strong>Colabora la proiecte</strong> și teme de grup</li>
+        <li>💡 <strong>Împărtăși resurse</strong> și materiale de studiu</li>
+        <li>🎯 <strong>Te motiva reciproc</strong> pentru examene și evaluări</li>
+      </ul>
+      
+      <div style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); padding: 20px; border-radius: 12px; margin: 20px 0;">
+        <p style="color: #374151; margin: 0; text-align: center; font-weight: 500;">
+          💡 Sfat: Grupurile cu 3-5 membri sunt cele mai eficiente pentru învățat!
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://www.studybuddy.ro/groups" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+          Creează un Grup de Studiu
+        </a>
+      </div>
+      
+      <p style="color: #6b7280; line-height: 1.6;">
+        Nu uita să-ți inviți colegii să se alăture grupului tău! Împreună învățăm mai ușor. 🚀
+      </p>
+      
+      ${getEmailSignature()}
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+// Re-engagement Email for 30+ days inactive users
+const getReengagement30Email = (userName: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+      <h1 style="color: white; margin: 0; font-size: 24px;">🌟 Ne-ai lipsit!</h1>
+    </div>
+    
+    <div style="background-color: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      <h2 style="color: #374151; margin-top: 0;">Salut${userName ? `, ${userName}` : ''}! 👋</h2>
+      
+      <p style="color: #6b7280; line-height: 1.6;">
+        Am observat că nu te-ai mai conectat pe StudyBuddy de ceva vreme și am vrut să vedem dacă totul este în regulă.
+      </p>
+      
+      <p style="color: #6b7280; line-height: 1.6;">
+        <strong>Între timp, s-au întâmplat multe pe platformă:</strong>
+      </p>
+      
+      <ul style="color: #6b7280; line-height: 1.8; padding-left: 20px;">
+        <li>✨ <strong>Colegi noi</strong> s-au alăturat comunității</li>
+        <li>📍 <strong>Noi locații</strong> de studiu au fost adăugate pe hartă</li>
+        <li>👥 <strong>Grupuri noi</strong> de studiu au fost create</li>
+        <li>💬 <strong>Conversații interesante</strong> au loc zilnic</li>
+      </ul>
+      
+      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #f59e0b;">
+        <p style="color: #92400e; margin: 0; text-align: center;">
+          🎓 Semestrul este în toi - nu rata ocazia de a găsi colegi pentru sesiune!
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://www.studybuddy.ro" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+          Revino pe StudyBuddy
+        </a>
+      </div>
+      
+      <p style="color: #6b7280; line-height: 1.6;">
+        Te așteptăm înapoi! Dacă ai nevoie de ajutor sau ai întrebări, suntem mereu aici pentru tine.
+      </p>
+      
+      <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin-top: 20px;">
+        P.S. Dacă nu mai dorești să primești emailuri de la noi, ne poți contacta la contact@studybuddy.ro
+      </p>
+      
+      ${getEmailSignature()}
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+interface EmailConfig {
+  type: string;
+  subject: string;
+  daysThreshold: number;
+  getEmailHtml: (userName: string) => string;
+  checkField: 'created_at' | 'last_seen';
+}
+
+const emailConfigs: EmailConfig[] = [
+  {
+    type: 'welcome_day_3',
+    subject: 'Cum ți se pare StudyBuddy până acum? 🎓',
+    daysThreshold: 3,
+    getEmailHtml: getWelcomeDay3Email,
+    checkField: 'created_at',
+  },
+  {
+    type: 'welcome_day_7',
+    subject: 'Hai să creăm un grup de studiu! 👥',
+    daysThreshold: 7,
+    getEmailHtml: getWelcomeDay7Email,
+    checkField: 'created_at',
+  },
+  {
+    type: 'reengagement_30',
+    subject: 'Ne-ai lipsit! Revino pe StudyBuddy 🌟',
+    daysThreshold: 30,
+    getEmailHtml: getReengagement30Email,
+    checkField: 'last_seen',
+  },
+];
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -92,123 +239,134 @@ serve(async (req) => {
       throw new Error('Missing Supabase configuration');
     }
 
-    // Use service role to access all profiles and automated_emails_log
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Calculate the date 3 days ago
-    const threeDaysAgo = new Date();
-    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-    const threeDaysAgoISO = threeDaysAgo.toISOString();
+    const results: { type: string; sent: number; failed: number }[] = [];
 
-    console.log(`Looking for users created before: ${threeDaysAgoISO}`);
+    // Process each email type
+    for (const config of emailConfigs) {
+      console.log(`Processing ${config.type} emails...`);
 
-    // Get all users who were created more than 3 days ago
-    const { data: eligibleProfiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('id, full_name, email')
-      .lt('created_at', threeDaysAgoISO);
+      // Calculate threshold date
+      const thresholdDate = new Date();
+      thresholdDate.setDate(thresholdDate.getDate() - config.daysThreshold);
+      const thresholdISO = thresholdDate.toISOString();
 
-    if (profilesError) {
-      console.error('Error fetching profiles:', profilesError);
-      throw profilesError;
-    }
+      console.log(`Looking for users with ${config.checkField} before: ${thresholdISO}`);
 
-    if (!eligibleProfiles || eligibleProfiles.length === 0) {
-      console.log('No eligible users found');
-      return new Response(
-        JSON.stringify({ success: true, message: 'No eligible users', sent: 0 }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      // Get eligible profiles
+      let query = supabase
+        .from('profiles')
+        .select('id, full_name, email, last_seen')
+        .lt(config.checkField, thresholdISO);
+
+      // For re-engagement, only target users who have logged in at some point
+      if (config.type === 'reengagement_30') {
+        query = query.not('last_seen', 'is', null);
+      }
+
+      const { data: eligibleProfiles, error: profilesError } = await query;
+
+      if (profilesError) {
+        console.error(`Error fetching profiles for ${config.type}:`, profilesError);
+        continue;
+      }
+
+      if (!eligibleProfiles || eligibleProfiles.length === 0) {
+        console.log(`No eligible users for ${config.type}`);
+        results.push({ type: config.type, sent: 0, failed: 0 });
+        continue;
+      }
+
+      console.log(`Found ${eligibleProfiles.length} profiles for ${config.type}`);
+
+      // Get users who already received this email type
+      const { data: alreadySent, error: logError } = await supabase
+        .from('automated_emails_log')
+        .select('user_id')
+        .eq('email_type', config.type);
+
+      if (logError) {
+        console.error(`Error fetching email logs for ${config.type}:`, logError);
+        continue;
+      }
+
+      const alreadySentUserIds = new Set((alreadySent || []).map(entry => entry.user_id));
+      console.log(`${alreadySentUserIds.size} users already received ${config.type} email`);
+
+      // Filter users who haven't received the email yet
+      const usersToEmail = eligibleProfiles.filter(
+        profile => profile.email && !alreadySentUserIds.has(profile.id)
       );
-    }
 
-    console.log(`Found ${eligibleProfiles.length} profiles created > 3 days ago`);
+      console.log(`${usersToEmail.length} users to send ${config.type} email`);
 
-    // Get users who already received the welcome_day_3 email
-    const { data: alreadySent, error: logError } = await supabase
-      .from('automated_emails_log')
-      .select('user_id')
-      .eq('email_type', 'welcome_day_3');
+      let sentCount = 0;
+      let failedCount = 0;
 
-    if (logError) {
-      console.error('Error fetching email logs:', logError);
-      throw logError;
-    }
+      // Send emails
+      for (const user of usersToEmail) {
+        try {
+          const firstName = user.full_name?.split(' ')[0] || '';
 
-    const alreadySentUserIds = new Set((alreadySent || []).map(entry => entry.user_id));
-    console.log(`${alreadySentUserIds.size} users already received welcome_day_3 email`);
-
-    // Filter users who haven't received the email yet
-    const usersToEmail = eligibleProfiles.filter(
-      profile => profile.email && !alreadySentUserIds.has(profile.id)
-    );
-
-    console.log(`${usersToEmail.length} users to send welcome_day_3 email`);
-
-    if (usersToEmail.length === 0) {
-      return new Response(
-        JSON.stringify({ success: true, message: 'All eligible users already emailed', sent: 0 }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-      );
-    }
-
-    let sentCount = 0;
-    let failedCount = 0;
-
-    // Send emails and log them
-    for (const user of usersToEmail) {
-      try {
-        const firstName = user.full_name?.split(' ')[0] || '';
-        
-        // Send email via Resend API
-        const res = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-          },
-          body: JSON.stringify({
-            from: 'StudyBuddy <contact@studybuddy.ro>',
-            to: [user.email],
-            subject: 'Cum ți se pare StudyBuddy până acum? 🎓',
-            html: getWelcomeDay3Email(firstName),
-          }),
-        });
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(`Resend API error: ${errorText}`);
-        }
-
-        const emailResult = await res.json();
-        console.log(`Email sent to ${user.email}:`, emailResult);
-
-        // Log the sent email
-        const { error: insertError } = await supabase
-          .from('automated_emails_log')
-          .insert({
-            user_id: user.id,
-            email_type: 'welcome_day_3',
+          const res = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${RESEND_API_KEY}`,
+            },
+            body: JSON.stringify({
+              from: 'StudyBuddy <contact@studybuddy.ro>',
+              to: [user.email],
+              subject: config.subject,
+              html: config.getEmailHtml(firstName),
+            }),
           });
 
-        if (insertError) {
-          console.error(`Error logging email for user ${user.id}:`, insertError);
-        }
+          if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`Resend API error: ${errorText}`);
+          }
 
-        sentCount++;
-      } catch (emailError) {
-        console.error(`Failed to send email to ${user.email}:`, emailError);
-        failedCount++;
+          const emailResult = await res.json();
+          console.log(`${config.type} email sent to ${user.email}:`, emailResult);
+
+          // Log the sent email
+          const { error: insertError } = await supabase
+            .from('automated_emails_log')
+            .insert({
+              user_id: user.id,
+              email_type: config.type,
+            });
+
+          if (insertError) {
+            console.error(`Error logging email for user ${user.id}:`, insertError);
+          }
+
+          sentCount++;
+        } catch (emailError) {
+          console.error(`Failed to send ${config.type} email to ${user.email}:`, emailError);
+          failedCount++;
+        }
       }
+
+      results.push({ type: config.type, sent: sentCount, failed: failedCount });
     }
 
-    console.log(`Retention email job completed. Sent: ${sentCount}, Failed: ${failedCount}`);
+    console.log('Retention email job completed:', results);
+
+    const totalSent = results.reduce((acc, r) => acc + r.sent, 0);
+    const totalFailed = results.reduce((acc, r) => acc + r.failed, 0);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        sent: sentCount, 
-        failed: failedCount,
-        message: `Sent ${sentCount} emails, ${failedCount} failed`
+      JSON.stringify({
+        success: true,
+        results,
+        summary: {
+          totalSent,
+          totalFailed,
+          message: `Sent ${totalSent} emails, ${totalFailed} failed`,
+        },
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );
