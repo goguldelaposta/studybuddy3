@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
-import { Send, ArrowLeft, Check, CheckCheck, Trash2, Ban } from "lucide-react";
+import { Send, ArrowLeft, Check, CheckCheck, Ban, FileText, Download } from "lucide-react";
 import { Message, Conversation } from "@/hooks/useMessages";
 import { useMessageReactions } from "@/hooks/useMessageReactions";
 import { EmojiPicker } from "@/components/EmojiPicker";
 import { GifPicker } from "@/components/GifPicker";
 import { MessageReactions } from "@/components/MessageReactions";
 import { ChatActionsMenu } from "@/components/ChatActionsMenu";
+import { MessageFileUpload } from "@/components/MessageFileUpload";
 
 interface MessageThreadProps {
   conversation: Conversation | null;
@@ -143,6 +144,29 @@ export function MessageThread({
            content.includes("giphy.com");
   };
 
+  // Check if content is an image URL
+  const isImageUrl = (content: string) => {
+    return content.match(/\.(jpg|jpeg|png|webp|gif)(\?|$)/i) !== null ||
+           content.includes("message-attachments");
+  };
+
+  // Check if content is a file URL
+  const isFileUrl = (content: string) => {
+    return content.includes("message-attachments") && !isImageUrl(content);
+  };
+
+  // Get file name from URL
+  const getFileName = (url: string) => {
+    const parts = url.split("/");
+    const fileName = parts[parts.length - 1].split("?")[0];
+    return decodeURIComponent(fileName);
+  };
+
+  // Handle file upload completion
+  const handleFileUploaded = (fileUrl: string) => {
+    onSendMessage(fileUrl);
+  };
+
   // Find the last own message that has been read
   const getLastReadOwnMessageId = () => {
     const ownMessages = messages.filter(m => m.sender_id === currentUserId);
@@ -237,6 +261,9 @@ export function MessageThread({
                   format(new Date(messages[index - 1].created_at), "PP");
               const messageReactions = getReactionsForMessage(message.id);
               const isGif = isGifUrl(message.content);
+              const isImage = isImageUrl(message.content) && !isGif;
+              const isFile = isFileUrl(message.content) && !isImage;
+              const isMedia = isGif || isImage;
               const isLastReadMessage = isOwn && message.id === lastReadOwnMessageId;
               const isDelivered = isOwn && !message.read_at;
 
@@ -267,23 +294,40 @@ export function MessageThread({
                       <div
                         className={cn(
                           "rounded-2xl max-w-full overflow-hidden",
-                          isGif ? "p-0" : "px-4 py-2",
+                          isMedia ? "p-0" : "px-4 py-2",
                           isOwn
-                            ? isGif ? "rounded-br-md" : "bg-primary text-primary-foreground rounded-br-md"
-                            : isGif ? "rounded-bl-md" : "bg-muted rounded-bl-md"
+                            ? isMedia ? "rounded-br-md" : "bg-primary text-primary-foreground rounded-br-md"
+                            : isMedia ? "rounded-bl-md" : "bg-muted rounded-bl-md"
                         )}
                       >
-                        {isGif ? (
+                        {isGif || isImage ? (
                           <img 
                             src={message.content} 
-                            alt="GIF" 
-                            className="max-w-[240px] rounded-2xl"
+                            alt={isGif ? "GIF" : "Imagine"} 
+                            className="max-w-[240px] rounded-2xl cursor-pointer"
                             loading="lazy"
+                            onClick={() => window.open(message.content, "_blank")}
                           />
+                        ) : isFile ? (
+                          <a
+                            href={message.content}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-2 rounded-2xl",
+                              isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
+                            )}
+                          >
+                            <FileText className="h-5 w-5 flex-shrink-0" />
+                            <span className="text-sm truncate max-w-[180px]">
+                              {getFileName(message.content)}
+                            </span>
+                            <Download className="h-4 w-4 flex-shrink-0" />
+                          </a>
                         ) : (
                           <p className="text-sm break-words whitespace-pre-wrap">{message.content}</p>
                         )}
-                        {!isGif && (
+                        {!isMedia && !isFile && (
                           <div className={cn(
                             "flex items-center gap-1 mt-1",
                             isOwn ? "justify-end" : ""
@@ -312,7 +356,7 @@ export function MessageThread({
                           </div>
                         )}
                       </div>
-                      {isGif && (
+                      {(isGif || isImage) && (
                         <div className={cn(
                           "flex items-center gap-1 mt-1",
                           isOwn ? "justify-end" : ""
@@ -386,6 +430,11 @@ export function MessageThread({
           </div>
         ) : (
           <div className="flex gap-2 items-center">
+            <MessageFileUpload
+              userId={currentUserId}
+              conversationId={conversation.id}
+              onFileUploaded={handleFileUploaded}
+            />
             <EmojiPicker onEmojiSelect={handleEmojiSelect} />
             <GifPicker onGifSelect={handleGifSelect} />
             <Input

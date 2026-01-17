@@ -4,12 +4,15 @@ import { Navbar } from "@/components/Navbar";
 import { ConversationList } from "@/components/ConversationList";
 import { MessageThread } from "@/components/MessageThread";
 import { NotificationSettings } from "@/components/NotificationSettings";
+import { MessageSearch } from "@/components/MessageSearch";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfiles } from "@/hooks/useProfiles";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { useBlockedUsers } from "@/hooks/useBlockedUsers";
 import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
 
 const Messages = () => {
   const navigate = useNavigate();
@@ -35,6 +38,7 @@ const Messages = () => {
   const { isUserBlocked, blockUser, unblockUser } = useBlockedUsers();
 
   const [showMobileThread, setShowMobileThread] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   // Handle redirect for unauthenticated users
   useEffect(() => {
@@ -60,8 +64,13 @@ const Messages = () => {
   const handleSelectConversation = (conversationId: string) => {
     fetchMessages(conversationId);
     setShowMobileThread(true);
+    setShowSearch(false);
     // Refresh unread count after reading messages
     setTimeout(() => refreshUnreadCount(), 500);
+  };
+
+  const handleSearchResultClick = (conversationId: string) => {
+    handleSelectConversation(conversationId);
   };
 
   const handleSendMessage = (content: string) => {
@@ -127,7 +136,17 @@ const Messages = () => {
           <h1 className="font-display text-2xl md:text-3xl font-bold">
             <span className="gradient-text">Mesaje</span>
           </h1>
-          <NotificationSettings />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSearch(true)}
+              title="Caută în mesaje"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+            <NotificationSettings />
+          </div>
         </div>
 
         <div className="flex-1 grid md:grid-cols-[320px_1fr] gap-4 min-h-0 overflow-hidden">
@@ -169,6 +188,13 @@ const Messages = () => {
             />
           </div>
         </div>
+
+        {/* Message Search Overlay */}
+        <MessageSearch
+          isOpen={showSearch}
+          onClose={() => setShowSearch(false)}
+          onResultClick={handleSearchResultClick}
+        />
       </div>
     </div>
   );

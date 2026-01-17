@@ -105,11 +105,38 @@ export function useMessages() {
     }
   }, [user]);
 
+  // Mark messages as read
+  const markMessagesAsRead = useCallback(async (conversationId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .update({ read_at: new Date().toISOString() })
+        .eq("conversation_id", conversationId)
+        .neq("sender_id", user.id)
+        .is("read_at", null);
+
+      if (error) throw error;
+
+      // Immediately update local conversation state to clear the badge
+      setConversations((prev) =>
+        prev.map((convo) =>
+          convo.id === conversationId ? { ...convo, unreadCount: 0 } : convo
+        )
+      );
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+    }
+  }, [user]);
+
   // Fetch messages for a specific conversation
   const fetchMessages = useCallback(async (conversationId: string) => {
     if (!user) return;
 
     setLoading(true);
+    setActiveConversationId(conversationId);
+
     try {
       const { data, error } = await supabase
         .from("messages")
@@ -119,22 +146,16 @@ export function useMessages() {
 
       if (error) throw error;
       setMessages(data || []);
-      setActiveConversationId(conversationId);
 
-      // Mark messages as read
-      await supabase
-        .from("messages")
-        .update({ read_at: new Date().toISOString() })
-        .eq("conversation_id", conversationId)
-        .neq("sender_id", user.id)
-        .is("read_at", null);
+      // Mark messages as read immediately and update UI
+      await markMessagesAsRead(conversationId);
 
     } catch (error: any) {
       console.error("Error fetching messages:", error);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, markMessagesAsRead]);
 
   // Send a message
   const sendMessage = useCallback(async (conversationId: string, content: string) => {
@@ -394,5 +415,6 @@ export function useMessages() {
     sendTypingIndicator,
     deleteConversation,
     deleteMessage,
+    markMessagesAsRead,
   };
 }
