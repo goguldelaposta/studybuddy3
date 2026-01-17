@@ -151,6 +151,45 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_ips: {
+        Row: {
+          attempt_count: number
+          blocked_at: string
+          blocked_until: string
+          created_at: string
+          id: string
+          ip_address: string
+          is_active: boolean
+          reason: string
+          unblocked_at: string | null
+          unblocked_by: string | null
+        }
+        Insert: {
+          attempt_count?: number
+          blocked_at?: string
+          blocked_until: string
+          created_at?: string
+          id?: string
+          ip_address: string
+          is_active?: boolean
+          reason?: string
+          unblocked_at?: string | null
+          unblocked_by?: string | null
+        }
+        Update: {
+          attempt_count?: number
+          blocked_at?: string
+          blocked_until?: string
+          created_at?: string
+          id?: string
+          ip_address?: string
+          is_active?: boolean
+          reason?: string
+          unblocked_at?: string | null
+          unblocked_by?: string | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -869,6 +908,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_ip_blocked: { Args: { check_ip: string }; Returns: boolean }
       is_user_suspended: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
