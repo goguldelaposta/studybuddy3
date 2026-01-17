@@ -3,10 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
 
-interface BlockedUser {
+interface BlockedUserProfile {
+  full_name: string | null;
+  avatar_url: string | null;
+  faculty: string | null;
+}
+
+export interface BlockedUser {
   id: string;
   blocked_id: string;
   created_at: string;
+  profile?: BlockedUserProfile;
 }
 
 export function useBlockedUsers() {
@@ -15,20 +22,40 @@ export function useBlockedUsers() {
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch blocked users
+  // Fetch blocked users with profiles
   const fetchBlockedUsers = useCallback(async () => {
     if (!user) return;
 
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from("blocked_users")
         .select("*")
         .eq("blocker_id", user.id);
 
       if (error) throw error;
-      setBlockedUsers(data || []);
+
+      // Fetch profiles for blocked users
+      if (data && data.length > 0) {
+        const blockedIds = data.map((b) => b.blocked_id);
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url, faculty")
+          .in("user_id", blockedIds);
+
+        const blockedWithProfiles = data.map((blocked) => ({
+          ...blocked,
+          profile: profiles?.find((p) => p.user_id === blocked.blocked_id) || undefined,
+        }));
+
+        setBlockedUsers(blockedWithProfiles);
+      } else {
+        setBlockedUsers([]);
+      }
     } catch (error) {
       console.error("Error fetching blocked users:", error);
+    } finally {
+      setLoading(false);
     }
   }, [user]);
 

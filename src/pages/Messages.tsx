@@ -115,27 +115,27 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       <Navbar
         isAuthenticated={!!user}
         user={user ? { email: user.email || "", fullName: currentUserProfile?.full_name } : null}
         onSignOut={signOut}
       />
 
-      <div className="flex-1 container py-6 flex flex-col">
-        <div className="flex items-center justify-between mb-6">
+      <div className="flex-1 container py-4 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between mb-4 flex-shrink-0">
           <h1 className="font-display text-2xl md:text-3xl font-bold">
             <span className="gradient-text">Mesaje</span>
           </h1>
           <NotificationSettings />
         </div>
 
-        <div className="flex-1 grid md:grid-cols-[320px_1fr] gap-4 min-h-0">
+        <div className="flex-1 grid md:grid-cols-[320px_1fr] gap-4 min-h-0 overflow-hidden">
           {/* Conversation List */}
           <div
             className={cn(
-              "border rounded-xl bg-card overflow-hidden",
-              showMobileThread ? "hidden md:block" : "block"
+              "border rounded-xl bg-card overflow-hidden h-full flex flex-col",
+              showMobileThread ? "hidden md:flex" : "flex"
             )}
           >
             <ConversationList
@@ -148,8 +148,8 @@ const Messages = () => {
           {/* Message Thread */}
           <div
             className={cn(
-              "border rounded-xl bg-card overflow-hidden min-h-[500px]",
-              !showMobileThread ? "hidden md:block" : "block"
+              "border rounded-xl bg-card overflow-hidden h-full flex flex-col",
+              !showMobileThread ? "hidden md:flex" : "flex"
             )}
           >
             <MessageThread
