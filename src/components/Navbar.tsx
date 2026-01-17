@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle, Megaphone, UserPlus, Shield } from "lucide-react";
+import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle, Megaphone, UserPlus, Shield, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
@@ -152,6 +152,12 @@ export const Navbar = ({
                       Setări
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/contact" className="flex items-center gap-2 cursor-pointer">
+                      <Mail className="w-4 h-4" />
+                      Contact
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <>
                       <DropdownMenuSeparator />
@@ -228,6 +234,9 @@ export const Navbar = ({
                   </Link>
                   <Link to="/profile" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                     Profilul Meu
+                  </Link>
+                  <Link to="/contact" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                    Contact
                   </Link>
                   {isAdmin && (
                     <Link to="/admin" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg text-amber-600 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
