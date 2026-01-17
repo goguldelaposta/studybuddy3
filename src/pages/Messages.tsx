@@ -5,9 +5,10 @@ import { ConversationList } from "@/components/ConversationList";
 import { MessageThread } from "@/components/MessageThread";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { MessageSearch } from "@/components/MessageSearch";
+import { ForwardMessageDialog } from "@/components/ForwardMessageDialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { useMessages } from "@/hooks/useMessages";
+import { useMessages, Message } from "@/hooks/useMessages";
 import { useProfiles } from "@/hooks/useProfiles";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { useBlockedUsers } from "@/hooks/useBlockedUsers";
@@ -33,12 +34,14 @@ const Messages = () => {
     sendTypingIndicator,
     deleteConversation,
     deleteMessage,
+    markMessagesAsRead,
   } = useMessages();
   const { refreshUnreadCount } = useRealtimeNotifications();
   const { isUserBlocked, blockUser, unblockUser } = useBlockedUsers();
 
   const [showMobileThread, setShowMobileThread] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [forwardingMessage, setForwardingMessage] = useState<Message | null>(null);
 
   // Handle redirect for unauthenticated users
   useEffect(() => {
@@ -61,13 +64,14 @@ const Messages = () => {
     }
   }, [searchParams, user, startConversation, fetchMessages, fetchConversations]);
 
-  const handleSelectConversation = (conversationId: string) => {
-    fetchMessages(conversationId);
+  const handleSelectConversation = useCallback(async (conversationId: string) => {
+    await fetchMessages(conversationId);
     setShowMobileThread(true);
     setShowSearch(false);
-    // Refresh unread count after reading messages
-    setTimeout(() => refreshUnreadCount(), 500);
-  };
+    // Mark messages as read and refresh unread count immediately
+    await markMessagesAsRead(conversationId);
+    refreshUnreadCount();
+  }, [fetchMessages, markMessagesAsRead, refreshUnreadCount]);
 
   const handleSearchResultClick = (conversationId: string) => {
     handleSelectConversation(conversationId);
@@ -110,6 +114,14 @@ const Messages = () => {
   const handleDeleteMessage = useCallback(async (messageId: string) => {
     await deleteMessage(messageId);
   }, [deleteMessage]);
+
+  const handleForwardMessage = useCallback((message: Message) => {
+    setForwardingMessage(message);
+  }, []);
+
+  const handleForwardSubmit = useCallback(async (conversationId: string, messageContent: string) => {
+    await sendMessage(conversationId, messageContent);
+  }, [sendMessage]);
 
   if (authLoading) {
     return (
@@ -185,9 +197,19 @@ const Messages = () => {
               onUnblock={handleUnblock}
               onDeleteConversation={handleDeleteConversation}
               onDeleteMessage={handleDeleteMessage}
+              onForwardMessage={handleForwardMessage}
             />
           </div>
         </div>
+
+        {/* Forward Message Dialog */}
+        <ForwardMessageDialog
+          isOpen={!!forwardingMessage}
+          onClose={() => setForwardingMessage(null)}
+          message={forwardingMessage}
+          conversations={conversations.filter(c => c.id !== activeConversationId)}
+          onForward={handleForwardSubmit}
+        />
 
         {/* Message Search Overlay */}
         <MessageSearch

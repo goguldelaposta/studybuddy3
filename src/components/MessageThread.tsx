@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
-import { Send, ArrowLeft, Check, CheckCheck, Ban, FileText, Download } from "lucide-react";
+import { Send, ArrowLeft, Check, CheckCheck, Ban, FileText, Download, Reply, Forward, X } from "lucide-react";
 import { Message, Conversation } from "@/hooks/useMessages";
 import { useMessageReactions } from "@/hooks/useMessageReactions";
 import { EmojiPicker } from "@/components/EmojiPicker";
@@ -13,6 +13,12 @@ import { GifPicker } from "@/components/GifPicker";
 import { MessageReactions } from "@/components/MessageReactions";
 import { ChatActionsMenu } from "@/components/ChatActionsMenu";
 import { MessageFileUpload } from "@/components/MessageFileUpload";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 interface MessageThreadProps {
   conversation: Conversation | null;
@@ -28,6 +34,7 @@ interface MessageThreadProps {
   onUnblock?: () => void;
   onDeleteConversation?: () => void;
   onDeleteMessage?: (messageId: string) => void;
+  onForwardMessage?: (message: Message) => void;
 }
 
 export function MessageThread({
@@ -44,9 +51,12 @@ export function MessageThread({
   onUnblock,
   onDeleteConversation,
   onDeleteMessage,
+  onForwardMessage,
 }: MessageThreadProps) {
   const [newMessage, setNewMessage] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -57,12 +67,24 @@ export function MessageThread({
     getReactionsForMessage 
   } = useMessageReactions(conversation?.id || null);
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom when messages change or conversation changes
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  }, []);
+
+  // Scroll to bottom when messages load or new messages arrive
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    // Small delay to ensure DOM is updated
+    const timer = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timer);
+  }, [messages, conversation?.id, scrollToBottom]);
+
+  // Also scroll when typing indicator appears
+  useEffect(() => {
+    if (isOtherUserTyping) {
+      scrollToBottom();
     }
-  }, [messages, isOtherUserTyping]);
+  }, [isOtherUserTyping, scrollToBottom]);
 
   // Focus input on conversation change
   useEffect(() => {
@@ -105,13 +127,33 @@ export function MessageThread({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim()) {
-      onSendMessage(newMessage);
+      // If replying, prepend the reply context
+      const messageContent = replyingTo 
+        ? `[Răspuns la: "${replyingTo.content.substring(0, 50)}${replyingTo.content.length > 50 ? '...' : ''}"]\n\n${newMessage}`
+        : newMessage;
+      onSendMessage(messageContent);
       setNewMessage("");
+      setReplyingTo(null);
       if (onTyping) onTyping(false);
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
     }
+  };
+
+  const handleReply = (message: Message) => {
+    setReplyingTo(message);
+    inputRef.current?.focus();
+  };
+
+  const handleForward = (message: Message) => {
+    if (onForwardMessage) {
+      onForwardMessage(message);
+    }
+  };
+
+  const cancelReply = () => {
+    setReplyingTo(null);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -240,7 +282,7 @@ export function MessageThread({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto p-4" ref={scrollContainerRef}>
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-pulse text-muted-foreground">Se încarcă...</div>
@@ -265,7 +307,7 @@ export function MessageThread({
               const isFile = isFileUrl(message.content) && !isImage;
               const isMedia = isGif || isImage;
               const isLastReadMessage = isOwn && message.id === lastReadOwnMessageId;
-              const isDelivered = isOwn && !message.read_at;
+              const isReply = message.content.startsWith('[Răspuns la:');
 
               return (
                 <div key={message.id}>
@@ -276,125 +318,148 @@ export function MessageThread({
                       </span>
                     </div>
                   )}
-                  <div
-                    className={cn(
-                      "flex gap-2 max-w-[80%] group",
-                      isOwn ? "ml-auto flex-row-reverse" : ""
-                    )}
-                  >
-                    {!isOwn && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage src={conversation.otherParticipant?.avatar_url || ""} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                          {conversation.otherParticipant?.full_name?.charAt(0) || "?"}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    <div className="flex flex-col">
+                  <ContextMenu>
+                    <ContextMenuTrigger>
                       <div
                         className={cn(
-                          "rounded-2xl max-w-full overflow-hidden",
-                          isMedia ? "p-0" : "px-4 py-2",
-                          isOwn
-                            ? isMedia ? "rounded-br-md" : "bg-primary text-primary-foreground rounded-br-md"
-                            : isMedia ? "rounded-bl-md" : "bg-muted rounded-bl-md"
+                          "flex gap-2 max-w-[80%] group",
+                          isOwn ? "ml-auto flex-row-reverse" : ""
                         )}
                       >
-                        {isGif || isImage ? (
-                          <img 
-                            src={message.content} 
-                            alt={isGif ? "GIF" : "Imagine"} 
-                            className="max-w-[240px] rounded-2xl cursor-pointer"
-                            loading="lazy"
-                            onClick={() => window.open(message.content, "_blank")}
-                          />
-                        ) : isFile ? (
-                          <a
-                            href={message.content}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        {!isOwn && (
+                          <Avatar className="h-8 w-8 flex-shrink-0">
+                            <AvatarImage src={conversation.otherParticipant?.avatar_url || ""} />
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                              {conversation.otherParticipant?.full_name?.charAt(0) || "?"}
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div className="flex flex-col">
+                          <div
                             className={cn(
-                              "flex items-center gap-2 px-4 py-2 rounded-2xl",
-                              isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
+                              "rounded-2xl max-w-full overflow-hidden",
+                              isMedia ? "p-0" : "px-4 py-2",
+                              isOwn
+                                ? isMedia ? "rounded-br-md" : "bg-primary text-primary-foreground rounded-br-md"
+                                : isMedia ? "rounded-bl-md" : "bg-muted rounded-bl-md"
                             )}
                           >
-                            <FileText className="h-5 w-5 flex-shrink-0" />
-                            <span className="text-sm truncate max-w-[180px]">
-                              {getFileName(message.content)}
-                            </span>
-                            <Download className="h-4 w-4 flex-shrink-0" />
-                          </a>
-                        ) : (
-                          <p className="text-sm break-words whitespace-pre-wrap">{message.content}</p>
-                        )}
-                        {!isMedia && !isFile && (
-                          <div className={cn(
-                            "flex items-center gap-1 mt-1",
-                            isOwn ? "justify-end" : ""
-                          )}>
-                            <p
-                              className={cn(
-                                "text-[10px]",
-                                isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
-                              )}
-                            >
-                              {format(new Date(message.created_at), "HH:mm")}
-                            </p>
-                            {isOwn && (
-                              message.read_at ? (
-                                <CheckCheck className={cn(
-                                  "h-3 w-3",
-                                  isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
-                                )} />
-                              ) : (
-                                <Check className={cn(
-                                  "h-3 w-3",
-                                  isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
-                                )} />
-                              )
+                            {isGif || isImage ? (
+                              <img 
+                                src={message.content} 
+                                alt={isGif ? "GIF" : "Imagine"} 
+                                className="max-w-[240px] rounded-2xl cursor-pointer"
+                                loading="lazy"
+                                onClick={() => window.open(message.content, "_blank")}
+                              />
+                            ) : isFile ? (
+                              <a
+                                href={message.content}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={cn(
+                                  "flex items-center gap-2 px-4 py-2 rounded-2xl",
+                                  isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
+                                )}
+                              >
+                                <FileText className="h-5 w-5 flex-shrink-0" />
+                                <span className="text-sm truncate max-w-[180px]">
+                                  {getFileName(message.content)}
+                                </span>
+                                <Download className="h-4 w-4 flex-shrink-0" />
+                              </a>
+                            ) : (
+                              <p className="text-sm break-words whitespace-pre-wrap">{message.content}</p>
+                            )}
+                            {!isMedia && !isFile && (
+                              <div className={cn(
+                                "flex items-center gap-1 mt-1",
+                                isOwn ? "justify-end" : ""
+                              )}>
+                                <p
+                                  className={cn(
+                                    "text-[10px]",
+                                    isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                                  )}
+                                >
+                                  {format(new Date(message.created_at), "HH:mm")}
+                                </p>
+                                {isOwn && (
+                                  message.read_at ? (
+                                    <CheckCheck className={cn(
+                                      "h-3 w-3",
+                                      isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                                    )} />
+                                  ) : (
+                                    <Check className={cn(
+                                      "h-3 w-3",
+                                      isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                                    )} />
+                                  )
+                                )}
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                      {(isGif || isImage) && (
-                        <div className={cn(
-                          "flex items-center gap-1 mt-1",
-                          isOwn ? "justify-end" : ""
-                        )}>
-                          <p
-                            className={cn(
-                              "text-[10px]",
-                              "text-muted-foreground"
-                            )}
-                          >
-                            {format(new Date(message.created_at), "HH:mm")}
-                          </p>
-                          {isOwn && (
-                            message.read_at ? (
-                              <CheckCheck className="h-3 w-3 text-muted-foreground" />
-                            ) : (
-                              <Check className="h-3 w-3 text-muted-foreground" />
-                            )
+                          {(isGif || isImage) && (
+                            <div className={cn(
+                              "flex items-center gap-1 mt-1",
+                              isOwn ? "justify-end" : ""
+                            )}>
+                              <p
+                                className={cn(
+                                  "text-[10px]",
+                                  "text-muted-foreground"
+                                )}
+                              >
+                                {format(new Date(message.created_at), "HH:mm")}
+                              </p>
+                              {isOwn && (
+                                message.read_at ? (
+                                  <CheckCheck className="h-3 w-3 text-muted-foreground" />
+                                ) : (
+                                  <Check className="h-3 w-3 text-muted-foreground" />
+                                )
+                              )}
+                            </div>
                           )}
+                          
+                          {/* Seen indicator for last read message */}
+                          {isLastReadMessage && (
+                            <p className="text-[10px] text-muted-foreground text-right mt-0.5">
+                              Văzut
+                            </p>
+                          )}
+                          
+                          {/* Reactions */}
+                          <MessageReactions
+                            reactions={messageReactions}
+                            onReact={(emoji) => handleReact(message.id, emoji)}
+                            onRemoveReaction={(emoji) => handleRemoveReaction(message.id, emoji)}
+                            isOwn={isOwn}
+                          />
                         </div>
+                      </div>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem onClick={() => handleReply(message)}>
+                        <Reply className="h-4 w-4 mr-2" />
+                        Răspunde
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => handleForward(message)}>
+                        <Forward className="h-4 w-4 mr-2" />
+                        Trimite mai departe
+                      </ContextMenuItem>
+                      {isOwn && onDeleteMessage && (
+                        <ContextMenuItem 
+                          onClick={() => onDeleteMessage(message.id)}
+                          className="text-destructive"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Șterge
+                        </ContextMenuItem>
                       )}
-                      
-                      {/* Seen indicator for last read message */}
-                      {isLastReadMessage && (
-                        <p className="text-[10px] text-muted-foreground text-right mt-0.5">
-                          Văzut
-                        </p>
-                      )}
-                      
-                      {/* Reactions */}
-                      <MessageReactions
-                        reactions={messageReactions}
-                        onReact={(emoji) => handleReact(message.id, emoji)}
-                        onRemoveReaction={(emoji) => handleRemoveReaction(message.id, emoji)}
-                        isOwn={isOwn}
-                      />
-                    </div>
-                  </div>
+                    </ContextMenuContent>
+                  </ContextMenu>
                 </div>
               );
             })}
@@ -417,36 +482,59 @@ export function MessageThread({
                 </div>
               </div>
             )}
+            
+            {/* Invisible scroll anchor */}
+            <div ref={messagesEndRef} />
           </div>
         )}
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t bg-card/50">
+      <form onSubmit={handleSubmit} className="border-t bg-card/50">
         {isBlocked ? (
-          <div className="flex items-center justify-center gap-2 py-2 text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
             <Ban className="h-4 w-4" />
             <span className="text-sm">Ai blocat acest utilizator</span>
           </div>
         ) : (
-          <div className="flex gap-2 items-center">
-            <MessageFileUpload
-              userId={currentUserId}
-              conversationId={conversation.id}
-              onFileUploaded={handleFileUploaded}
-            />
-            <EmojiPicker onEmojiSelect={handleEmojiSelect} />
-            <GifPicker onGifSelect={handleGifSelect} />
-            <Input
-              ref={inputRef}
-              value={newMessage}
-              onChange={handleInputChange}
-              placeholder="Scrie un mesaj..."
-              className="flex-1"
-            />
-            <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
+          <div className="p-4 space-y-2">
+            {/* Reply preview */}
+            {replyingTo && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg border-l-2 border-primary">
+                <Reply className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <p className="text-sm text-muted-foreground truncate flex-1">
+                  Răspuns la: "{replyingTo.content.substring(0, 50)}{replyingTo.content.length > 50 ? '...' : ''}"
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={cancelReply}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            <div className="flex gap-2 items-center">
+              <MessageFileUpload
+                userId={currentUserId}
+                conversationId={conversation.id}
+                onFileUploaded={handleFileUploaded}
+              />
+              <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+              <GifPicker onGifSelect={handleGifSelect} />
+              <Input
+                ref={inputRef}
+                value={newMessage}
+                onChange={handleInputChange}
+                placeholder={replyingTo ? "Scrie răspunsul..." : "Scrie un mesaj..."}
+                className="flex-1"
+              />
+              <Button type="submit" size="icon" disabled={!newMessage.trim()}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
       </form>
