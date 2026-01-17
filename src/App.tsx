@@ -22,6 +22,8 @@ import StudySpots from "./pages/StudySpots";
 import Friends from "./pages/Friends";
 import ProfileView from "./pages/ProfileView";
 import Admin from "./pages/Admin";
+import Notes from "./pages/Notes";
+import CalendarPage from "./pages/CalendarPage";
 import Badges from "./pages/Badges";
 import Terms from "./pages/Terms";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -55,6 +57,8 @@ const App = () => (
                 <Route path="/friends" element={<EmailVerificationGuard><Friends /></EmailVerificationGuard>} />
                 <Route path="/user/:userId" element={<EmailVerificationGuard><ProfileView /></EmailVerificationGuard>} />
                 <Route path="/admin" element={<EmailVerificationGuard><Admin /></EmailVerificationGuard>} />
+                <Route path="/notes" element={<EmailVerificationGuard><Notes /></EmailVerificationGuard>} />
+                <Route path="/calendar" element={<EmailVerificationGuard><CalendarPage /></EmailVerificationGuard>} />
                 <Route path="/badges" element={<EmailVerificationGuard><Badges /></EmailVerificationGuard>} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
