@@ -14,6 +14,17 @@ interface EmailRequest {
   type?: 'welcome' | 'notification' | 'friend_request' | 'message' | 'badge_earned';
 }
 
+const getEmailSignature = () => `
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+  <div style="text-align: center; padding: 15px 0;">
+    <p style="margin: 0 0 5px; font-weight: bold; color: #374151;">Echipa StudyBuddy</p>
+    <p style="margin: 0 0 10px; font-size: 12px; color: #6b7280;">─────────────────────────</p>
+    <p style="margin: 0 0 8px; font-size: 14px;">🚀 Învățăm mai ușor împreună.</p>
+    <p style="margin: 0 0 5px; font-size: 13px; color: #6b7280;">Web: <a href="https://www.studybuddy.ro" style="color: #667eea; text-decoration: none;">www.studybuddy.ro</a></p>
+    <p style="margin: 0; font-size: 13px; color: #6b7280;">Email: <a href="mailto:contact@studybuddy.ro" style="color: #667eea; text-decoration: none;">contact@studybuddy.ro</a></p>
+  </div>
+`;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -39,6 +50,9 @@ serve(async (req) => {
       throw new Error('Missing required fields: to, subject, html');
     }
 
+    // Add signature to all emails
+    const htmlWithSignature = html + getEmailSignature();
+
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -49,7 +63,7 @@ serve(async (req) => {
         from: 'StudyBuddy <contact@studybuddy.ro>',
         to: [to],
         subject,
-        html,
+        html: htmlWithSignature,
       }),
     });
 
