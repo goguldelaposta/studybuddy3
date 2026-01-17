@@ -85,6 +85,39 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          resource: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           category: string
@@ -510,39 +543,6 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      security_logs: {
-        Row: {
-          created_at: string
-          endpoint: string
-          event_type: string
-          id: string
-          ip_address: string | null
-          request_details: Json | null
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          endpoint: string
-          event_type: string
-          id?: string
-          ip_address?: string | null
-          request_details?: Json | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          endpoint?: string
-          event_type?: string
-          id?: string
-          ip_address?: string | null
-          request_details?: Json | null
-          user_agent?: string | null
-          user_id?: string | null
         }
         Relationships: []
       }

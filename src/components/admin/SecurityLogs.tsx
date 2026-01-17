@@ -6,22 +6,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Shield, AlertTriangle, XCircle, RefreshCw, Search } from "lucide-react";
+import { Shield, AlertTriangle, XCircle, RefreshCw, Search, Bell } from "lucide-react";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 
-interface SecurityLog {
+interface AuditLog {
   id: string;
-  event_type: string;
+  action: string;
   user_id: string | null;
   ip_address: string | null;
   user_agent: string | null;
-  endpoint: string;
-  request_details: Record<string, unknown> | null;
+  resource: string;
+  details: Record<string, unknown> | null;
   created_at: string;
 }
 
-const eventTypeLabels: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+const actionLabels: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  UNAUTHORIZED_ACCESS_ATTEMPT: { 
+    label: "Acces Neautorizat", 
+    color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    icon: <XCircle className="w-4 h-4" />
+  },
   unauthorized_access: { 
     label: "Acces Neautorizat", 
     color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
@@ -37,10 +42,15 @@ const eventTypeLabels: Record<string, { label: string; color: string; icon: Reac
     color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
     icon: <Shield className="w-4 h-4" />
   },
+  SECURITY_ALERT_TRIGGERED: { 
+    label: "⚠️ ALERTĂ SECURITATE", 
+    color: "bg-red-500 text-white dark:bg-red-600",
+    icon: <Bell className="w-4 h-4" />
+  },
 };
 
 export const SecurityLogs = () => {
-  const [logs, setLogs] = useState<SecurityLog[]>([]);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
@@ -49,21 +59,21 @@ export const SecurityLogs = () => {
     setLoading(true);
     try {
       let query = supabase
-        .from("security_logs")
+        .from("audit_logs")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
 
       if (filterType !== "all") {
-        query = query.eq("event_type", filterType);
+        query = query.eq("action", filterType);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
-      setLogs((data as SecurityLog[]) || []);
+      setLogs((data as unknown as AuditLog[]) || []);
     } catch (error) {
-      console.error("Error fetching security logs:", error);
+      console.error("Error fetching audit logs:", error);
     } finally {
       setLoading(false);
     }
@@ -77,16 +87,16 @@ export const SecurityLogs = () => {
     if (!searchTerm) return true;
     const searchLower = searchTerm.toLowerCase();
     return (
-      log.endpoint.toLowerCase().includes(searchLower) ||
+      log.resource.toLowerCase().includes(searchLower) ||
       log.ip_address?.toLowerCase().includes(searchLower) ||
       log.user_id?.toLowerCase().includes(searchLower) ||
-      JSON.stringify(log.request_details).toLowerCase().includes(searchLower)
+      JSON.stringify(log.details).toLowerCase().includes(searchLower)
     );
   });
 
-  const getEventBadge = (eventType: string) => {
-    const config = eventTypeLabels[eventType] || { 
-      label: eventType, 
+  const getActionBadge = (action: string) => {
+    const config = actionLabels[action] || { 
+      label: action, 
       color: "bg-gray-100 text-gray-800",
       icon: <Shield className="w-4 h-4" />
     };
@@ -109,7 +119,7 @@ export const SecurityLogs = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
-            Jurnal Securitate
+            Jurnal Audit Securitate
           </CardTitle>
           <Button onClick={fetchLogs} variant="outline" size="sm" disabled={loading}>
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
@@ -122,7 +132,7 @@ export const SecurityLogs = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Caută după IP, endpoint, utilizator..."
+              placeholder="Caută după IP, resursă, utilizator..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -134,9 +144,11 @@ export const SecurityLogs = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Toate evenimentele</SelectItem>
-              <SelectItem value="unauthorized_access">Acces Neautorizat</SelectItem>
+              <SelectItem value="UNAUTHORIZED_ACCESS_ATTEMPT">Acces Neautorizat</SelectItem>
+              <SelectItem value="unauthorized_access">Acces Neautorizat (legacy)</SelectItem>
               <SelectItem value="failed_auth">Autentificare Eșuată</SelectItem>
               <SelectItem value="permission_denied">Permisiune Refuzată</SelectItem>
+              <SelectItem value="SECURITY_ALERT_TRIGGERED">Alerte Securitate</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -157,30 +169,30 @@ export const SecurityLogs = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Data/Ora</TableHead>
-                  <TableHead>Tip Eveniment</TableHead>
-                  <TableHead>Endpoint</TableHead>
+                  <TableHead>Acțiune</TableHead>
+                  <TableHead>Resursă</TableHead>
                   <TableHead>IP</TableHead>
                   <TableHead>Detalii</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredLogs.map((log) => (
-                  <TableRow key={log.id}>
+                  <TableRow key={log.id} className={log.action === 'SECURITY_ALERT_TRIGGERED' ? 'bg-red-50 dark:bg-red-950' : ''}>
                     <TableCell className="whitespace-nowrap">
                       {format(new Date(log.created_at), "dd MMM yyyy, HH:mm:ss", { locale: ro })}
                     </TableCell>
-                    <TableCell>{getEventBadge(log.event_type)}</TableCell>
-                    <TableCell className="font-mono text-sm">{log.endpoint}</TableCell>
+                    <TableCell>{getActionBadge(log.action)}</TableCell>
+                    <TableCell className="font-mono text-sm">{log.resource}</TableCell>
                     <TableCell className="font-mono text-sm">{log.ip_address || "N/A"}</TableCell>
                     <TableCell>
                       <div className="max-w-xs">
-                        {log.request_details && (
+                        {log.details && (
                           <details className="cursor-pointer">
                             <summary className="text-sm text-muted-foreground hover:text-foreground">
                               Vezi detalii
                             </summary>
                             <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-x-auto">
-                              {JSON.stringify(log.request_details, null, 2)}
+                              {JSON.stringify(log.details, null, 2)}
                             </pre>
                           </details>
                         )}

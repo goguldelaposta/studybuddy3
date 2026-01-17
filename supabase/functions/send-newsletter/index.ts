@@ -22,27 +22,27 @@ interface NewsletterRequest {
   message: string;
 }
 
-// Helper function to log security events
+// Helper function to log audit events
 // deno-lint-ignore no-explicit-any
-const logSecurityEvent = async (
+const logAuditEvent = async (
   supabaseClient: any,
-  eventType: string,
+  action: string,
   userId: string | null,
-  endpoint: string,
+  resource: string,
   req: Request,
   details?: Record<string, unknown>
 ) => {
   try {
-    await supabaseClient.from("security_logs").insert({
-      event_type: eventType,
+    await supabaseClient.from("audit_logs").insert({
+      action,
       user_id: userId,
       ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown",
       user_agent: req.headers.get("user-agent") || "unknown",
-      endpoint,
-      request_details: details || null,
+      resource,
+      details: details || null,
     });
   } catch (err) {
-    console.error("Failed to log security event:", err);
+    console.error("Failed to log audit event:", err);
   }
 };
 
@@ -82,11 +82,11 @@ serve(async (req: Request): Promise<Response> => {
     if (!authHeader) {
       // Log unauthorized access attempt
       if (supabase) {
-        await logSecurityEvent(
+        await logAuditEvent(
           supabase,
-          "unauthorized_access",
+          "UNAUTHORIZED_ACCESS_ATTEMPT",
           null,
-          "send-newsletter",
+          "/admin/newsletter",
           req,
           { reason: "missing_auth_header" }
         );
@@ -104,11 +104,11 @@ serve(async (req: Request): Promise<Response> => {
     if (authError || !user) {
       // Log failed authentication
       if (supabase) {
-        await logSecurityEvent(
+        await logAuditEvent(
           supabase,
           "failed_auth",
           null,
-          "send-newsletter",
+          "/admin/newsletter",
           req,
           { reason: "invalid_token", error: authError?.message }
         );
@@ -128,11 +128,11 @@ serve(async (req: Request): Promise<Response> => {
 
     if (!roles || roles.length === 0) {
       // Log permission denied - user trying to access admin function
-      await logSecurityEvent(
+      await logAuditEvent(
         supabase,
-        "permission_denied",
+        "UNAUTHORIZED_ACCESS_ATTEMPT",
         user.id,
-        "send-newsletter",
+        "/admin/newsletter",
         req,
         { reason: "not_admin", user_email: user.email }
       );
