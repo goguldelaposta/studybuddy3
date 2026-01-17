@@ -57,8 +57,8 @@ serve(async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "StudyBuddy <contact@studybuddy.ro>",
-        to: ["contact@studybuddy.ro"],
-        subject: `[Contact] ${subject}`,
+        to: ["contact@studybuddy.ro", "pavelandrei577@gmail.com"],
+        subject: `Mesaj Nou de pe Site de la ${name}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px 8px 0 0;">
