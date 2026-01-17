@@ -22,18 +22,28 @@ interface EmailLogEntry {
 }
 
 const emailTypeLabels: Record<string, { label: string; color: string; description: string }> = {
-  welcome_day_3: { 
-    label: "Welcome Day 3", 
+  welcome_day_1: { 
+    label: "Day 1 - Profil", 
+    color: "bg-emerald-500/20 text-emerald-600 border-emerald-500/30",
+    description: "Email pentru completarea profilului (24-48h)"
+  },
+  welcome_day_2: { 
+    label: "Day 2 - Căutare", 
     color: "bg-blue-500/20 text-blue-600 border-blue-500/30",
-    description: "Email de bun venit trimis la 3 zile după înregistrare"
+    description: "Email despre funcția de căutare (48-72h)"
+  },
+  welcome_day_3: { 
+    label: "Day 3 - Feedback", 
+    color: "bg-purple-500/20 text-purple-600 border-purple-500/30",
+    description: "Email de feedback și check-in (72-96h)"
   },
   welcome_day_7: { 
-    label: "Welcome Day 7", 
-    color: "bg-purple-500/20 text-purple-600 border-purple-500/30",
-    description: "Email de încurajare pentru grupuri trimis la 7 zile"
+    label: "Day 7 - Grupuri", 
+    color: "bg-violet-500/20 text-violet-600 border-violet-500/30",
+    description: "Email de încurajare pentru grupuri (7 zile)"
   },
   reengagement_30: { 
-    label: "Re-engagement 30", 
+    label: "Re-engagement", 
     color: "bg-amber-500/20 text-amber-600 border-amber-500/30",
     description: "Email de re-angajare pentru utilizatori inactivi 30+ zile"
   },
@@ -109,6 +119,8 @@ export const AutomatedEmailsLog = () => {
   // Calculate stats
   const stats = {
     total: logs.length,
+    welcome_day_1: logs.filter(l => l.email_type === "welcome_day_1").length,
+    welcome_day_2: logs.filter(l => l.email_type === "welcome_day_2").length,
     welcome_day_3: logs.filter(l => l.email_type === "welcome_day_3").length,
     welcome_day_7: logs.filter(l => l.email_type === "welcome_day_7").length,
     reengagement_30: logs.filter(l => l.email_type === "reengagement_30").length,
@@ -117,29 +129,41 @@ export const AutomatedEmailsLog = () => {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-primary">{stats.total}</p>
-            <p className="text-sm text-muted-foreground">Total Trimise</p>
+            <p className="text-2xl font-bold text-primary">{stats.total}</p>
+            <p className="text-xs text-muted-foreground">Total</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-blue-600">{stats.welcome_day_3}</p>
-            <p className="text-sm text-muted-foreground">Welcome Day 3</p>
+            <p className="text-2xl font-bold text-emerald-600">{stats.welcome_day_1}</p>
+            <p className="text-xs text-muted-foreground">Day 1</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-purple-600">{stats.welcome_day_7}</p>
-            <p className="text-sm text-muted-foreground">Welcome Day 7</p>
+            <p className="text-2xl font-bold text-blue-600">{stats.welcome_day_2}</p>
+            <p className="text-xs text-muted-foreground">Day 2</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-amber-600">{stats.reengagement_30}</p>
-            <p className="text-sm text-muted-foreground">Re-engagement</p>
+            <p className="text-2xl font-bold text-purple-600">{stats.welcome_day_3}</p>
+            <p className="text-xs text-muted-foreground">Day 3</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-violet-600">{stats.welcome_day_7}</p>
+            <p className="text-xs text-muted-foreground">Day 7</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-amber-600">{stats.reengagement_30}</p>
+            <p className="text-xs text-muted-foreground">Re-engage</p>
           </CardContent>
         </Card>
       </div>
@@ -181,8 +205,10 @@ export const AutomatedEmailsLog = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toate tipurile</SelectItem>
-                <SelectItem value="welcome_day_3">Welcome Day 3</SelectItem>
-                <SelectItem value="welcome_day_7">Welcome Day 7</SelectItem>
+                <SelectItem value="welcome_day_1">Day 1 - Profil</SelectItem>
+                <SelectItem value="welcome_day_2">Day 2 - Căutare</SelectItem>
+                <SelectItem value="welcome_day_3">Day 3 - Feedback</SelectItem>
+                <SelectItem value="welcome_day_7">Day 7 - Grupuri</SelectItem>
                 <SelectItem value="reengagement_30">Re-engagement 30</SelectItem>
               </SelectContent>
             </Select>
