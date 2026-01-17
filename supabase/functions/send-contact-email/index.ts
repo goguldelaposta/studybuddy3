@@ -56,7 +56,7 @@ serve(async (req: Request): Promise<Response> => {
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "StudyBuddy <onboarding@resend.dev>",
+        from: "StudyBuddy <contact@studybuddy.ro>",
         to: ["contact@studybuddy.ro"],
         subject: `[Contact] ${subject}`,
         html: `
@@ -96,7 +96,7 @@ serve(async (req: Request): Promise<Response> => {
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "StudyBuddy <onboarding@resend.dev>",
+        from: "StudyBuddy <contact@studybuddy.ro>",
         to: [email],
         subject: "Am primit mesajul tău - StudyBuddy",
         html: `
