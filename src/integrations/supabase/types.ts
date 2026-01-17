@@ -342,6 +342,33 @@ export type Database = {
           },
         ]
       }
+      ip_whitelist: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          description: string | null
+          id: string
+          ip_address: string
+          updated_at: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address: string
+          updated_at?: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string
@@ -909,6 +936,7 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_ip_blocked: { Args: { check_ip: string }; Returns: boolean }
+      is_ip_whitelisted: { Args: { check_ip: string }; Returns: boolean }
       is_user_suspended: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

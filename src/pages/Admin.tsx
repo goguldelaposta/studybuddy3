@@ -31,6 +31,8 @@ import {
 import { NewsletterSender } from "@/components/admin/NewsletterSender";
 import { SecurityLogs } from "@/components/admin/SecurityLogs";
 import { BlockedIPsManagement } from "@/components/admin/BlockedIPsManagement";
+import { IPWhitelistManagement } from "@/components/admin/IPWhitelistManagement";
+import { useBlockedIPsNotifications } from "@/hooks/useBlockedIPsNotifications";
 import { useModeration } from "@/hooks/useModeration";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -88,6 +90,9 @@ const Admin = () => {
   const [userToSuspend, setUserToSuspend] = useState<UserWithRoles | null>(null);
   const [suspensionReason, setSuspensionReason] = useState("");
   const [suspensionDuration, setSuspensionDuration] = useState("permanent");
+
+  // Real-time notifications for blocked IPs
+  useBlockedIPsNotifications();
 
   const fetchUsers = async () => {
     try {
@@ -249,7 +254,7 @@ const Admin = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-13 lg:w-auto lg:inline-grid">
+          <TabsList className="flex flex-wrap gap-1 h-auto p-1">
             <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span></TabsTrigger>
             <TabsTrigger value="users" className="gap-2"><Users className="w-4 h-4" /><span className="hidden sm:inline">Utilizatori</span></TabsTrigger>
             <TabsTrigger value="profiles" className="gap-2"><Edit className="w-4 h-4" /><span className="hidden sm:inline">Profiluri</span></TabsTrigger>
@@ -263,6 +268,7 @@ const Admin = () => {
             <TabsTrigger value="newsletter" className="gap-2"><Mail className="w-4 h-4" /><span className="hidden sm:inline">Newsletter</span></TabsTrigger>
             <TabsTrigger value="security" className="gap-2"><ShieldAlert className="w-4 h-4" /><span className="hidden sm:inline">Securitate</span></TabsTrigger>
             <TabsTrigger value="blocked-ips" className="gap-2"><ShieldBan className="w-4 h-4" /><span className="hidden sm:inline">IP Blocate</span></TabsTrigger>
+            <TabsTrigger value="whitelist" className="gap-2"><ShieldCheck className="w-4 h-4" /><span className="hidden sm:inline">Whitelist</span></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard"><AdminDashboard /></TabsContent>
@@ -383,6 +389,7 @@ const Admin = () => {
           <TabsContent value="newsletter"><NewsletterSender /></TabsContent>
           <TabsContent value="security"><SecurityLogs /></TabsContent>
           <TabsContent value="blocked-ips"><BlockedIPsManagement /></TabsContent>
+          <TabsContent value="whitelist"><IPWhitelistManagement /></TabsContent>
         </Tabs>
 
         {/* Suspension Dialog */}
