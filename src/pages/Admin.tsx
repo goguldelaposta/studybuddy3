@@ -26,12 +26,13 @@ import { SkillsManagement } from "@/components/admin/SkillsManagement";
 import { 
   Shield, Users, Search, Loader2, Trash2, 
   Crown, ShieldCheck, User as UserIcon, AlertTriangle,
-  Flag, Ban, Megaphone, UserX, LayoutDashboard, Edit, Building2, BookOpen, Lightbulb, Mail, ShieldAlert, ShieldBan
+  Flag, Ban, Megaphone, UserX, LayoutDashboard, Edit, Building2, BookOpen, Lightbulb, Mail, ShieldAlert, ShieldBan, Send
 } from "lucide-react";
 import { NewsletterSender } from "@/components/admin/NewsletterSender";
 import { SecurityLogs } from "@/components/admin/SecurityLogs";
 import { BlockedIPsManagement } from "@/components/admin/BlockedIPsManagement";
 import { IPWhitelistManagement } from "@/components/admin/IPWhitelistManagement";
+import { AutomatedEmailsLog } from "@/components/admin/AutomatedEmailsLog";
 import { useBlockedIPsNotifications } from "@/hooks/useBlockedIPsNotifications";
 import { useModeration } from "@/hooks/useModeration";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -266,6 +267,7 @@ const Admin = () => {
             <TabsTrigger value="subjects" className="gap-2"><BookOpen className="w-4 h-4" /><span className="hidden sm:inline">Materii</span></TabsTrigger>
             <TabsTrigger value="skills" className="gap-2"><Lightbulb className="w-4 h-4" /><span className="hidden sm:inline">Skills</span></TabsTrigger>
             <TabsTrigger value="newsletter" className="gap-2"><Mail className="w-4 h-4" /><span className="hidden sm:inline">Newsletter</span></TabsTrigger>
+            <TabsTrigger value="automated-emails" className="gap-2"><Send className="w-4 h-4" /><span className="hidden sm:inline">Emailuri Auto</span></TabsTrigger>
             <TabsTrigger value="security" className="gap-2"><ShieldAlert className="w-4 h-4" /><span className="hidden sm:inline">Securitate</span></TabsTrigger>
             <TabsTrigger value="blocked-ips" className="gap-2"><ShieldBan className="w-4 h-4" /><span className="hidden sm:inline">IP Blocate</span></TabsTrigger>
             <TabsTrigger value="whitelist" className="gap-2"><ShieldCheck className="w-4 h-4" /><span className="hidden sm:inline">Whitelist</span></TabsTrigger>
@@ -387,6 +389,7 @@ const Admin = () => {
           <TabsContent value="subjects"><SubjectsManagement /></TabsContent>
           <TabsContent value="skills"><SkillsManagement /></TabsContent>
           <TabsContent value="newsletter"><NewsletterSender /></TabsContent>
+          <TabsContent value="automated-emails"><AutomatedEmailsLog /></TabsContent>
           <TabsContent value="security"><SecurityLogs /></TabsContent>
           <TabsContent value="blocked-ips"><BlockedIPsManagement /></TabsContent>
           <TabsContent value="whitelist"><IPWhitelistManagement /></TabsContent>
