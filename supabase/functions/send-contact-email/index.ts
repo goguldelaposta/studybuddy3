@@ -64,7 +64,7 @@ serve(async (req: Request): Promise<Response> => {
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px 8px 0 0;">
               <h1 style="color: white; margin: 0; font-size: 24px;">Mesaj nou de contact</h1>
             </div>
-            <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+          <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
               <p style="margin: 0 0 10px;"><strong>De la:</strong> ${name}</p>
               <p style="margin: 0 0 10px;"><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
               <p style="margin: 0 0 10px;"><strong>Subiect:</strong> ${subject}</p>
@@ -72,6 +72,14 @@ serve(async (req: Request): Promise<Response> => {
               <p style="margin: 0 0 10px;"><strong>Mesaj:</strong></p>
               <div style="background: white; padding: 15px; border-radius: 4px; border: 1px solid #e5e7eb;">
                 <p style="margin: 0; white-space: pre-wrap;">${message}</p>
+              </div>
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+              <div style="text-align: center; padding: 15px 0;">
+                <p style="margin: 0 0 5px; font-weight: bold; color: #374151;">Echipa StudyBuddy</p>
+                <p style="margin: 0 0 10px; font-size: 12px; color: #6b7280;">─────────────────────────</p>
+                <p style="margin: 0 0 8px; font-size: 14px;">🚀 Învățăm mai ușor împreună.</p>
+                <p style="margin: 0 0 5px; font-size: 13px; color: #6b7280;">Web: <a href="https://www.studybuddy.ro" style="color: #667eea; text-decoration: none;">www.studybuddy.ro</a></p>
+                <p style="margin: 0; font-size: 13px; color: #6b7280;">Email: <a href="mailto:contact@studybuddy.ro" style="color: #667eea; text-decoration: none;">contact@studybuddy.ro</a></p>
               </div>
             </div>
           </div>
@@ -104,15 +112,18 @@ serve(async (req: Request): Promise<Response> => {
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px 8px 0 0;">
               <h1 style="color: white; margin: 0; font-size: 24px;">Mulțumim pentru mesaj!</h1>
             </div>
-            <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+          <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
               <p>Salut ${name},</p>
               <p>Îți mulțumim că ne-ai contactat! Am primit mesajul tău și îți vom răspunde cât mai curând posibil.</p>
               <p><strong>Subiect:</strong> ${subject}</p>
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-              <p style="color: #6b7280; font-size: 14px;">
-                Cu drag,<br>
-                Echipa StudyBuddy
-              </p>
+              <div style="text-align: center; padding: 15px 0;">
+                <p style="margin: 0 0 5px; font-weight: bold; color: #374151;">Echipa StudyBuddy</p>
+                <p style="margin: 0 0 10px; font-size: 12px; color: #6b7280;">─────────────────────────</p>
+                <p style="margin: 0 0 8px; font-size: 14px;">🚀 Învățăm mai ușor împreună.</p>
+                <p style="margin: 0 0 5px; font-size: 13px; color: #6b7280;">Web: <a href="https://www.studybuddy.ro" style="color: #667eea; text-decoration: none;">www.studybuddy.ro</a></p>
+                <p style="margin: 0; font-size: 13px; color: #6b7280;">Email: <a href="mailto:contact@studybuddy.ro" style="color: #667eea; text-decoration: none;">contact@studybuddy.ro</a></p>
+              </div>
             </div>
           </div>
         `,
