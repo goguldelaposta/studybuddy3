@@ -522,6 +522,48 @@ export type Database = {
           },
         ]
       }
+      newsletter_queue: {
+        Row: {
+          created_at: string
+          created_by: string
+          failed_count: number | null
+          id: string
+          message: string
+          send_at: string
+          sent_at: string | null
+          sent_count: number | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          failed_count?: number | null
+          id?: string
+          message: string
+          send_at: string
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          failed_count?: number | null
+          id?: string
+          message?: string
+          send_at?: string
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notes: {
         Row: {
           created_at: string
