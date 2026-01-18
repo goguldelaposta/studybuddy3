@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { NotificationProvider } from "@/hooks/useRealtimeNotifications";
 import { EmailVerificationGuard } from "@/components/EmailVerificationGuard";
+import { useServiceWorker } from "@/hooks/useServiceWorker";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -30,8 +31,45 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
-// StudyBuddy App - v2.0
+// StudyBuddy App - v2.1 PWA
 const queryClient = new QueryClient();
+
+function AppContent() {
+  // Enable PWA update notifications
+  useServiceWorker();
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        <Route path="/auth/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/profile" element={<EmailVerificationGuard><Profile /></EmailVerificationGuard>} />
+        <Route path="/profile/edit" element={<EmailVerificationGuard><ProfileEdit /></EmailVerificationGuard>} />
+        <Route path="/messages" element={<EmailVerificationGuard><Messages /></EmailVerificationGuard>} />
+        <Route path="/groups" element={<EmailVerificationGuard><Groups /></EmailVerificationGuard>} />
+        <Route path="/groups/:id" element={<EmailVerificationGuard><GroupDetail /></EmailVerificationGuard>} />
+        <Route path="/announcements" element={<EmailVerificationGuard><Announcements /></EmailVerificationGuard>} />
+        <Route path="/study-spots" element={<EmailVerificationGuard><StudySpots /></EmailVerificationGuard>} />
+        <Route path="/friends" element={<EmailVerificationGuard><Friends /></EmailVerificationGuard>} />
+        <Route path="/user/:userId" element={<EmailVerificationGuard><ProfileView /></EmailVerificationGuard>} />
+        <Route path="/admin" element={<EmailVerificationGuard><Admin /></EmailVerificationGuard>} />
+        <Route path="/notes" element={<EmailVerificationGuard><Notes /></EmailVerificationGuard>} />
+        <Route path="/calendar" element={<EmailVerificationGuard><CalendarPage /></EmailVerificationGuard>} />
+        <Route path="/badges" element={<EmailVerificationGuard><Badges /></EmailVerificationGuard>} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/browse" element={<Index />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -41,34 +79,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-                <Route path="/auth/reset-password" element={<ResetPassword />} />
-                <Route path="/verify-email" element={<VerifyEmail />} />
-                <Route path="/profile" element={<EmailVerificationGuard><Profile /></EmailVerificationGuard>} />
-                <Route path="/profile/edit" element={<EmailVerificationGuard><ProfileEdit /></EmailVerificationGuard>} />
-                <Route path="/messages" element={<EmailVerificationGuard><Messages /></EmailVerificationGuard>} />
-                <Route path="/groups" element={<EmailVerificationGuard><Groups /></EmailVerificationGuard>} />
-                <Route path="/groups/:id" element={<EmailVerificationGuard><GroupDetail /></EmailVerificationGuard>} />
-                <Route path="/announcements" element={<EmailVerificationGuard><Announcements /></EmailVerificationGuard>} />
-                <Route path="/study-spots" element={<EmailVerificationGuard><StudySpots /></EmailVerificationGuard>} />
-                <Route path="/friends" element={<EmailVerificationGuard><Friends /></EmailVerificationGuard>} />
-                <Route path="/user/:userId" element={<EmailVerificationGuard><ProfileView /></EmailVerificationGuard>} />
-                <Route path="/admin" element={<EmailVerificationGuard><Admin /></EmailVerificationGuard>} />
-                <Route path="/notes" element={<EmailVerificationGuard><Notes /></EmailVerificationGuard>} />
-                <Route path="/calendar" element={<EmailVerificationGuard><CalendarPage /></EmailVerificationGuard>} />
-                <Route path="/badges" element={<EmailVerificationGuard><Badges /></EmailVerificationGuard>} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/browse" element={<Index />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <AppContent />
           </TooltipProvider>
         </NotificationProvider>
       </AuthProvider>
