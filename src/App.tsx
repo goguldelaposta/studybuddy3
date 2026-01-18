@@ -30,6 +30,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
+// StudyBuddy App - v2.0
 const queryClient = new QueryClient();
 
 const App = () => (

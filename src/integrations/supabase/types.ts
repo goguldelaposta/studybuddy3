@@ -264,6 +264,42 @@ export type Database = {
         }
         Relationships: []
       }
+      exams: {
+        Row: {
+          created_at: string
+          created_by: string
+          exam_date: string
+          faculty: string
+          id: string
+          location: string | null
+          subject: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          exam_date: string
+          faculty: string
+          id?: string
+          location?: string | null
+          subject: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          exam_date?: string
+          faculty?: string
+          id?: string
+          location?: string | null
+          subject?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           addressee_id: string
@@ -485,6 +521,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notes: {
+        Row: {
+          created_at: string
+          description: string | null
+          downloads: number
+          faculty: string | null
+          file_url: string | null
+          id: string
+          subject: string
+          title: string
+          updated_at: string
+          user_id: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          downloads?: number
+          faculty?: string | null
+          file_url?: string | null
+          id?: string
+          subject: string
+          title: string
+          updated_at?: string
+          user_id: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          downloads?: number
+          faculty?: string | null
+          file_url?: string | null
+          id?: string
+          subject?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          year?: number | null
+        }
+        Relationships: []
       }
       profile_skills: {
         Row: {
