@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +14,8 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import { RichTextEditor } from "./RichTextEditor";
+import DOMPurify from "dompurify";
 import {
   Dialog,
   DialogContent,
@@ -299,18 +300,15 @@ export const NewsletterSender = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newsletter-message">Mesaj</Label>
-            <Textarea
-              id="newsletter-message"
+            <Label>Mesaj</Label>
+            <RichTextEditor
+              content={message}
+              onChange={setMessage}
               placeholder="Conținutul email-ului..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={8}
               disabled={sending || scheduling}
-              className="resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              Poți folosi text simplu. Semnătura StudyBuddy va fi adăugată automat.
+              Folosește toolbar-ul pentru formatare. Semnătura StudyBuddy va fi adăugată automat.
             </p>
           </div>
 
@@ -601,9 +599,15 @@ export const NewsletterSender = () => {
                   <h2 className="text-xl font-bold">📚 StudyBuddy</h2>
                 </div>
                 <div className="p-6 bg-background">
-                  <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                    {previewNewsletter.message}
-                  </div>
+                  <div 
+                    className="prose prose-sm max-w-none text-foreground leading-relaxed [&_a]:text-primary [&_a]:underline"
+                    dangerouslySetInnerHTML={{ 
+                      __html: DOMPurify.sanitize(previewNewsletter.message, {
+                        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'a', 'ul', 'ol', 'li'],
+                        ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
+                      }) 
+                    }}
+                  />
                   
                   <Separator className="my-6" />
                   
