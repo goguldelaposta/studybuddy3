@@ -198,7 +198,7 @@ const Auth = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="tu@universitate.ro"
+                  placeholder="email@exemplu.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
