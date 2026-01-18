@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Mail, Send, Calendar, Clock, Trash2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Loader2, Mail, Send, Calendar, Clock, Trash2, AlertCircle, CheckCircle2, Eye } from "lucide-react";
 import { format, isPast, parseISO } from "date-fns";
 import { ro } from "date-fns/locale";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -15,6 +15,13 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ScheduledNewsletter {
   id: string;
@@ -38,11 +45,18 @@ export const NewsletterSender = () => {
   const [scheduledNewsletters, setScheduledNewsletters] = useState<ScheduledNewsletter[]>([]);
   const [loadingScheduled, setLoadingScheduled] = useState(true);
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewNewsletter, setPreviewNewsletter] = useState<{ subject: string; message: string } | null>(null);
   
   // Schedule state
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
   const [scheduleTime, setScheduleTime] = useState("09:00");
+
+  const handlePreview = (subjectText: string, messageText: string) => {
+    setPreviewNewsletter({ subject: subjectText, message: messageText });
+    setPreviewOpen(true);
+  };
 
   const fetchScheduledNewsletters = useCallback(async () => {
     try {
@@ -365,6 +379,16 @@ export const NewsletterSender = () => {
           )}
 
           <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              onClick={() => handlePreview(subject, message)}
+              disabled={!subject.trim() || !message.trim()}
+              className="sm:w-auto"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Previzualizare
+            </Button>
+            
             {isScheduled ? (
               <Button
                 onClick={handleScheduleNewsletter}
@@ -537,6 +561,95 @@ export const NewsletterSender = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Email Preview Modal */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" />
+              Previzualizare Email
+            </DialogTitle>
+            <DialogDescription>
+              Așa va arăta email-ul trimis către utilizatori
+            </DialogDescription>
+          </DialogHeader>
+          
+          {previewNewsletter && (
+            <div className="mt-4 space-y-4">
+              {/* Email Header Preview */}
+              <div className="bg-muted/50 rounded-lg p-4 border">
+                <div className="space-y-2 text-sm">
+                  <div className="flex gap-2">
+                    <span className="font-medium text-muted-foreground min-w-[60px]">De la:</span>
+                    <span>StudyBuddy &lt;noreply@studybuddy.ro&gt;</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-medium text-muted-foreground min-w-[60px]">Către:</span>
+                    <span className="text-muted-foreground">toți utilizatorii</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-medium text-muted-foreground min-w-[60px]">Subiect:</span>
+                    <span className="font-semibold">{previewNewsletter.subject}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Email Body Preview */}
+              <div className="border rounded-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-primary-foreground text-center">
+                  <h2 className="text-xl font-bold">📚 StudyBuddy</h2>
+                </div>
+                <div className="p-6 bg-background">
+                  <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                    {previewNewsletter.message}
+                  </div>
+                  
+                  <Separator className="my-6" />
+                  
+                  {/* Footer */}
+                  <div className="text-center text-sm text-muted-foreground space-y-2">
+                    <p>Cu drag,<br /><strong>Echipa StudyBuddy</strong></p>
+                    <p className="text-xs mt-4">
+                      Acest email a fost trimis de pe platforma StudyBuddy.<br />
+                      © {new Date().getFullYear()} StudyBuddy. Toate drepturile rezervate.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <Button variant="outline" onClick={() => setPreviewOpen(false)}>
+                  Închide
+                </Button>
+                <Button
+                  onClick={() => {
+                    setPreviewOpen(false);
+                    if (isScheduled) {
+                      handleScheduleNewsletter();
+                    } else {
+                      handleSendNewsletter();
+                    }
+                  }}
+                  disabled={sending || scheduling}
+                >
+                  {isScheduled ? (
+                    <>
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Programează
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Trimite Acum
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
