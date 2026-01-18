@@ -360,18 +360,58 @@ export const NewsletterSender = () => {
                 </Popover>
               </div>
               <div className="flex-1 space-y-2">
-                <Label htmlFor="schedule-time">Ora</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="schedule-time"
-                    type="time"
-                    value={scheduleTime}
-                    onChange={(e) => setScheduleTime(e.target.value)}
-                    className="pl-10"
-                    disabled={sending || scheduling}
-                  />
-                </div>
+                <Label>Ora</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !scheduleTime && "text-muted-foreground"
+                      )}
+                      disabled={sending || scheduling}
+                    >
+                      <Clock className="mr-2 h-4 w-4" />
+                      {scheduleTime || "Selectează ora"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-2" align="start">
+                    <div className="grid grid-cols-4 gap-1 max-h-[200px] overflow-y-auto">
+                      {Array.from({ length: 24 }, (_, hour) => {
+                        const timeValue = `${hour.toString().padStart(2, '0')}:00`;
+                        return (
+                          <Button
+                            key={timeValue}
+                            variant={scheduleTime === timeValue ? "default" : "ghost"}
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => setScheduleTime(timeValue)}
+                          >
+                            {timeValue}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="grid grid-cols-4 gap-1">
+                      {['00', '15', '30', '45'].map((min) => {
+                        const hour = scheduleTime.split(':')[0] || '09';
+                        const timeValue = `${hour}:${min}`;
+                        return (
+                          <Button
+                            key={min}
+                            variant={scheduleTime.endsWith(`:${min}`) ? "default" : "ghost"}
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => setScheduleTime(timeValue)}
+                          >
+                            :{min}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           )}
