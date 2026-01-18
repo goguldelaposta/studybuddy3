@@ -116,25 +116,20 @@ export default function Notes() {
         setDownloadingId(note.id);
 
         try {
-            // Download the file
-            const response = await fetch(note.file_url);
-            if (!response.ok) throw new Error("Eroare la descărcare");
-
-            const blob = await response.blob();
-            
             // Extract filename from URL or use title
             const urlParts = note.file_url.split('/');
-            const fileName = urlParts[urlParts.length - 1] || `${note.title}.pdf`;
+            const originalFileName = urlParts[urlParts.length - 1] || `${note.title}.pdf`;
+            const fileName = decodeURIComponent(originalFileName);
             
-            // Create download link
-            const url = window.URL.createObjectURL(blob);
+            // Open file in new tab - this forces download for most file types
             const link = document.createElement('a');
-            link.href = url;
+            link.href = note.file_url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
             link.download = fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
 
             // Increment download counter in database
             const { error } = await supabase
@@ -153,9 +148,10 @@ export default function Notes() {
 
             toast({
                 title: "Succes!",
-                description: "Fișierul a fost descărcat.",
+                description: "Fișierul se descarcă...",
             });
         } catch (error: any) {
+            console.error('Download error:', error);
             toast({
                 title: "Eroare",
                 description: error.message || "Nu s-a putut descărca fișierul.",
