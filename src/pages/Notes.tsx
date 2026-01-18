@@ -2,11 +2,12 @@ import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, FileText, Download, Edit, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Search, FileText, Download, Edit, Trash2, Loader2 } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotesUploadDialog } from "@/components/NotesUploadDialog";
 import { EditNoteDialog } from "@/components/EditNoteDialog";
+import { NotesFilters } from "@/components/NotesFilters";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfiles } from "@/hooks/useProfiles";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,7 @@ interface Note {
     faculty: string;
     downloads: number;
     user_id: string;
+    file_url: string | null;
 }
 
 export default function Notes() {
@@ -38,6 +40,9 @@ export default function Notes() {
     const [loading, setLoading] = useState(true);
     const [editNote, setEditNote] = useState<Note | null>(null);
     const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
+    const [downloadingId, setDownloadingId] = useState<string | null>(null);
+    const [selectedFaculty, setSelectedFaculty] = useState("");
+    const [selectedSubject, setSelectedSubject] = useState("");
     const { user, signOut } = useAuth();
     const { profiles } = useProfiles();
     const navigate = useNavigate();
@@ -98,10 +103,103 @@ export default function Notes() {
         }
     };
 
-    const filteredNotes = notes.filter(note =>
-        note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        note.subject.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const handleDownload = async (note: Note) => {
+        if (!note.file_url) {
+            toast({
+                title: "Eroare",
+                description: "Acest fișier nu are o adresă de descărcare.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        setDownloadingId(note.id);
+
+        try {
+            // Download the file
+            const response = await fetch(note.file_url);
+            if (!response.ok) throw new Error("Eroare la descărcare");
+
+            const blob = await response.blob();
+            
+            // Extract filename from URL or use title
+            const urlParts = note.file_url.split('/');
+            const fileName = urlParts[urlParts.length - 1] || `${note.title}.pdf`;
+            
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            // Increment download counter in database
+            const { error } = await supabase
+                .from('notes')
+                .update({ downloads: note.downloads + 1 })
+                .eq('id', note.id);
+
+            if (error) {
+                console.error('Error updating download count:', error);
+            } else {
+                // Update local state
+                setNotes(prev => prev.map(n => 
+                    n.id === note.id ? { ...n, downloads: n.downloads + 1 } : n
+                ));
+            }
+
+            toast({
+                title: "Succes!",
+                description: "Fișierul a fost descărcat.",
+            });
+        } catch (error: any) {
+            toast({
+                title: "Eroare",
+                description: error.message || "Nu s-a putut descărca fișierul.",
+                variant: "destructive",
+            });
+        } finally {
+            setDownloadingId(null);
+        }
+    };
+
+    // Get unique faculties and subjects for filters
+    const { faculties, subjects } = useMemo(() => {
+        const facultySet = new Set<string>();
+        const subjectSet = new Set<string>();
+        
+        notes.forEach(note => {
+            if (note.faculty) facultySet.add(note.faculty);
+            if (note.subject) subjectSet.add(note.subject);
+        });
+
+        return {
+            faculties: Array.from(facultySet).sort(),
+            subjects: Array.from(subjectSet).sort(),
+        };
+    }, [notes]);
+
+    // Filter notes
+    const filteredNotes = useMemo(() => {
+        return notes.filter(note => {
+            const matchesSearch = 
+                note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                note.subject.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const matchesFaculty = !selectedFaculty || selectedFaculty === "all" || note.faculty === selectedFaculty;
+            const matchesSubject = !selectedSubject || selectedSubject === "all" || note.subject === selectedSubject;
+
+            return matchesSearch && matchesFaculty && matchesSubject;
+        });
+    }, [notes, searchTerm, selectedFaculty, selectedSubject]);
+
+    const handleClearFilters = () => {
+        setSelectedFaculty("");
+        setSelectedSubject("");
+    };
 
     return (
         <div className="min-h-screen bg-background">
@@ -125,14 +223,25 @@ export default function Notes() {
                 </div>
 
                 {/* Search & Filters */}
-                <div className="mb-8 flex gap-4">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                        <Input
-                            placeholder="Caută după materie sau titlu..."
-                            className="pl-10"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                <div className="mb-8 space-y-4">
+                    <div className="flex gap-4 flex-wrap">
+                        <div className="relative flex-1 min-w-[200px] max-w-md">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                            <Input
+                                placeholder="Caută după materie sau titlu..."
+                                className="pl-10"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <NotesFilters
+                            faculties={faculties}
+                            subjects={subjects}
+                            selectedFaculty={selectedFaculty}
+                            selectedSubject={selectedSubject}
+                            onFacultyChange={setSelectedFaculty}
+                            onSubjectChange={setSelectedSubject}
+                            onClearFilters={handleClearFilters}
                         />
                     </div>
                 </div>
@@ -184,8 +293,18 @@ export default function Notes() {
                                         <span className="text-sm text-muted-foreground">
                                             {note.faculty}
                                         </span>
-                                        <Button variant="outline" size="sm" className="gap-2">
-                                            <Download className="w-4 h-4" />
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm" 
+                                            className="gap-2"
+                                            onClick={() => handleDownload(note)}
+                                            disabled={downloadingId === note.id || !note.file_url}
+                                        >
+                                            {downloadingId === note.id ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <Download className="w-4 h-4" />
+                                            )}
                                             {note.downloads}
                                         </Button>
                                     </div>

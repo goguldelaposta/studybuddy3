@@ -2,9 +2,10 @@ import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AddExamDialog } from "@/components/AddExamDialog";
 import { EditExamDialog } from "@/components/EditExamDialog";
+import { ExamsFilters } from "@/components/ExamsFilters";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isSameDay } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -39,6 +40,8 @@ export default function CalendarPage() {
     const [loading, setLoading] = useState(true);
     const [editExam, setEditExam] = useState<Exam | null>(null);
     const [deleteExamId, setDeleteExamId] = useState<string | null>(null);
+    const [selectedFaculty, setSelectedFaculty] = useState("");
+    const [selectedSubject, setSelectedSubject] = useState("");
     const { user, signOut } = useAuth();
     const { profiles } = useProfiles();
     const navigate = useNavigate();
@@ -99,13 +102,43 @@ export default function CalendarPage() {
         }
     };
 
-    // Filter exams for selected date
-    const selectedDateExams = exams.filter(exam =>
+    // Get unique faculties and subjects for filters
+    const { faculties, subjects } = useMemo(() => {
+        const facultySet = new Set<string>();
+        const subjectSet = new Set<string>();
+        
+        exams.forEach(exam => {
+            if (exam.faculty) facultySet.add(exam.faculty);
+            if (exam.subject) subjectSet.add(exam.subject);
+        });
+
+        return {
+            faculties: Array.from(facultySet).sort(),
+            subjects: Array.from(subjectSet).sort(),
+        };
+    }, [exams]);
+
+    // Filter exams
+    const filteredExams = useMemo(() => {
+        return exams.filter(exam => {
+            const matchesFaculty = !selectedFaculty || selectedFaculty === "all" || exam.faculty === selectedFaculty;
+            const matchesSubject = !selectedSubject || selectedSubject === "all" || exam.subject === selectedSubject;
+            return matchesFaculty && matchesSubject;
+        });
+    }, [exams, selectedFaculty, selectedSubject]);
+
+    // Filter exams for selected date (from filtered exams)
+    const selectedDateExams = filteredExams.filter(exam =>
         date && isSameDay(new Date(exam.exam_date), date)
     );
 
-    // Get days with exams for modifiers
-    const daysWithExams = exams.map(exam => new Date(exam.exam_date));
+    // Get days with exams for modifiers (from filtered exams)
+    const daysWithExams = filteredExams.map(exam => new Date(exam.exam_date));
+
+    const handleClearFilters = () => {
+        setSelectedFaculty("");
+        setSelectedSubject("");
+    };
 
     return (
         <div className="min-h-screen bg-background">
@@ -126,6 +159,19 @@ export default function CalendarPage() {
                         </p>
                     </div>
                     <AddExamDialog onExamAdded={fetchExams} />
+                </div>
+
+                {/* Filters */}
+                <div className="mb-6">
+                    <ExamsFilters
+                        faculties={faculties}
+                        subjects={subjects}
+                        selectedFaculty={selectedFaculty}
+                        selectedSubject={selectedSubject}
+                        onFacultyChange={setSelectedFaculty}
+                        onSubjectChange={setSelectedSubject}
+                        onClearFilters={handleClearFilters}
+                    />
                 </div>
 
                 <div className="grid gap-8 lg:grid-cols-[1fr,400px]">
@@ -155,11 +201,11 @@ export default function CalendarPage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Următoarele Examene (Tot anul)</CardTitle>
+                                <CardTitle>Următoarele Examene {(selectedFaculty || selectedSubject) && "(Filtrate)"}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    {exams.slice(0, 5).map(exam => (
+                                    {filteredExams.slice(0, 5).map(exam => (
                                         <div key={exam.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg group">
                                             <div>
                                                 <div className="font-semibold">{exam.subject}</div>
@@ -194,7 +240,7 @@ export default function CalendarPage() {
                                             </div>
                                         </div>
                                     ))}
-                                    {exams.length === 0 && <p className="text-muted-foreground">Niciun examen programat.</p>}
+                                    {filteredExams.length === 0 && <p className="text-muted-foreground">Niciun examen programat.</p>}
                                 </div>
                             </CardContent>
                         </Card>
