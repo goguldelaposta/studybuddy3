@@ -2,9 +2,9 @@
 const CACHE_VERSION = 'v1.0.0';
 const CACHE_NAME = `studybuddy-${CACHE_VERSION}`;
 
-// Install event
+// Install event - do NOT skipWaiting automatically
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
+  console.log('Service Worker installing...');
 });
 
 // Activate event
