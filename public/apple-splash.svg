@@ -7,10 +7,9 @@
   </defs>
   <rect width="1242" height="2688" fill="url(#bg)"/>
   <g transform="translate(621, 1200)">
-    <rect x="-128" y="-128" width="256" height="256" rx="51" fill="white" opacity="0.2"/>
-    <g fill="none" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M-80 -40 L-80 56 C-80 56 -40 40 0 56 C40 40 80 56 80 56 L80 -40 C80 -40 40 -24 0 -40 C-40 -24 -80 -40 -80 -40 Z"/>
-      <path d="M0 -40 L0 56"/>
+    <g fill="none" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-100 -60 L-100 76 C-100 76 -50 50 0 76 C50 50 100 76 100 76 L100 -60 C100 -60 50 -34 0 -60 C-50 -34 -100 -60 -100 -60 Z"/>
+      <path d="M0 -60 L0 76"/>
     </g>
   </g>
   <text x="621" y="1480" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="800" fill="white">StudyBuddy</text>
