@@ -52,13 +52,9 @@ export function useServiceWorker() {
           }
         });
 
-        // Handle controller change
-        let refreshing = false;
+        // Handle controller change - only log, don't auto-reload
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (!refreshing) {
-            refreshing = true;
-            window.location.reload();
-          }
+          console.log('Service Worker controller changed');
         });
 
       } catch (error) {
