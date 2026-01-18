@@ -29,14 +29,18 @@ export const HeroSection = ({
           </div>
 
           {/* Main heading */}
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 animate-fade-up" style={{
-          animationDelay: "0.1s"
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 animate-fade-up leading-tight" style={{
+          animationDelay: "0.1s",
+          lineHeight: "1.2"
         }}>
             Găsește-ți{" "}
-            <span className="gradient-text">
+            <span className="bg-gradient-to-r from-primary via-purple-500 to-secondary bg-clip-text text-transparent">
               Colegii
             </span>{" "}
-            de Studiu Potriviți
+            de Studiu{" "}
+            <span className="bg-gradient-to-r from-purple-500 to-secondary bg-clip-text text-transparent">
+              Potriviți
+            </span>
           </h1>
 
           {/* Subtitle */}
@@ -49,7 +53,7 @@ export const HeroSection = ({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-up" style={{
           animationDelay: "0.3s"
         }}>
-            <Button size="lg" className="gradient-primary text-primary-foreground h-14 px-8 text-lg font-semibold shadow-elevated hover:opacity-90 transition-opacity" onClick={onGetStarted}>
+            <Button size="lg" className="gradient-primary text-primary-foreground h-14 px-8 text-lg font-semibold shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:opacity-90 transition-all duration-300" onClick={onGetStarted}>
               <Users className="w-5 h-5 mr-2" />
               {isAuthenticated ? "Creează Profil" : "Începe Gratuit"}
               <ArrowRight className="w-5 h-5 ml-2" />
