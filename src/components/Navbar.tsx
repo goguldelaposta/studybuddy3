@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle, Megaphone, UserPlus, Shield, Mail, BookOpen } from "lucide-react";
+import { Users, LogIn, LogOut, User, Settings, Menu, X, MapPin, MessageCircle, Megaphone, UserPlus, Shield, Mail, BookOpen, GraduationCap } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
@@ -56,6 +56,9 @@ export const Navbar = ({
           </Link>
           <Link to="/notes" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Notițe
+          </Link>
+          <Link to="/uni" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Universități
           </Link>
           <Link to="/calendar" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Calendar
@@ -228,6 +231,9 @@ export const Navbar = ({
             </Link>
             <Link to="/notes" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
               Notițe
+            </Link>
+            <Link to="/uni" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+              Universități
             </Link>
             <Link to="/calendar" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
               Calendar
