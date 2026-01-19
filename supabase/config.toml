@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.resend-verification-email]
 verify_jwt = false
+
+[functions.check-verified-badge]
+verify_jwt = false

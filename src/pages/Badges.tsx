@@ -11,7 +11,7 @@ import {
   Award, Trophy, Star, Target, CheckCircle2, Lock,
   Baby, UserCheck, UserPlus, Users, Network, 
   MessageCircle, MessagesSquare, Crown, Handshake, 
-  Megaphone, Rocket, LucideIcon
+  Megaphone, Rocket, LucideIcon, ShieldCheck, BookOpen, Flame
 } from "lucide-react";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -27,6 +27,10 @@ const iconMap: Record<string, LucideIcon> = {
   'megaphone': Megaphone,
   'award': Award,
   'rocket': Rocket,
+  'shield-check': ShieldCheck,
+  'book-open': BookOpen,
+  'flame': Flame,
+  'star': Star,
 };
 
 const categoryInfo: Record<string, { name: string; description: string; icon: LucideIcon; gradient: string }> = {

@@ -3,7 +3,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { 
   Baby, UserCheck, UserPlus, Users, Network, 
   MessageCircle, MessagesSquare, Crown, Handshake, 
-  Megaphone, Award, Rocket, LucideIcon
+  Megaphone, Award, Rocket, LucideIcon, ShieldCheck, BookOpen, Flame, Star
 } from "lucide-react";
 
 interface ProfileBadgeProps {
@@ -28,6 +28,10 @@ const iconMap: Record<string, LucideIcon> = {
   'megaphone': Megaphone,
   'award': Award,
   'rocket': Rocket,
+  'shield-check': ShieldCheck,
+  'book-open': BookOpen,
+  'flame': Flame,
+  'star': Star,
 };
 
 const colorMap: Record<string, string> = {
