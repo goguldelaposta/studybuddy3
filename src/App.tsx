@@ -33,6 +33,7 @@ import NotFound from "./pages/NotFound";
 import UniversitiesIndex from "./pages/UniversitiesIndex";
 import UniversityPage from "./pages/UniversityPage";
 import FacultyPage from "./pages/FacultyPage";
+import CoursePage from "./pages/CoursePage";
 
 // StudyBuddy App - v2.1 PWA
 const queryClient = new QueryClient();
@@ -70,6 +71,7 @@ function AppContent() {
         <Route path="/uni" element={<UniversitiesIndex />} />
         <Route path="/uni/:uniSlug" element={<UniversityPage />} />
         <Route path="/uni/:uniSlug/:facultySlug" element={<FacultyPage />} />
+        <Route path="/uni/:uniSlug/:facultySlug/:courseId" element={<CoursePage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

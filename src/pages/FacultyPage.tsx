@@ -227,18 +227,24 @@ export default function FacultyPage() {
                   </h3>
                   <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                     {coursesByYear[year].map((course) => (
-                      <Card key={course.id} className="hover:shadow-sm transition-shadow">
-                        <CardHeader className="py-3 px-4">
-                          <CardTitle className="text-base font-medium">
-                            {course.name}
-                          </CardTitle>
-                          {course.semester && (
-                            <p className="text-xs text-muted-foreground">
-                              Semestrul {course.semester}
-                            </p>
-                          )}
-                        </CardHeader>
-                      </Card>
+                      <Link 
+                        key={course.id} 
+                        to={`/uni/${uniSlug}/${facultySlug}/${course.id}`}
+                      >
+                        <Card className="hover:shadow-md hover:border-primary/30 transition-all cursor-pointer h-full">
+                          <CardHeader className="py-3 px-4">
+                            <CardTitle className="text-base font-medium flex items-center justify-between">
+                              {course.name}
+                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                            </CardTitle>
+                            {course.semester && (
+                              <p className="text-xs text-muted-foreground">
+                                Semestrul {course.semester}
+                              </p>
+                            )}
+                          </CardHeader>
+                        </Card>
+                      </Link>
                     ))}
                   </div>
                 </div>

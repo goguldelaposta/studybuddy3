@@ -31,6 +31,10 @@ export interface FacultyWithUniversity extends Faculty {
   university: University;
 }
 
+export interface CourseWithFaculty extends Course {
+  faculty: FacultyWithUniversity | null;
+}
+
 export const useUniversityCatalog = () => {
   const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
@@ -175,4 +179,76 @@ export const useFacultyBySlug = (uniSlug: string | undefined, facultySlug: strin
   }, [uniSlug, facultySlug]);
 
   return { faculty, courses, notesCount, loading };
+};
+
+export const useCourseById = (courseId: string | undefined) => {
+  const [course, setCourse] = useState<CourseWithFaculty | null>(null);
+  const [notesCount, setNotesCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!courseId) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      // Fetch course with faculty and university
+      const { data: courseData, error: courseError } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', courseId)
+        .single();
+
+      if (courseError || !courseData) {
+        setLoading(false);
+        return;
+      }
+
+      // Fetch faculty
+      const { data: facultyData } = await supabase
+        .from('faculties')
+        .select('*')
+        .eq('id', courseData.faculty_id)
+        .single();
+
+      let facultyWithUni: FacultyWithUniversity | null = null;
+
+      if (facultyData) {
+        // Fetch university
+        const { data: uniData } = await supabase
+          .from('universities')
+          .select('*')
+          .eq('id', facultyData.university_id)
+          .single();
+
+        if (uniData) {
+          facultyWithUni = {
+            ...(facultyData as Faculty),
+            university: uniData as University
+          };
+        }
+      }
+
+      setCourse({
+        ...(courseData as Course),
+        faculty: facultyWithUni
+      });
+
+      // Count notes for this course (by subject name)
+      const { count } = await supabase
+        .from('notes')
+        .select('*', { count: 'exact', head: true })
+        .ilike('subject', `%${courseData.name}%`);
+
+      setNotesCount(count || 0);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [courseId]);
+
+  return { course, notesCount, loading };
 };
