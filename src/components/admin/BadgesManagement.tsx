@@ -64,7 +64,7 @@ const categoryOptions = [
 ];
 
 const automaticCriteriaOptions = [
-  { value: "", label: "Fără (Manual)" },
+  { value: "none", label: "Fără (Manual)" },
   { value: "email_verified", label: "Email verificat" },
   { value: "notes_count_10", label: ">10 notițe încărcate" },
   { value: "account_age_30", label: ">30 zile vechime" },
@@ -87,7 +87,7 @@ export const BadgesManagement = () => {
     color: "blue",
     category: "achievement",
     is_manual: true,
-    automatic_criteria: "",
+    automatic_criteria: "none",
   });
 
   const fetchBadges = async () => {
@@ -118,7 +118,7 @@ export const BadgesManagement = () => {
       color: "blue",
       category: "achievement",
       is_manual: true,
-      automatic_criteria: "",
+      automatic_criteria: "none",
     });
     setEditingBadge(null);
   };
@@ -133,7 +133,7 @@ export const BadgesManagement = () => {
         color: badge.color,
         category: badge.category,
         is_manual: badge.is_manual,
-        automatic_criteria: badge.automatic_criteria || "",
+        automatic_criteria: badge.automatic_criteria || "none",
       });
     } else {
       resetForm();
@@ -159,8 +159,8 @@ export const BadgesManagement = () => {
         icon: formData.icon,
         color: formData.color,
         category: formData.category,
-        is_manual: !formData.automatic_criteria,
-        automatic_criteria: formData.automatic_criteria || null,
+        is_manual: formData.automatic_criteria === "none",
+        automatic_criteria: formData.automatic_criteria === "none" ? null : formData.automatic_criteria,
       };
 
       if (editingBadge) {
