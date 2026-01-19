@@ -66,8 +66,16 @@ const categoryOptions = [
 const automaticCriteriaOptions = [
   { value: "none", label: "Fără (Manual)" },
   { value: "email_verified", label: "Email verificat" },
-  { value: "notes_count_10", label: ">10 notițe încărcate" },
-  { value: "account_age_30", label: ">30 zile vechime" },
+  { value: "notes_count_1", label: "Prima notiță încărcată" },
+  { value: "notes_count_10", label: "10 notițe încărcate" },
+  { value: "notes_count_50", label: "50 notițe încărcate" },
+  { value: "downloads_100", label: "100 descărcări pe notițe" },
+  { value: "friends_count_5", label: "5 prieteni adăugați" },
+  { value: "messages_count_20", label: "20 mesaje trimise" },
+  { value: "account_age_30", label: "30 zile vechime" },
+  { value: "account_age_365", label: "1 an vechime" },
+  { value: "night_owl", label: "Activ după 2:00 AM" },
+  { value: "likes_received_10", label: "10 like-uri primite" },
 ];
 
 export const BadgesManagement = () => {
