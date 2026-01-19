@@ -270,6 +270,47 @@ export type Database = {
         }
         Relationships: []
       }
+      courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          faculty_id: string
+          id: string
+          name: string
+          semester: number | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          faculty_id: string
+          id?: string
+          name: string
+          semester?: number | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          faculty_id?: string
+          id?: string
+          name?: string
+          semester?: number | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_faculty_id_fkey"
+            columns: ["faculty_id"]
+            isOneToOne: false
+            referencedRelation: "faculties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exams: {
         Row: {
           created_at: string
@@ -305,6 +346,44 @@ export type Database = {
           year?: number | null
         }
         Relationships: []
+      }
+      faculties: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          university_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          university_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          university_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "faculties_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       friendships: {
         Row: {
@@ -945,24 +1024,30 @@ export type Database = {
           city: string
           created_at: string
           id: string
+          logo_url: string | null
           name: string
           short_name: string
+          slug: string | null
           website: string | null
         }
         Insert: {
           city?: string
           created_at?: string
           id?: string
+          logo_url?: string | null
           name: string
           short_name: string
+          slug?: string | null
           website?: string | null
         }
         Update: {
           city?: string
           created_at?: string
           id?: string
+          logo_url?: string | null
           name?: string
           short_name?: string
+          slug?: string | null
           website?: string | null
         }
         Relationships: []
