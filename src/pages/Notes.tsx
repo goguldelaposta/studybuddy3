@@ -2,7 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, FileText, Download, Edit, Trash2, Loader2 } from "lucide-react";
+import { Search, FileText, Download, Edit, Trash2, Loader2, BookOpen } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotesUploadDialog } from "@/components/NotesUploadDialog";
@@ -10,8 +10,9 @@ import { EditNoteDialog } from "@/components/EditNoteDialog";
 import { NotesFilters } from "@/components/NotesFilters";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfiles } from "@/hooks/useProfiles";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -32,6 +33,7 @@ interface Note {
     downloads: number;
     user_id: string;
     file_url: string | null;
+    content: string | null;
 }
 
 export default function Notes() {
@@ -248,64 +250,75 @@ export default function Notes() {
                 ) : (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {filteredNotes.map((note) => (
-                            <Card key={note.id} className="hover:shadow-lg transition-shadow relative group">
-                                {/* Edit/Delete buttons for owner */}
-                                {user?.id === note.user_id && (
-                                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 bg-background/80 hover:bg-background"
-                                            onClick={() => setEditNote(note)}
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 bg-background/80 hover:bg-destructive hover:text-destructive-foreground"
-                                            onClick={() => setDeleteNoteId(note.id)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                )}
+                            <Link key={note.id} to={`/notes/${note.id}`} className="block">
+                                <Card className="hover:shadow-lg transition-shadow relative group h-full cursor-pointer">
+                                    {/* Edit/Delete buttons for owner */}
+                                    {user?.id === note.user_id && (
+                                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 bg-background/80 hover:bg-background"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setEditNote(note);
+                                                }}
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 bg-background/80 hover:bg-destructive hover:text-destructive-foreground"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setDeleteNoteId(note.id);
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    )}
 
-                                <CardHeader className="flex flex-row items-start justify-between pb-2">
-                                    <div className="p-2 bg-primary/10 rounded-lg">
-                                        <FileText className="w-8 h-8 text-primary" />
-                                    </div>
-                                    <div className="text-sm font-medium text-muted-foreground bg-secondary px-2 py-1 rounded">
-                                        {note.subject}
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <CardTitle className="text-xl mb-2">{note.title}</CardTitle>
-                                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                                        {note.description}
-                                    </p>
-
-                                    <div className="flex items-center justify-between pt-4 border-t">
-                                        <span className="text-sm text-muted-foreground">
-                                            {note.faculty}
-                                        </span>
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm" 
-                                            className="gap-2"
-                                            onClick={() => handleDownload(note)}
-                                            disabled={downloadingId === note.id || !note.file_url}
-                                        >
-                                            {downloadingId === note.id ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                    <CardHeader className="flex flex-row items-start justify-between pb-2">
+                                        <div className="p-2 bg-primary/10 rounded-lg">
+                                            {note.content ? (
+                                                <BookOpen className="w-8 h-8 text-primary" />
                                             ) : (
-                                                <Download className="w-4 h-4" />
+                                                <FileText className="w-8 h-8 text-primary" />
                                             )}
-                                            {note.downloads}
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <div className="text-sm font-medium text-muted-foreground bg-secondary px-2 py-1 rounded">
+                                                {note.subject}
+                                            </div>
+                                            {note.content && (
+                                                <Badge variant="outline" className="text-xs">
+                                                    Articol
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <CardTitle className="text-xl mb-2">{note.title}</CardTitle>
+                                        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                                            {note.description}
+                                        </p>
+
+                                        <div className="flex items-center justify-between pt-4 border-t">
+                                            <span className="text-sm text-muted-foreground">
+                                                {note.faculty}
+                                            </span>
+                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <Download className="w-4 h-4" />
+                                                {note.downloads}
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
                         ))}
 
                         {filteredNotes.length === 0 && (
