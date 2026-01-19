@@ -149,32 +149,38 @@ export type Database = {
       }
       badges: {
         Row: {
+          automatic_criteria: string | null
           category: string
           color: string
           created_at: string
           description: string
           icon: string
           id: string
+          is_manual: boolean | null
           name: string
           points_required: number | null
         }
         Insert: {
+          automatic_criteria?: string | null
           category?: string
           color?: string
           created_at?: string
           description: string
           icon: string
           id?: string
+          is_manual?: boolean | null
           name: string
           points_required?: number | null
         }
         Update: {
+          automatic_criteria?: string | null
           category?: string
           color?: string
           created_at?: string
           description?: string
           icon?: string
           id?: string
+          is_manual?: boolean | null
           name?: string
           points_required?: number | null
         }
@@ -1125,6 +1131,7 @@ export type Database = {
         Args: { p_badge_name: string; p_user_id: string }
         Returns: boolean
       }
+      award_verified_badge: { Args: { p_user_id: string }; Returns: boolean }
       check_and_award_badges: {
         Args: { p_user_id: string }
         Returns: undefined

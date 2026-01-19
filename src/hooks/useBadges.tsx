@@ -68,6 +68,10 @@ export const useBadges = (userId?: string) => {
     if (!user?.id) return;
 
     try {
+      // Call the edge function to check verified badge and other automatic badges
+      await supabase.functions.invoke('check-verified-badge');
+      
+      // Also call the database function for other criteria
       await supabase.rpc('check_and_award_badges', { p_user_id: user.id });
       await fetchBadges();
     } catch (error) {
