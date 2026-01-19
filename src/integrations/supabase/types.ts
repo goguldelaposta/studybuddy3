@@ -1132,6 +1132,7 @@ export type Database = {
         Returns: boolean
       }
       award_verified_badge: { Args: { p_user_id: string }; Returns: boolean }
+      award_veteran_badges: { Args: never; Returns: undefined }
       check_and_award_badges: {
         Args: { p_user_id: string }
         Returns: undefined
