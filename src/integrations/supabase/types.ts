@@ -681,6 +681,7 @@ export type Database = {
       }
       notes: {
         Row: {
+          content: string | null
           created_at: string
           description: string | null
           downloads: number
@@ -694,6 +695,7 @@ export type Database = {
           year: number | null
         }
         Insert: {
+          content?: string | null
           created_at?: string
           description?: string | null
           downloads?: number
@@ -707,6 +709,7 @@ export type Database = {
           year?: number | null
         }
         Update: {
+          content?: string | null
           created_at?: string
           description?: string | null
           downloads?: number
