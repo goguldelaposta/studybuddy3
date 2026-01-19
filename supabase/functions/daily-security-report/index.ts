@@ -50,22 +50,35 @@ serve(async (req: Request): Promise<Response> => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Calculate time range for the last 24 hours
+    // Calculate time range for the last 24 hours using UTC
     const now = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const yesterdayISO = yesterday.toISOString();
 
+    console.log(`[Daily Report] Fetching data from ${yesterdayISO} to ${now.toISOString()}`);
+
     // Fetch security stats for the last 24 hours
+    const securityActions = ["UNAUTHORIZED_ACCESS_ATTEMPT", "failed_auth", "IP_BLOCKED", "SECURITY_ALERT_TRIGGERED"];
+    
     const { data: auditLogs, error: logsError } = await supabase
       .from("audit_logs")
       .select("*")
       .gte("created_at", yesterdayISO)
-      .in("action", ["UNAUTHORIZED_ACCESS_ATTEMPT", "failed_auth", "IP_BLOCKED", "SECURITY_ALERT_TRIGGERED"]);
+      .in("action", securityActions);
 
     if (logsError) {
       console.error("Error fetching audit logs:", logsError);
       throw logsError;
     }
+
+    // Also get a count of ALL logs in time range for debugging
+    const { count: totalLogsInRange } = await supabase
+      .from("audit_logs")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", yesterdayISO);
+
+    console.log(`[Daily Report] Found ${auditLogs?.length || 0} security logs out of ${totalLogsInRange || 0} total logs in last 24h`);
+    console.log(`[Daily Report] Looking for actions: ${securityActions.join(", ")}`);
 
     // Fetch blocked IPs in last 24 hours
     const { data: blockedIPs, error: blockedError } = await supabase
@@ -76,6 +89,8 @@ serve(async (req: Request): Promise<Response> => {
     if (blockedError) {
       console.error("Error fetching blocked IPs:", blockedError);
     }
+
+    console.log(`[Daily Report] Found ${blockedIPs?.length || 0} blocked IPs in last 24h`);
 
     // Calculate statistics
     const attemptLogs = auditLogs?.filter(l => 
