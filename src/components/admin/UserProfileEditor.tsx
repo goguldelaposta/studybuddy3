@@ -63,6 +63,7 @@ export const UserProfileEditor = () => {
   const [loading, setLoading] = useState(true);
   const [loadingEmailStatus, setLoadingEmailStatus] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [emailFilter, setEmailFilter] = useState<"all" | "verified" | "unverified">("all");
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [editedUser, setEditedUser] = useState<Partial<UserProfile>>({});
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -191,11 +192,27 @@ export const UserProfileEditor = () => {
     }
   };
 
-  const filteredUsers = users.filter(
-    (u) =>
+  const filteredUsers = users.filter((u) => {
+    // Text search filter
+    const matchesSearch = 
       u.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      u.email.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Email verification filter
+    if (emailFilter === "all") {
+      return matchesSearch;
+    }
+    
+    const emailStatus = u.user_id ? emailStatusMap[u.user_id] : null;
+    if (emailFilter === "verified") {
+      return matchesSearch && emailStatus?.email_confirmed === true;
+    }
+    if (emailFilter === "unverified") {
+      return matchesSearch && (!emailStatus || emailStatus.email_confirmed === false);
+    }
+    
+    return matchesSearch;
+  });
 
   if (loading) {
     return (
@@ -213,8 +230,8 @@ export const UserProfileEditor = () => {
           <CardDescription>Modifică informațiile profilurilor utilizatorilor</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-6">
-            <div className="relative">
+          <div className="mb-6 flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Caută după nume sau email..."
@@ -223,7 +240,57 @@ export const UserProfileEditor = () => {
                 className="pl-9"
               />
             </div>
+            <Select value={emailFilter} onValueChange={(value: "all" | "verified" | "unverified") => setEmailFilter(value)}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Status email" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toți utilizatorii</SelectItem>
+                <SelectItem value="verified">
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-600" />
+                    Email verificat
+                  </span>
+                </SelectItem>
+                <SelectItem value="unverified">
+                  <span className="flex items-center gap-2">
+                    <XCircle className="w-3 h-3 text-amber-600" />
+                    Email neverificat
+                  </span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          {emailFilter !== "all" && (
+            <div className="mb-4 flex items-center gap-2">
+              <Badge variant="secondary" className="gap-1">
+                {emailFilter === "verified" ? (
+                  <>
+                    <CheckCircle2 className="w-3 h-3" />
+                    Afișare: Email verificat
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-3 h-3" />
+                    Afișare: Email neverificat
+                  </>
+                )}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEmailFilter("all")}
+                className="h-6 px-2 text-xs"
+              >
+                <X className="w-3 h-3 mr-1" />
+                Resetează
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                ({filteredUsers.length} utilizatori)
+              </span>
+            </div>
+          )}
 
           <div className="rounded-md border overflow-x-auto">
             <Table>
