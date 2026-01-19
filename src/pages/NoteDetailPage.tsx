@@ -17,7 +17,8 @@ import {
   BookOpen,
   Loader2,
   Edit,
-  ExternalLink
+  Lock,
+  LogIn
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
@@ -262,70 +263,175 @@ export default function NoteDetailPage() {
 
         {/* Content Section - Markdown Article */}
         {note.content && (
-          <article className="prose prose-lg dark:prose-invert max-w-none mb-8">
-            <ReactMarkdown
-              components={{
-                h1: ({ children }) => (
-                  <h1 className="text-3xl font-bold mt-8 mb-4 text-foreground">{children}</h1>
-                ),
-                h2: ({ children }) => (
-                  <h2 className="text-2xl font-semibold mt-6 mb-3 text-foreground border-b pb-2">{children}</h2>
-                ),
-                h3: ({ children }) => (
-                  <h3 className="text-xl font-semibold mt-5 mb-2 text-foreground">{children}</h3>
-                ),
-                p: ({ children }) => (
-                  <p className="text-base leading-relaxed mb-4 text-foreground/90">{children}</p>
-                ),
-                ul: ({ children }) => (
-                  <ul className="list-disc list-inside mb-4 space-y-1 text-foreground/90">{children}</ul>
-                ),
-                ol: ({ children }) => (
-                  <ol className="list-decimal list-inside mb-4 space-y-1 text-foreground/90">{children}</ol>
-                ),
-                li: ({ children }) => (
-                  <li className="text-foreground/90">{children}</li>
-                ),
-                code: ({ className, children }) => {
-                  const isInline = !className;
-                  if (isInline) {
-                    return (
-                      <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary">
+          <div className="relative">
+            {/* Content Gate for non-authenticated users */}
+            {!user && (
+              <>
+                {/* Limited content with blur effect */}
+                <article className="prose prose-lg dark:prose-invert max-w-none mb-8 max-h-[400px] overflow-hidden">
+                  <ReactMarkdown
+                    components={{
+                      h1: ({ children }) => (
+                        <h1 className="text-3xl font-bold mt-8 mb-4 text-foreground">{children}</h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2 className="text-2xl font-semibold mt-6 mb-3 text-foreground border-b pb-2">{children}</h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="text-xl font-semibold mt-5 mb-2 text-foreground">{children}</h3>
+                      ),
+                      p: ({ children }) => (
+                        <p className="text-base leading-relaxed mb-4 text-foreground/90">{children}</p>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc list-inside mb-4 space-y-1 text-foreground/90">{children}</ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="list-decimal list-inside mb-4 space-y-1 text-foreground/90">{children}</ol>
+                      ),
+                      li: ({ children }) => (
+                        <li className="text-foreground/90">{children}</li>
+                      ),
+                      code: ({ className, children }) => {
+                        const isInline = !className;
+                        if (isInline) {
+                          return (
+                            <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary">
+                              {children}
+                            </code>
+                          );
+                        }
+                        return (
+                          <code className={className}>{children}</code>
+                        );
+                      },
+                      pre: ({ children }) => (
+                        <pre className="bg-muted rounded-lg p-4 overflow-x-auto mb-4 text-sm">
+                          {children}
+                        </pre>
+                      ),
+                      blockquote: ({ children }) => (
+                        <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground my-4">
+                          {children}
+                        </blockquote>
+                      ),
+                      strong: ({ children }) => (
+                        <strong className="font-semibold text-foreground">{children}</strong>
+                      ),
+                      em: ({ children }) => (
+                        <em className="italic">{children}</em>
+                      ),
+                      a: ({ href, children }) => (
+                        <a href={href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                          {children}
+                        </a>
+                      ),
+                      hr: () => <hr className="my-8 border-border" />,
+                    }}
+                  >
+                    {note.content.slice(0, 300) + "..."}
+                  </ReactMarkdown>
+                </article>
+
+                {/* Blur gradient overlay */}
+                <div 
+                  className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none"
+                  style={{ bottom: '0' }}
+                />
+
+                {/* CTA Card overlay */}
+                <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-4">
+                  <Card className="w-full max-w-md border-2 border-primary/20 shadow-xl bg-background/95 backdrop-blur-sm">
+                    <CardContent className="py-6 text-center">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Lock className="w-6 h-6 text-primary" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">
+                        Fă-ți cont gratuit pentru a citi tot cursul!
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Accesează mii de notițe și materiale de studiu create de studenți.
+                      </p>
+                      <Button asChild className="w-full">
+                        <Link to="/auth">
+                          <LogIn className="w-4 h-4 mr-2" />
+                          Intră în cont / Înregistrează-te
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
+            )}
+
+            {/* Full content for authenticated users */}
+            {user && (
+              <article className="prose prose-lg dark:prose-invert max-w-none mb-8">
+                <ReactMarkdown
+                  components={{
+                    h1: ({ children }) => (
+                      <h1 className="text-3xl font-bold mt-8 mb-4 text-foreground">{children}</h1>
+                    ),
+                    h2: ({ children }) => (
+                      <h2 className="text-2xl font-semibold mt-6 mb-3 text-foreground border-b pb-2">{children}</h2>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className="text-xl font-semibold mt-5 mb-2 text-foreground">{children}</h3>
+                    ),
+                    p: ({ children }) => (
+                      <p className="text-base leading-relaxed mb-4 text-foreground/90">{children}</p>
+                    ),
+                    ul: ({ children }) => (
+                      <ul className="list-disc list-inside mb-4 space-y-1 text-foreground/90">{children}</ul>
+                    ),
+                    ol: ({ children }) => (
+                      <ol className="list-decimal list-inside mb-4 space-y-1 text-foreground/90">{children}</ol>
+                    ),
+                    li: ({ children }) => (
+                      <li className="text-foreground/90">{children}</li>
+                    ),
+                    code: ({ className, children }) => {
+                      const isInline = !className;
+                      if (isInline) {
+                        return (
+                          <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary">
+                            {children}
+                          </code>
+                        );
+                      }
+                      return (
+                        <code className={className}>{children}</code>
+                      );
+                    },
+                    pre: ({ children }) => (
+                      <pre className="bg-muted rounded-lg p-4 overflow-x-auto mb-4 text-sm">
                         {children}
-                      </code>
-                    );
-                  }
-                  return (
-                    <code className={className}>{children}</code>
-                  );
-                },
-                pre: ({ children }) => (
-                  <pre className="bg-muted rounded-lg p-4 overflow-x-auto mb-4 text-sm">
-                    {children}
-                  </pre>
-                ),
-                blockquote: ({ children }) => (
-                  <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground my-4">
-                    {children}
-                  </blockquote>
-                ),
-                strong: ({ children }) => (
-                  <strong className="font-semibold text-foreground">{children}</strong>
-                ),
-                em: ({ children }) => (
-                  <em className="italic">{children}</em>
-                ),
-                a: ({ href, children }) => (
-                  <a href={href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-                    {children}
-                  </a>
-                ),
-                hr: () => <hr className="my-8 border-border" />,
-              }}
-            >
-              {note.content}
-            </ReactMarkdown>
-          </article>
+                      </pre>
+                    ),
+                    blockquote: ({ children }) => (
+                      <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground my-4">
+                        {children}
+                      </blockquote>
+                    ),
+                    strong: ({ children }) => (
+                      <strong className="font-semibold text-foreground">{children}</strong>
+                    ),
+                    em: ({ children }) => (
+                      <em className="italic">{children}</em>
+                    ),
+                    a: ({ href, children }) => (
+                      <a href={href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                        {children}
+                      </a>
+                    ),
+                    hr: () => <hr className="my-8 border-border" />,
+                  }}
+                >
+                  {note.content}
+                </ReactMarkdown>
+              </article>
+            )}
+          </div>
         )}
 
         {/* Download Section - for file-based notes */}
