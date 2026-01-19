@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import { Loader2, Search, Edit, Trash2, Save, X, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Loader2, Search, Edit, Trash2, Save, X, CheckCircle2, XCircle, AlertCircle, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -70,6 +70,7 @@ export const UserProfileEditor = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserProfile | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState<string | null>(null);
 
   const fetchEmailStatus = async () => {
     try {
@@ -189,6 +190,37 @@ export const UserProfileEditor = () => {
       });
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleResendVerificationEmail = async (user: UserProfile) => {
+    setResendingEmail(user.id);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("resend-verification-email", {
+        body: { userEmail: user.email },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Email trimis!",
+          description: `Email-ul de verificare a fost trimis către ${user.email}.`,
+        });
+      } else {
+        throw new Error(data?.error || "Eroare la trimiterea email-ului");
+      }
+    } catch (error: unknown) {
+      console.error("Error resending verification email:", error);
+      const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
+      toast({
+        title: "Eroare",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setResendingEmail(null);
     }
   };
 
@@ -369,6 +401,31 @@ export const UserProfileEditor = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
+                          {/* Resend verification email button - only for unverified users */}
+                          {emailStatus && !emailStatus.email_confirmed && isAdmin && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleResendVerificationEmail(user)}
+                                    disabled={resendingEmail === user.id}
+                                    className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                                  >
+                                    {resendingEmail === user.id ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Mail className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Trimite email de verificare</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
                           <Button size="sm" variant="outline" onClick={() => handleEditUser(user)}>
                             <Edit className="w-4 h-4" />
                           </Button>
