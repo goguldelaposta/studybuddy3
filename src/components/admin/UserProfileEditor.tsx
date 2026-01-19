@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import { Loader2, Search, Edit, Trash2, Save, X, CheckCircle2, XCircle, AlertCircle, Mail } from "lucide-react";
+import { Loader2, Search, Edit, Trash2, Save, X, CheckCircle2, XCircle, AlertCircle, Mail, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -71,6 +71,8 @@ export const UserProfileEditor = () => {
   const [userToDelete, setUserToDelete] = useState<UserProfile | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [resendingEmail, setResendingEmail] = useState<string | null>(null);
+  const [bulkSending, setBulkSending] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState({ sent: 0, failed: 0, total: 0 });
 
   const fetchEmailStatus = async () => {
     try {
@@ -224,6 +226,57 @@ export const UserProfileEditor = () => {
     }
   };
 
+  // Get all unverified users
+  const unverifiedUsers = users.filter((u) => {
+    const emailStatus = u.user_id ? emailStatusMap[u.user_id] : null;
+    return !emailStatus || emailStatus.email_confirmed === false;
+  });
+
+  const handleBulkResendVerificationEmails = async () => {
+    if (unverifiedUsers.length === 0) {
+      toast({
+        title: "Nu există utilizatori neverificați",
+        description: "Toți utilizatorii au email-ul verificat.",
+      });
+      return;
+    }
+
+    setBulkSending(true);
+    setBulkProgress({ sent: 0, failed: 0, total: unverifiedUsers.length });
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const user of unverifiedUsers) {
+      try {
+        const { data, error } = await supabase.functions.invoke("resend-verification-email", {
+          body: { userEmail: user.email },
+        });
+
+        if (error || !data?.success) {
+          failed++;
+        } else {
+          sent++;
+        }
+      } catch {
+        failed++;
+      }
+
+      setBulkProgress({ sent, failed, total: unverifiedUsers.length });
+
+      // Small delay to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    setBulkSending(false);
+
+    toast({
+      title: "Trimitere finalizată",
+      description: `${sent} email-uri trimise cu succes, ${failed} eșuate.`,
+      variant: failed > 0 ? "destructive" : "default",
+    });
+  };
+
   const filteredUsers = users.filter((u) => {
     // Text search filter
     const matchesSearch = 
@@ -293,6 +346,58 @@ export const UserProfileEditor = () => {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Bulk actions for unverified users */}
+          {unverifiedUsers.length > 0 && isAdmin && (
+            <div className="mb-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-amber-600" />
+                  <div>
+                    <p className="font-medium text-amber-700 dark:text-amber-400">
+                      {unverifiedUsers.length} utilizatori cu email neverificat
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Trimite email de verificare către toți utilizatorii neverificați
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleBulkResendVerificationEmails}
+                  disabled={bulkSending}
+                  variant="outline"
+                  className="border-amber-500/50 text-amber-700 hover:bg-amber-500/20 dark:text-amber-400"
+                >
+                  {bulkSending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Trimitere... ({bulkProgress.sent}/{bulkProgress.total})
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Trimite către toți ({unverifiedUsers.length})
+                    </>
+                  )}
+                </Button>
+              </div>
+              {bulkSending && (
+                <div className="mt-3">
+                  <div className="w-full bg-amber-200 dark:bg-amber-900/30 rounded-full h-2">
+                    <div
+                      className="bg-amber-500 h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${((bulkProgress.sent + bulkProgress.failed) / bulkProgress.total) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {bulkProgress.sent} trimise, {bulkProgress.failed} eșuate
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {emailFilter !== "all" && (
             <div className="mb-4 flex items-center gap-2">
