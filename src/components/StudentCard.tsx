@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GraduationCap, BookOpen, MessageCircle, Building } from "lucide-react";
 import { PrivacySettingsData } from "@/components/PrivacySettings";
 import { FriendRequestButton } from "@/components/FriendRequestButton";
+import { ProfileBadge } from "@/components/ProfileBadge";
+import { useBadges, UserBadge } from "@/hooks/useBadges";
 
 interface StudentCardProps {
   id: string;
@@ -21,6 +23,7 @@ interface StudentCardProps {
   userId?: string;
   privacySettings?: PrivacySettingsData;
   onConnect?: (id: string) => void;
+  userBadges?: UserBadge[];
 }
 
 const getUniversityColor = (shortName?: string) => {
@@ -71,6 +74,7 @@ export const StudentCard = ({
   userId,
   privacySettings,
   onConnect,
+  userBadges = [],
 }: StudentCardProps) => {
   const navigate = useNavigate();
 
@@ -112,6 +116,27 @@ export const StudentCard = ({
             >
               {fullName}
             </h3>
+            {/* Badge Icons */}
+            {userBadges.length > 0 && (
+              <div className="flex items-center gap-1 mt-1">
+                {userBadges.slice(0, 4).map((ub) => (
+                  <ProfileBadge
+                    key={ub.id}
+                    name={ub.badge.name}
+                    description={ub.badge.description}
+                    icon={ub.badge.icon}
+                    color={ub.badge.color}
+                    size="sm"
+                    showTooltip
+                  />
+                ))}
+                {userBadges.length > 4 && (
+                  <span className="text-xs text-muted-foreground ml-1">
+                    +{userBadges.length - 4}
+                  </span>
+                )}
+              </div>
+            )}
             <div className="flex flex-wrap items-center gap-2 mt-1">
               {universityShortName && (
                 <Badge variant="outline" className={`${getUniversityColor(universityShortName)} text-xs font-medium`}>
