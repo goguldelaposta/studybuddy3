@@ -34,7 +34,7 @@ import { BlockedIPsManagement } from "@/components/admin/BlockedIPsManagement";
 import { IPWhitelistManagement } from "@/components/admin/IPWhitelistManagement";
 import { AutomatedEmailsLog } from "@/components/admin/AutomatedEmailsLog";
 import { BadgesManagement } from "@/components/admin/BadgesManagement";
-import { ContentSeeding } from "@/components/admin/ContentSeeding";
+import ContentSeeding from "@/components/admin/ContentSeeding";
 import { useBlockedIPsNotifications } from "@/hooks/useBlockedIPsNotifications";
 import { useModeration } from "@/hooks/useModeration";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
