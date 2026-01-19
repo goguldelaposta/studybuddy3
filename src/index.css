@@ -238,3 +238,8 @@
     transform: translateY(-10px);
   }
 }
+
+/* Animation fill mode utility */
+.animate-fill-forwards {
+  animation-fill-mode: forwards;
+}

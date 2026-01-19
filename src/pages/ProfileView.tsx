@@ -221,7 +221,7 @@ const ProfileView = () => {
               {userBadges.length > 0 && (
                 <div className="mt-4">
                   <div className="flex flex-wrap gap-2">
-                    {userBadges.map((ub) => (
+                    {userBadges.slice(0, 5).map((ub, index) => (
                       <ProfileBadge
                         key={ub.id}
                         name={ub.badge.name}
@@ -229,8 +229,15 @@ const ProfileView = () => {
                         icon={ub.badge.icon}
                         color={ub.badge.color}
                         size="sm"
+                        animated
+                        delay={index * 100}
                       />
                     ))}
+                    {userBadges.length > 5 && (
+                      <Badge variant="secondary" className="text-xs animate-fade-in" style={{ animationDelay: '500ms' }}>
+                        +{userBadges.length - 5} altele
+                      </Badge>
+                    )}
                   </div>
                 </div>
               )}
@@ -293,30 +300,37 @@ const ProfileView = () => {
 
         {/* All Badges Card */}
         {userBadges.length > 0 && (
-          <Card className="mt-6">
-            <CardHeader>
+          <Card className="mt-6 overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Award className="w-5 h-5 text-primary" />
+                <Award className="w-5 h-5 text-primary animate-pulse" />
                 Insigne câștigate ({userBadges.length})
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {userBadges.map((ub) => (
+                {userBadges.map((ub, index) => (
                   <div 
                     key={ub.id} 
-                    className="flex flex-col items-center p-4 rounded-lg bg-muted/50 text-center"
+                    className="group flex flex-col items-center p-4 rounded-xl bg-muted/30 hover:bg-muted/60 text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fade-in border border-transparent hover:border-primary/20"
+                    style={{ animationDelay: `${index * 75}ms` }}
                   >
-                    <ProfileBadge
-                      name={ub.badge.name}
-                      description={ub.badge.description}
-                      icon={ub.badge.icon}
-                      color={ub.badge.color}
-                      size="lg"
-                      showTooltip={false}
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {new Date(ub.earned_at).toLocaleDateString('ro-RO')}
+                    <div className="transform transition-transform duration-300 group-hover:scale-110">
+                      <ProfileBadge
+                        name={ub.badge.name}
+                        description={ub.badge.description}
+                        icon={ub.badge.icon}
+                        color={ub.badge.color}
+                        size="lg"
+                        showTooltip={false}
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-3 opacity-70 group-hover:opacity-100 transition-opacity">
+                      Obținută pe {new Date(ub.earned_at).toLocaleDateString('ro-RO', { 
+                        day: 'numeric', 
+                        month: 'short', 
+                        year: 'numeric' 
+                      })}
                     </p>
                   </div>
                 ))}
