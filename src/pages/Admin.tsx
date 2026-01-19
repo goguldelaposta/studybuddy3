@@ -26,7 +26,7 @@ import { SkillsManagement } from "@/components/admin/SkillsManagement";
 import { 
   Shield, Users, Search, Loader2, Trash2, 
   Crown, ShieldCheck, User as UserIcon, AlertTriangle,
-  Flag, Ban, Megaphone, UserX, LayoutDashboard, Edit, Building2, BookOpen, Lightbulb, Mail, ShieldAlert, ShieldBan, Send, Award
+  Flag, Ban, Megaphone, UserX, LayoutDashboard, Edit, Building2, BookOpen, Lightbulb, Mail, ShieldAlert, ShieldBan, Send, Award, Sparkles, FileText
 } from "lucide-react";
 import { NewsletterSender } from "@/components/admin/NewsletterSender";
 import { SecurityLogs } from "@/components/admin/SecurityLogs";
@@ -34,6 +34,7 @@ import { BlockedIPsManagement } from "@/components/admin/BlockedIPsManagement";
 import { IPWhitelistManagement } from "@/components/admin/IPWhitelistManagement";
 import { AutomatedEmailsLog } from "@/components/admin/AutomatedEmailsLog";
 import { BadgesManagement } from "@/components/admin/BadgesManagement";
+import { ContentSeeding } from "@/components/admin/ContentSeeding";
 import { useBlockedIPsNotifications } from "@/hooks/useBlockedIPsNotifications";
 import { useModeration } from "@/hooks/useModeration";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -273,6 +274,7 @@ const Admin = () => {
             <TabsTrigger value="blocked-ips" className="gap-2"><ShieldBan className="w-4 h-4" /><span className="hidden sm:inline">IP Blocate</span></TabsTrigger>
             <TabsTrigger value="whitelist" className="gap-2"><ShieldCheck className="w-4 h-4" /><span className="hidden sm:inline">Whitelist</span></TabsTrigger>
             <TabsTrigger value="badges" className="gap-2"><Award className="w-4 h-4" /><span className="hidden sm:inline">Insigne</span></TabsTrigger>
+            <TabsTrigger value="content" className="gap-2"><FileText className="w-4 h-4" /><span className="hidden sm:inline">Conținut</span></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard"><AdminDashboard /></TabsContent>
@@ -396,6 +398,7 @@ const Admin = () => {
           <TabsContent value="blocked-ips"><BlockedIPsManagement /></TabsContent>
           <TabsContent value="whitelist"><IPWhitelistManagement /></TabsContent>
           <TabsContent value="badges"><BadgesManagement /></TabsContent>
+          <TabsContent value="content"><ContentSeeding /></TabsContent>
         </Tabs>
 
         {/* Suspension Dialog */}

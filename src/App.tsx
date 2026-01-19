@@ -24,6 +24,7 @@ import Friends from "./pages/Friends";
 import ProfileView from "./pages/ProfileView";
 import Admin from "./pages/Admin";
 import Notes from "./pages/Notes";
+import NoteDetailPage from "./pages/NoteDetailPage";
 import CalendarPage from "./pages/CalendarPage";
 import Badges from "./pages/Badges";
 import Terms from "./pages/Terms";
@@ -61,6 +62,7 @@ function AppContent() {
         <Route path="/user/:userId" element={<EmailVerificationGuard><ProfileView /></EmailVerificationGuard>} />
         <Route path="/admin" element={<EmailVerificationGuard><Admin /></EmailVerificationGuard>} />
         <Route path="/notes" element={<EmailVerificationGuard><Notes /></EmailVerificationGuard>} />
+        <Route path="/notes/:noteId" element={<EmailVerificationGuard><NoteDetailPage /></EmailVerificationGuard>} />
         <Route path="/calendar" element={<EmailVerificationGuard><CalendarPage /></EmailVerificationGuard>} />
         <Route path="/badges" element={<EmailVerificationGuard><Badges /></EmailVerificationGuard>} />
         <Route path="/terms" element={<Terms />} />
