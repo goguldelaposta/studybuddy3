@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Mail, Send, Calendar, Clock, Trash2, AlertCircle, CheckCircle2, Eye } from "lucide-react";
+import { Loader2, Mail, Send, Calendar, Clock, Trash2, AlertCircle, CheckCircle2, Eye, FileText, Plus, Save } from "lucide-react";
 import { format, isPast, parseISO } from "date-fns";
 import { ro } from "date-fns/locale";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -23,6 +23,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ScheduledNewsletter {
   id: string;
@@ -33,6 +40,14 @@ interface ScheduledNewsletter {
   sent_at: string | null;
   sent_count: number;
   failed_count: number;
+  created_at: string;
+}
+
+interface NewsletterTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  message: string;
   created_at: string;
 }
 
@@ -54,10 +69,33 @@ export const NewsletterSender = () => {
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
   const [scheduleTime, setScheduleTime] = useState("09:00");
 
+  // Templates state
+  const [templates, setTemplates] = useState<NewsletterTemplate[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+
   const handlePreview = (subjectText: string, messageText: string) => {
     setPreviewNewsletter({ subject: subjectText, message: messageText });
     setPreviewOpen(true);
   };
+
+  const fetchTemplates = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("newsletter_templates")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setTemplates((data as NewsletterTemplate[]) || []);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  }, []);
 
   const fetchScheduledNewsletters = useCallback(async () => {
     try {
@@ -77,7 +115,94 @@ export const NewsletterSender = () => {
 
   useEffect(() => {
     fetchScheduledNewsletters();
-  }, [fetchScheduledNewsletters]);
+    fetchTemplates();
+  }, [fetchScheduledNewsletters, fetchTemplates]);
+
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim() || !subject.trim() || !message.trim()) {
+      toast({
+        title: "Câmpuri obligatorii",
+        description: "Te rugăm să completezi numele template-ului, subiectul și mesajul.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      toast({
+        title: "Eroare",
+        description: "Nu ești autentificat.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingTemplate(true);
+
+    try {
+      const { error } = await supabase.from("newsletter_templates").insert({
+        name: templateName.trim(),
+        subject,
+        message,
+        created_by: user.id,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Template salvat!",
+        description: `Template-ul "${templateName}" a fost salvat cu succes.`,
+      });
+
+      setTemplateName("");
+      setSaveTemplateOpen(false);
+      fetchTemplates();
+    } catch (error: unknown) {
+      console.error("Error saving template:", error);
+      const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
+      toast({
+        title: "Eroare",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const handleLoadTemplate = (template: NewsletterTemplate) => {
+    setSubject(template.subject);
+    setMessage(template.message);
+    toast({
+      title: "Template încărcat",
+      description: `Template-ul "${template.name}" a fost încărcat.`,
+    });
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("newsletter_templates")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Template șters",
+        description: "Template-ul a fost șters cu succes.",
+      });
+      fetchTemplates();
+    } catch (error: unknown) {
+      console.error("Error deleting template:", error);
+      const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
+      toast({
+        title: "Eroare",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSendNewsletter = async () => {
     if (!subject.trim() || !message.trim()) {
@@ -288,6 +413,59 @@ export const NewsletterSender = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Templates Section */}
+          <div className="p-4 bg-muted/30 rounded-lg border space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Template-uri Salvate
+              </Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSaveTemplateOpen(true)}
+                disabled={!subject.trim() || !message.trim() || sending || scheduling}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Salvează ca Template
+              </Button>
+            </div>
+            
+            {loadingTemplates ? (
+              <div className="flex items-center justify-center py-2">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              </div>
+            ) : templates.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-2">
+                Nu ai template-uri salvate. Creează un newsletter și salvează-l ca template.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {templates.map((template) => (
+                  <div
+                    key={template.id}
+                    className="group flex items-center gap-1 bg-background border rounded-lg px-3 py-1.5 text-sm hover:border-primary/50 transition-colors"
+                  >
+                    <button
+                      onClick={() => handleLoadTemplate(template)}
+                      className="font-medium hover:text-primary transition-colors"
+                    >
+                      {template.name}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTemplate(template.id)}
+                      className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all ml-1"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
           <div className="space-y-2">
             <Label htmlFor="newsletter-subject">Subiect</Label>
             <Input
@@ -599,6 +777,65 @@ export const NewsletterSender = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Save Template Modal */}
+      <Dialog open={saveTemplateOpen} onOpenChange={setSaveTemplateOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Save className="w-5 h-5" />
+              Salvează Template
+            </DialogTitle>
+            <DialogDescription>
+              Salvează acest newsletter ca template pentru reutilizare rapidă
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="template-name">Numele Template-ului</Label>
+              <Input
+                id="template-name"
+                placeholder="ex: Anunț Important, Newsletter Săptămânal..."
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                disabled={savingTemplate}
+              />
+            </div>
+            
+            <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
+              <p className="text-muted-foreground">
+                <strong>Subiect:</strong> {subject}
+              </p>
+              <p className="text-muted-foreground truncate">
+                <strong>Mesaj:</strong> {message.replace(/<[^>]*>/g, '').slice(0, 100)}...
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setSaveTemplateOpen(false)}>
+                Anulează
+              </Button>
+              <Button
+                onClick={handleSaveTemplate}
+                disabled={savingTemplate || !templateName.trim()}
+              >
+                {savingTemplate ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Se salvează...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Salvează
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Email Preview Modal */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
