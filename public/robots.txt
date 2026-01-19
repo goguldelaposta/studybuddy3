@@ -1,3 +1,6 @@
+# StudyBuddy - robots.txt
+# https://www.studybuddy.ro
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +15,10 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /profile/edit
+Disallow: /messages
+Disallow: /reset-password
+
+# Sitemap
+Sitemap: https://www.studybuddy.ro/sitemap.xml
