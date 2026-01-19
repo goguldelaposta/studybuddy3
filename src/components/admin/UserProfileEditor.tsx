@@ -11,7 +11,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import { Loader2, Search, Edit, Trash2, Save, X, CheckCircle2, XCircle, AlertCircle, Mail, Send } from "lucide-react";
+import { Loader2, Search, Edit, Trash2, Save, X, CheckCircle2, XCircle, AlertCircle, Mail, Send, Award } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserBadgeAssignment } from "@/components/admin/UserBadgeAssignment";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -559,98 +561,122 @@ export const UserProfileEditor = () => {
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Editare Profil</DialogTitle>
-            <DialogDescription>Modifică informațiile profilului</DialogDescription>
+            <DialogTitle>Editare Profil - {selectedUser?.full_name}</DialogTitle>
+            <DialogDescription>Modifică informațiile profilului și gestionează insignele</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Nume complet</label>
-              <Input
-                value={editedUser.full_name || ""}
-                onChange={(e) => setEditedUser({ ...editedUser, full_name: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Facultate</label>
-              <Input
-                value={editedUser.faculty || ""}
-                onChange={(e) => setEditedUser({ ...editedUser, faculty: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Universitate</label>
-              <Select
-                value={editedUser.university_id || ""}
-                onValueChange={(value) => setEditedUser({ ...editedUser, university_id: value })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Selectează universitatea" />
-                </SelectTrigger>
-                <SelectContent>
-                  {universities.map((uni) => (
-                    <SelectItem key={uni.id} value={uni.id}>
-                      {uni.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium">An de studiu</label>
-              <Select
-                value={editedUser.year_of_study?.toString() || ""}
-                onValueChange={(value) => setEditedUser({ ...editedUser, year_of_study: parseInt(value) })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Selectează anul" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      Anul {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Bio</label>
-              <Textarea
-                value={editedUser.bio || ""}
-                onChange={(e) => setEditedUser({ ...editedUser, bio: e.target.value })}
-                className="mt-1"
-                rows={3}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Ce caută</label>
-              <Input
-                value={editedUser.looking_for || ""}
-                onChange={(e) => setEditedUser({ ...editedUser, looking_for: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-              <X className="w-4 h-4 mr-2" />
-              Anulează
-            </Button>
-            <Button onClick={handleSaveUser} disabled={actionLoading}>
-              {actionLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <Save className="w-4 h-4 mr-2" />
-                  Salvează
-                </>
+          
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="profile" className="gap-2">
+                <Edit className="w-4 h-4" />
+                Profil
+              </TabsTrigger>
+              <TabsTrigger value="badges" className="gap-2">
+                <Award className="w-4 h-4" />
+                Insigne
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="profile" className="space-y-4 mt-4">
+              <div>
+                <label className="text-sm font-medium">Nume complet</label>
+                <Input
+                  value={editedUser.full_name || ""}
+                  onChange={(e) => setEditedUser({ ...editedUser, full_name: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Facultate</label>
+                <Input
+                  value={editedUser.faculty || ""}
+                  onChange={(e) => setEditedUser({ ...editedUser, faculty: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Universitate</label>
+                <Select
+                  value={editedUser.university_id || ""}
+                  onValueChange={(value) => setEditedUser({ ...editedUser, university_id: value })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Selectează universitatea" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {universities.map((uni) => (
+                      <SelectItem key={uni.id} value={uni.id}>
+                        {uni.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">An de studiu</label>
+                <Select
+                  value={editedUser.year_of_study?.toString() || ""}
+                  onValueChange={(value) => setEditedUser({ ...editedUser, year_of_study: parseInt(value) })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Selectează anul" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5, 6].map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        Anul {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Bio</label>
+                <Textarea
+                  value={editedUser.bio || ""}
+                  onChange={(e) => setEditedUser({ ...editedUser, bio: e.target.value })}
+                  className="mt-1"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Ce caută</label>
+                <Input
+                  value={editedUser.looking_for || ""}
+                  onChange={(e) => setEditedUser({ ...editedUser, looking_for: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                  <X className="w-4 h-4 mr-2" />
+                  Anulează
+                </Button>
+                <Button onClick={handleSaveUser} disabled={actionLoading}>
+                  {actionLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Salvează
+                    </>
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="badges" className="mt-4">
+              {selectedUser?.user_id && (
+                <UserBadgeAssignment 
+                  userId={selectedUser.user_id} 
+                  userName={selectedUser.full_name} 
+                />
               )}
-            </Button>
-          </DialogFooter>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
