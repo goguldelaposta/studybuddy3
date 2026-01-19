@@ -106,6 +106,7 @@ const Index = () => {
                       universityShortName={profile.university?.short_name}
                       userId={profile.user_id || undefined}
                       privacySettings={profile.privacy_settings}
+                      userBadges={profile.userBadges}
                       onConnect={(id) => console.log("Connect to:", id)}
                     />
                   </div>

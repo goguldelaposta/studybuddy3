@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { PrivacySettingsData, getDefaultPrivacySettings } from "@/components/PrivacySettings";
+import { Badge as BadgeType, UserBadge } from "@/hooks/useBadges";
 
 interface Profile {
   id: string;
@@ -47,6 +48,7 @@ interface ProfileWithRelations extends Profile {
   subjects: string[];
   university?: University;
   privacy_settings: PrivacySettingsData;
+  userBadges?: UserBadge[];
 }
 
 interface Filters {
@@ -117,7 +119,7 @@ export const useProfiles = () => {
 
       const profilesWithRelations = await Promise.all(
         (profilesData || []).map(async (profile) => {
-          const [skillsResult, subjectsResult, universityResult] = await Promise.all([
+          const [skillsResult, subjectsResult, universityResult, badgesResult] = await Promise.all([
             supabase
               .from("profile_skills")
               .select("skill_id, skills(name)")
@@ -129,7 +131,21 @@ export const useProfiles = () => {
             profile.university_id 
               ? supabase.from("universities").select("*").eq("id", profile.university_id).single()
               : Promise.resolve({ data: null }),
+            profile.user_id
+              ? supabase
+                  .from("user_badges")
+                  .select("*, badge:badges(*)")
+                  .eq("user_id", profile.user_id)
+              : Promise.resolve({ data: null }),
           ]);
+
+          const mappedBadges: UserBadge[] = (badgesResult.data || []).map((ub: any) => ({
+            id: ub.id,
+            user_id: ub.user_id,
+            badge_id: ub.badge_id,
+            earned_at: ub.earned_at,
+            badge: ub.badge as BadgeType,
+          }));
 
           return {
             ...profile,
@@ -137,6 +153,7 @@ export const useProfiles = () => {
             subjects: subjectsResult.data?.map((ps: any) => ps.subjects?.name).filter(Boolean) || [],
             university: universityResult.data || undefined,
             privacy_settings: (profile.privacy_settings as unknown as PrivacySettingsData) || getDefaultPrivacySettings(),
+            userBadges: mappedBadges,
           };
         })
       );

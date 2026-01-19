@@ -3,15 +3,18 @@ import { useNavigate, Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfiles } from "@/hooks/useProfiles";
+import { useBadges } from "@/hooks/useBadges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, GraduationCap, Sparkles, BookOpen, Building, Calendar } from "lucide-react";
+import { Settings, GraduationCap, Sparkles, BookOpen, Building, Calendar, Trophy } from "lucide-react";
+import { ProfileBadge } from "@/components/ProfileBadge";
 
 const Profile = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { universities, currentUserProfile, loading } = useProfiles();
+  const { userBadges, loading: badgesLoading } = useBadges();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -123,6 +126,42 @@ const Profile = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Trofee & Insigne */}
+              {!badgesLoading && userBadges.length > 0 && (
+                <Card className="shadow-card border-border/50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 font-display">
+                      <Trophy className="w-5 h-5 text-amber-500" />
+                      Trofee & Insigne
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {userBadges.map((ub, index) => (
+                        <div 
+                          key={ub.id} 
+                          className="flex flex-col items-center gap-2 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                        >
+                          <ProfileBadge
+                            name={ub.badge.name}
+                            description={ub.badge.description}
+                            icon={ub.badge.icon}
+                            color={ub.badge.color}
+                            size="md"
+                            showTooltip
+                            animated
+                            delay={index * 50}
+                          />
+                          <span className="text-xs font-medium text-center text-muted-foreground">
+                            {ub.badge.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Skills */}
               {currentUserProfile.skills && currentUserProfile.skills.length > 0 && (
