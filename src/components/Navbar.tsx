@@ -78,9 +78,6 @@ export const Navbar = ({
                 </Badge>
               )}
             </Link>
-            <Link to="/profile" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Profilul Meu
-            </Link>
           </>}
         </div>
 
