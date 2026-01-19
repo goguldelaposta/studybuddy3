@@ -11,7 +11,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import { Loader2, Search, Edit, Trash2, Save, X } from "lucide-react";
+import { Loader2, Search, Edit, Trash2, Save, X, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface UserProfile {
   id: string;
@@ -33,6 +35,20 @@ interface University {
   short_name: string;
 }
 
+interface EmailStatusMap {
+  [userId: string]: {
+    email_confirmed: boolean;
+    email_confirmed_at: string | null;
+    last_sign_in_at: string | null;
+  };
+}
+
+interface University {
+  id: string;
+  name: string;
+  short_name: string;
+}
+
 const getInitials = (name: string) => {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 };
@@ -43,7 +59,9 @@ export const UserProfileEditor = () => {
   
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [universities, setUniversities] = useState<University[]>([]);
+  const [emailStatusMap, setEmailStatusMap] = useState<EmailStatusMap>({});
   const [loading, setLoading] = useState(true);
+  const [loadingEmailStatus, setLoadingEmailStatus] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [editedUser, setEditedUser] = useState<Partial<UserProfile>>({});
@@ -51,6 +69,26 @@ export const UserProfileEditor = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserProfile | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+
+  const fetchEmailStatus = async () => {
+    try {
+      setLoadingEmailStatus(true);
+      const { data, error } = await supabase.functions.invoke("get-users-email-status");
+      
+      if (error) {
+        console.error("Error fetching email status:", error);
+        return;
+      }
+      
+      if (data?.emailStatusMap) {
+        setEmailStatusMap(data.emailStatusMap);
+      }
+    } catch (error) {
+      console.error("Error fetching email status:", error);
+    } finally {
+      setLoadingEmailStatus(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -69,6 +107,7 @@ export const UserProfileEditor = () => {
 
   useEffect(() => {
     fetchData();
+    fetchEmailStatus();
   }, []);
 
   const handleEditUser = (user: UserProfile) => {
@@ -193,53 +232,96 @@ export const UserProfileEditor = () => {
                   <TableHead>Utilizator</TableHead>
                   <TableHead>Facultate</TableHead>
                   <TableHead>An</TableHead>
+                  <TableHead>Status Email</TableHead>
                   <TableHead>Data înregistrării</TableHead>
                   <TableHead className="text-right">Acțiuni</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.avatar_url || undefined} />
-                          <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
-                            {getInitials(user.full_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{user.full_name}</p>
-                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                {filteredUsers.map((user) => {
+                  const emailStatus = user.user_id ? emailStatusMap[user.user_id] : null;
+                  
+                  return (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={user.avatar_url || undefined} />
+                            <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
+                              {getInitials(user.full_name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{user.full_name}</p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{user.faculty}</TableCell>
-                    <TableCell>{user.year_of_study || "-"}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(user.created_at).toLocaleDateString("ro-RO")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEditUser(user)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        {isAdmin && (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => {
-                              setUserToDelete(user);
-                              setShowDeleteDialog(true);
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                      </TableCell>
+                      <TableCell>{user.faculty}</TableCell>
+                      <TableCell>{user.year_of_study || "-"}</TableCell>
+                      <TableCell>
+                        {loadingEmailStatus ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                        ) : emailStatus ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                {emailStatus.email_confirmed ? (
+                                  <Badge variant="secondary" className="bg-green-500/10 text-green-600 gap-1">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    Verificat
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="secondary" className="bg-amber-500/10 text-amber-600 gap-1">
+                                    <XCircle className="w-3 h-3" />
+                                    Neverificat
+                                  </Badge>
+                                )}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {emailStatus.email_confirmed ? (
+                                  <p>Verificat la: {emailStatus.email_confirmed_at ? new Date(emailStatus.email_confirmed_at).toLocaleString("ro-RO") : "N/A"}</p>
+                                ) : (
+                                  <p>Email-ul nu a fost încă confirmat</p>
+                                )}
+                                {emailStatus.last_sign_in_at && (
+                                  <p className="text-xs opacity-80">Ultima autentificare: {new Date(emailStatus.last_sign_in_at).toLocaleString("ro-RO")}</p>
+                                )}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <Badge variant="secondary" className="bg-muted text-muted-foreground gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            Necunoscut
+                          </Badge>
                         )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(user.created_at).toLocaleDateString("ro-RO")}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleEditUser(user)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          {isAdmin && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => {
+                                setUserToDelete(user);
+                                setShowDeleteDialog(true);
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
