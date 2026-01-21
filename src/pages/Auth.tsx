@@ -245,9 +245,25 @@ const Auth = () => {
               )}
             </div>
 
-            {/* University, Faculty, Year - only for signup */}
+            {/* Full Name, University, Faculty, Year - only for signup */}
             {isSignUp && (
               <>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Nume complet</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="ex: Ion Popescu"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="university">Universitate</Label>
                   <div className="relative">
