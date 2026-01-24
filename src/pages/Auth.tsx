@@ -7,12 +7,17 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") === "signup");
   const [focusedField, setFocusedField] = useState<"email" | "password" | null>(null);
+  const [isCelebrating, setIsCelebrating] = useState(false);
+
+  const handleAuthSuccess = () => {
+    setIsCelebrating(true);
+  };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left side - Animated Buddies */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[45%]">
-        <AnimatedBuddies focusedField={focusedField} />
+        <AnimatedBuddies focusedField={focusedField} isCelebrating={isCelebrating} />
       </div>
 
       {/* Mobile header with mini buddies preview */}
@@ -39,6 +44,7 @@ const Auth = () => {
           isSignUp={isSignUp} 
           setIsSignUp={setIsSignUp}
           onFieldFocus={setFocusedField}
+          onAuthSuccess={handleAuthSuccess}
         />
       </div>
     </div>

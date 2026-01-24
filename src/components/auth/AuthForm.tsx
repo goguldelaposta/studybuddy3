@@ -57,9 +57,10 @@ interface AuthFormProps {
   isSignUp: boolean;
   setIsSignUp: (value: boolean) => void;
   onFieldFocus: (field: "email" | "password" | null) => void;
+  onAuthSuccess?: () => void;
 }
 
-export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus }: AuthFormProps) => {
+export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }: AuthFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -164,7 +165,16 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus }: AuthFormProps)
 
     if (!error) {
       resetAttempts();
-      navigate("/");
+      // Trigger celebration before navigating
+      if (onAuthSuccess) {
+        onAuthSuccess();
+        // Delay navigation to allow celebration animation
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      } else {
+        navigate("/");
+      }
     }
   };
 
