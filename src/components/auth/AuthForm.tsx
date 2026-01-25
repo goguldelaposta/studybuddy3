@@ -197,7 +197,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email field */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-white text-sm font-semibold">Email</Label>
