@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { AuroraBackground } from "@/components/AuroraBackground";
-import { Users, Sparkles, ArrowRight, BookOpen, Code, Lightbulb, MapPin } from "lucide-react";
+import { Users, ArrowRight, BookOpen, Code, Lightbulb, MapPin } from "lucide-react";
 interface HeroSectionProps {
   onGetStarted: () => void;
   onBrowse: () => void;
@@ -12,15 +11,22 @@ export const HeroSection = ({
   isAuthenticated
 }: HeroSectionProps) => {
   return <section className="relative overflow-hidden">
-      {/* Aurora Background - only for hero */}
-      <AuroraBackground />
+      {/* Video Background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover -z-20"
+      >
+        <source 
+          src="https://kxlglvjazzuarhofophh.supabase.co/storage/v1/object/public/viedeos//vecteezy_online-education-2d-animation_35447858.mov" 
+          type="video/quicktime" 
+        />
+      </video>
       
-      {/* Background decoration */}
-      <div className="absolute inset-0 gradient-hero opacity-5" />
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float" style={{
-      animationDelay: "2s"
-    }} />
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-background -z-10" />
 
       <div className="container relative z-10 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
