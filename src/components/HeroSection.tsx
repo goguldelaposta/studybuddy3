@@ -11,22 +11,13 @@ export const HeroSection = ({
   isAuthenticated
 }: HeroSectionProps) => {
   return <section className="relative overflow-hidden">
-      {/* Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover -z-20"
-      >
-        <source 
-          src="https://kxlglvjazzuarhofophh.supabase.co/storage/v1/object/public/viedeos//vecteezy_online-education-2d-animation_35447858.mov" 
-          type="video/quicktime" 
-        />
-      </video>
-      
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-background -z-10" />
+      {/* Video Background with overlay */}
+      <div className="absolute inset-0 overflow-hidden z-0">
+        <video autoPlay loop muted playsInline className="absolute w-full h-full object-cover">
+          <source src="https://kxlglvjazzuarhofophh.supabase.co/storage/v1/object/public/viedeos//vecteezy_online-education-2d-animation_35447858.mov" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px]" />
+      </div>
 
       <div className="container relative z-10 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
