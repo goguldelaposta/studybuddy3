@@ -21,7 +21,7 @@ const Auth = () => {
       />
       
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-purple-900/30 to-black/60 backdrop-blur-sm z-10" />
       <div className="w-full max-w-md relative z-20">
         {/* Logo/Icon */}
         <motion.div 
