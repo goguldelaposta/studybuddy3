@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import { Users, Sparkles, ArrowRight, BookOpen, Code, Lightbulb, MapPin } from "lucide-react";
 interface HeroSectionProps {
   onGetStarted: () => void;
@@ -11,6 +12,9 @@ export const HeroSection = ({
   isAuthenticated
 }: HeroSectionProps) => {
   return <section className="relative overflow-hidden">
+      {/* Aurora Background - only for hero */}
+      <AuroraBackground />
+      
       {/* Background decoration */}
       <div className="absolute inset-0 gradient-hero opacity-5" />
       <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
