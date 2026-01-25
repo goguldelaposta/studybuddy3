@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 export const AuroraBackground = () => {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    <div className="absolute inset-0 -z-10 overflow-hidden">
       {/* Base dark background */}
       <div className="absolute inset-0 bg-background" />
       
