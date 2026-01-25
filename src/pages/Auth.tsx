@@ -14,32 +14,39 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex">
       {/* Left side - Animated Buddies */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[45%]">
         <AnimatedBuddies focusedField={focusedField} isCelebrating={isCelebrating} />
       </div>
 
-      {/* Mobile header with mini buddies preview */}
-      <div className="lg:hidden h-32 relative overflow-hidden bg-gradient-to-br from-violet-100 via-orange-50 to-yellow-100 dark:from-violet-950/50 dark:via-orange-950/30 dark:to-yellow-950/30">
-        <div className="absolute inset-0 flex items-center justify-center gap-4">
-          <div 
-            className="w-12 h-12 rounded-full"
-            style={{ backgroundColor: "hsl(265, 89%, 66%)" }}
-          />
-          <div 
-            className="w-10 h-8 rounded-xl"
-            style={{ backgroundColor: "hsl(32, 95%, 60%)", transform: "rotate(15deg)" }}
-          />
-          <div 
-            className="w-9 h-9 rounded-full"
-            style={{ backgroundColor: "hsl(48, 96%, 53%)" }}
-          />
-        </div>
+      {/* Mobile header with mini buddies */}
+      <div 
+        className="lg:hidden h-40 relative overflow-hidden flex items-center justify-center gap-6"
+        style={{ backgroundColor: "#F3F4F6" }}
+      >
+        <div 
+          className="w-16 h-14 rounded-[12px]"
+          style={{ 
+            backgroundColor: "#F97316", 
+            borderRadius: "65% 35% 45% 55% / 55% 45% 55% 45%",
+          }}
+        />
+        <div 
+          className="w-14 h-14 rounded-[16px]"
+          style={{ backgroundColor: "#8B5CF6" }}
+        />
+        <div 
+          className="w-12 h-8"
+          style={{ 
+            backgroundColor: "#FACC15",
+            borderRadius: "48px 48px 8px 8px",
+          }}
+        />
       </div>
 
       {/* Right side - Auth Form */}
-      <div className="flex-1 lg:w-1/2 xl:w-[55%] flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-background">
+      <div className="flex-1 lg:w-1/2 xl:w-[55%] flex items-center justify-center p-8 lg:p-12 bg-white">
         <AuthForm 
           isSignUp={isSignUp} 
           setIsSignUp={setIsSignUp}

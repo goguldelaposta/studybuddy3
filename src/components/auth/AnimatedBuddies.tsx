@@ -9,45 +9,33 @@ interface AnimatedBuddiesProps {
 
 interface BuddyConfig {
   id: number;
-  shape: "blob" | "rectangle" | "circle";
+  shape: "square" | "blob" | "semicircle";
   color: string;
   size: number;
   position: { x: number; y: number };
-  rotation: number;
 }
 
 const buddies: BuddyConfig[] = [
   {
     id: 1,
     shape: "blob",
-    color: "hsl(265, 89%, 66%)", // Purple
-    size: 120,
-    position: { x: 20, y: 25 },
-    rotation: 0,
+    color: "#F97316", // Orange
+    size: 140,
+    position: { x: 25, y: 45 },
   },
   {
     id: 2,
-    shape: "rectangle",
-    color: "hsl(32, 95%, 60%)", // Orange
-    size: 100,
-    position: { x: 60, y: 15 },
-    rotation: 15,
+    shape: "square",
+    color: "#8B5CF6", // Purple
+    size: 130,
+    position: { x: 55, y: 40 },
   },
   {
     id: 3,
-    shape: "circle",
-    color: "hsl(48, 96%, 53%)", // Yellow
-    size: 90,
-    position: { x: 35, y: 60 },
-    rotation: -10,
-  },
-  {
-    id: 4,
-    shape: "blob",
-    color: "hsl(280, 75%, 55%)", // Violet
-    size: 80,
-    position: { x: 70, y: 55 },
-    rotation: 25,
+    shape: "semicircle",
+    color: "#FACC15", // Yellow
+    size: 120,
+    position: { x: 70, y: 70 },
   },
 ];
 
@@ -73,18 +61,15 @@ const Buddy = ({
   useEffect(() => {
     if (isCelebrating) {
       setIsShying(false);
-      // Happy eyes looking up during celebration
       setEyeOffset({ x: 0, y: -3 });
     } else if (focusedField === "password") {
       setIsShying(true);
-      setEyeOffset({ x: 0, y: 8 });
+      setEyeOffset({ x: 0, y: 0 });
     } else if (focusedField === "email") {
       setIsShying(false);
-      // Look towards right side (where the form is)
       setEyeOffset({ x: 6, y: 2 });
     } else {
       setIsShying(false);
-      // Follow mouse
       if (buddyRef.current && containerRef.current) {
         const rect = buddyRef.current.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -93,7 +78,7 @@ const Buddy = ({
         const deltaX = mouseX - centerX;
         const deltaY = mouseY - centerY;
 
-        const maxOffset = 6;
+        const maxOffset = 5;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         const normalizedX = distance > 0 ? (deltaX / distance) * maxOffset : 0;
         const normalizedY = distance > 0 ? (deltaY / distance) * maxOffset : 0;
@@ -106,7 +91,7 @@ const Buddy = ({
     }
   }, [mouseX, mouseY, focusedField, containerRef, isCelebrating]);
 
-  const springConfig = { stiffness: 150, damping: 15 };
+  const springConfig = { stiffness: 120, damping: 20 };
   const eyeX = useSpring(eyeOffset.x, springConfig);
   const eyeY = useSpring(eyeOffset.y, springConfig);
 
@@ -115,46 +100,48 @@ const Buddy = ({
     eyeY.set(eyeOffset.y);
   }, [eyeOffset.x, eyeOffset.y, eyeX, eyeY]);
 
-  // Celebration animation variants
   const celebrationVariants = {
     idle: {
       y: 0,
-      rotate: config.rotation,
+      rotate: 0,
       scale: 1,
     },
     celebrating: {
-      y: [0, -30, 0, -20, 0, -10, 0],
-      rotate: [config.rotation, config.rotation - 15, config.rotation + 15, config.rotation - 10, config.rotation + 10, config.rotation],
-      scale: [1, 1.1, 1, 1.08, 1, 1.05, 1],
+      y: [0, -25, 0, -15, 0],
+      rotate: [0, -8, 8, -4, 0],
+      scale: [1, 1.08, 1, 1.05, 1],
       transition: {
-        duration: 1.2,
+        duration: 1,
         ease: "easeInOut" as const,
-        times: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1],
         delay: config.id * 0.1,
       },
     },
   };
 
-  const renderShape = () => {
-    const eyeSize = config.size * 0.15;
-    const pupilSize = eyeSize * 0.5;
-    const eyeSpacing = config.size * 0.2;
+  const renderEyes = () => {
+    const eyeSize = config.size * 0.12;
+    const pupilSize = eyeSize * 0.55;
+    const eyeSpacing = config.size * 0.15;
 
-    // Happy squinted eyes during celebration
-    const eyeScaleY = isCelebrating ? 0.6 : isShying ? 0.1 : 1;
+    // Worried eyes for password field - flat top
+    const isWorried = isShying && !isCelebrating;
+    const eyeScaleY = isCelebrating ? 0.7 : isWorried ? 0.5 : 1;
 
-    const eyes = (
+    return (
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex gap-2" style={{ gap: eyeSpacing }}>
+        <div className="flex" style={{ gap: eyeSpacing }}>
           {/* Left eye */}
           <motion.div
-            className="relative rounded-full bg-white shadow-inner"
-            style={{ width: eyeSize, height: eyeSize }}
+            className="relative bg-white shadow-sm"
+            style={{ 
+              width: eyeSize, 
+              height: eyeSize,
+              borderRadius: isWorried ? "50% 50% 50% 50% / 30% 30% 70% 70%" : "50%",
+            }}
             animate={{
               scaleY: eyeScaleY,
-              borderRadius: isCelebrating ? "50% 50% 50% 50%" : "50%",
             }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
             <motion.div
               className="absolute rounded-full bg-gray-900"
@@ -172,12 +159,16 @@ const Buddy = ({
           </motion.div>
           {/* Right eye */}
           <motion.div
-            className="relative rounded-full bg-white shadow-inner"
-            style={{ width: eyeSize, height: eyeSize }}
+            className="relative bg-white shadow-sm"
+            style={{ 
+              width: eyeSize, 
+              height: eyeSize,
+              borderRadius: isWorried ? "50% 50% 50% 50% / 30% 30% 70% 70%" : "50%",
+            }}
             animate={{
               scaleY: eyeScaleY,
             }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
             <motion.div
               className="absolute rounded-full bg-gray-900"
@@ -194,100 +185,114 @@ const Buddy = ({
             />
           </motion.div>
         </div>
-        
-        {/* Happy mouth during celebration */}
-        {isCelebrating && (
-          <motion.div
-            className="absolute"
-            style={{
-              bottom: config.size * 0.2,
-              width: config.size * 0.25,
-              height: config.size * 0.12,
-              borderRadius: "0 0 50% 50%",
-              backgroundColor: "rgba(0,0,0,0.15)",
-            }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          />
-        )}
       </div>
     );
+  };
 
-    // Hand/cover for shy mode
-    const coverHands = isShying && !isCelebrating && (
-      <motion.div
-        className="absolute inset-0 flex items-center justify-center"
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 20, opacity: 0 }}
-        transition={{ duration: 0.2 }}
-      >
-        <div 
-          className="rounded-full"
-          style={{ 
-            width: config.size * 0.5,
-            height: config.size * 0.15,
-            backgroundColor: config.color,
-            filter: "brightness(0.85)",
-            marginTop: config.size * 0.05,
-          }}
-        />
-      </motion.div>
-    );
-
+  const renderShape = () => {
     switch (config.shape) {
+      case "square":
+        return (
+          <div
+            className="relative"
+            style={{
+              width: config.size,
+              height: config.size,
+              backgroundColor: config.color,
+              borderRadius: 24,
+            }}
+          >
+            {renderEyes()}
+          </div>
+        );
       case "blob":
         return (
           <motion.div
             className="relative"
             style={{
               width: config.size,
-              height: config.size,
+              height: config.size * 0.85,
               backgroundColor: config.color,
-              borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
+              borderRadius: "65% 35% 45% 55% / 55% 45% 55% 45%",
             }}
             animate={isCelebrating ? {
               borderRadius: [
-                "60% 40% 30% 70% / 60% 30% 70% 40%",
-                "40% 60% 70% 30% / 30% 70% 40% 60%",
-                "60% 40% 30% 70% / 60% 30% 70% 40%",
+                "65% 35% 45% 55% / 55% 45% 55% 45%",
+                "45% 55% 35% 65% / 45% 55% 45% 55%",
+                "65% 35% 45% 55% / 55% 45% 55% 45%",
               ],
             } : {}}
             transition={{ duration: 0.8, repeat: isCelebrating ? 2 : 0 }}
           >
-            {eyes}
-            {coverHands}
+            {renderEyes()}
           </motion.div>
         );
-      case "rectangle":
+      case "semicircle":
         return (
           <div
             className="relative"
             style={{
               width: config.size,
-              height: config.size * 0.8,
+              height: config.size * 0.6,
               backgroundColor: config.color,
-              borderRadius: 24,
+              borderRadius: `${config.size}px ${config.size}px 20px 20px`,
             }}
           >
-            {eyes}
-            {coverHands}
-          </div>
-        );
-      case "circle":
-        return (
-          <div
-            className="relative rounded-full"
-            style={{
-              width: config.size,
-              height: config.size,
-              backgroundColor: config.color,
-            }}
-          >
-            {eyes}
-            {coverHands}
+            <div className="absolute inset-0 flex items-start justify-center pt-4">
+              <div className="flex" style={{ gap: config.size * 0.15 }}>
+                {/* Eyes positioned higher for semicircle */}
+                <motion.div
+                  className="relative bg-white shadow-sm rounded-full"
+                  style={{ 
+                    width: config.size * 0.12, 
+                    height: config.size * 0.12,
+                  }}
+                  animate={{
+                    scaleY: isCelebrating ? 0.7 : isShying ? 0.5 : 1,
+                  }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <motion.div
+                    className="absolute rounded-full bg-gray-900"
+                    style={{
+                      width: config.size * 0.065,
+                      height: config.size * 0.065,
+                      left: "50%",
+                      top: "50%",
+                      x: eyeX,
+                      y: eyeY,
+                      marginLeft: -(config.size * 0.065) / 2,
+                      marginTop: -(config.size * 0.065) / 2,
+                    }}
+                  />
+                </motion.div>
+                <motion.div
+                  className="relative bg-white shadow-sm rounded-full"
+                  style={{ 
+                    width: config.size * 0.12, 
+                    height: config.size * 0.12,
+                  }}
+                  animate={{
+                    scaleY: isCelebrating ? 0.7 : isShying ? 0.5 : 1,
+                  }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <motion.div
+                    className="absolute rounded-full bg-gray-900"
+                    style={{
+                      width: config.size * 0.065,
+                      height: config.size * 0.065,
+                      left: "50%",
+                      top: "50%",
+                      x: eyeX,
+                      y: eyeY,
+                      marginLeft: -(config.size * 0.065) / 2,
+                      marginTop: -(config.size * 0.065) / 2,
+                    }}
+                  />
+                </motion.div>
+              </div>
+            </div>
           </div>
         );
       default:
@@ -304,25 +309,25 @@ const Buddy = ({
         top: `${config.position.y}%`,
         transform: `translate(-50%, -50%)`,
       }}
-      initial={{ scale: 0, opacity: 0, y: 0 }}
+      initial={{ scale: 0, opacity: 0 }}
       animate={isCelebrating ? "celebrating" : "idle"}
       variants={celebrationVariants}
       transition={{
         type: "spring",
-        stiffness: 260,
+        stiffness: 200,
         damping: 20,
-        delay: config.id * 0.1,
+        delay: config.id * 0.15,
       }}
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: 1.03 }}
     >
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{
           type: "spring",
-          stiffness: 260,
+          stiffness: 200,
           damping: 20,
-          delay: config.id * 0.1,
+          delay: config.id * 0.15,
         }}
       >
         {renderShape()}
@@ -344,79 +349,45 @@ export const AnimatedBuddies = ({ focusedField, isCelebrating = false }: Animate
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Trigger confetti when celebrating
   useEffect(() => {
     if (isCelebrating && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
       const centerX = (rect.left + rect.width / 2) / window.innerWidth;
       const centerY = (rect.top + rect.height / 2) / window.innerHeight;
 
-      // First burst
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 80,
+        spread: 60,
         origin: { x: centerX, y: centerY },
-        colors: ['#8B5CF6', '#F97316', '#FACC15', '#A855F7'],
-        ticks: 200,
+        colors: ['#8B5CF6', '#F97316', '#FACC15'],
+        ticks: 180,
       });
 
-      // Second burst with delay
       setTimeout(() => {
         confetti({
-          particleCount: 50,
-          spread: 100,
-          origin: { x: centerX - 0.1, y: centerY + 0.1 },
-          colors: ['#8B5CF6', '#F97316', '#FACC15', '#A855F7'],
-          ticks: 150,
+          particleCount: 40,
+          spread: 90,
+          origin: { x: centerX - 0.08, y: centerY + 0.1 },
+          colors: ['#8B5CF6', '#F97316', '#FACC15'],
+          ticks: 120,
         });
         confetti({
-          particleCount: 50,
-          spread: 100,
-          origin: { x: centerX + 0.1, y: centerY + 0.1 },
-          colors: ['#8B5CF6', '#F97316', '#FACC15', '#A855F7'],
-          ticks: 150,
+          particleCount: 40,
+          spread: 90,
+          origin: { x: centerX + 0.08, y: centerY + 0.1 },
+          colors: ['#8B5CF6', '#F97316', '#FACC15'],
+          ticks: 120,
         });
-      }, 200);
-
-      // Stars burst
-      setTimeout(() => {
-        confetti({
-          particleCount: 30,
-          spread: 360,
-          startVelocity: 30,
-          origin: { x: centerX, y: centerY },
-          shapes: ['star'],
-          colors: ['#FFD700', '#FFA500', '#FF6347'],
-          ticks: 100,
-        });
-      }, 400);
+      }, 150);
     }
   }, [isCelebrating]);
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full bg-gradient-to-br from-violet-100 via-orange-50 to-yellow-100 dark:from-violet-950/50 dark:via-orange-950/30 dark:to-yellow-950/30 overflow-hidden"
+      className="relative w-full h-full overflow-hidden"
+      style={{ backgroundColor: "#F3F4F6" }}
     >
-      {/* Decorative background shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div 
-          className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-purple-200/40 dark:bg-purple-800/20 blur-3xl"
-          animate={isCelebrating ? { scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] } : {}}
-          transition={{ duration: 1, repeat: isCelebrating ? 2 : 0 }}
-        />
-        <motion.div 
-          className="absolute top-1/2 -right-20 w-80 h-80 rounded-full bg-orange-200/40 dark:bg-orange-800/20 blur-3xl"
-          animate={isCelebrating ? { scale: [1, 1.15, 1], opacity: [0.4, 0.6, 0.4] } : {}}
-          transition={{ duration: 1.2, repeat: isCelebrating ? 2 : 0, delay: 0.1 }}
-        />
-        <motion.div 
-          className="absolute -bottom-20 left-1/3 w-72 h-72 rounded-full bg-yellow-200/40 dark:bg-yellow-800/20 blur-3xl"
-          animate={isCelebrating ? { scale: [1, 1.25, 1], opacity: [0.4, 0.7, 0.4] } : {}}
-          transition={{ duration: 0.8, repeat: isCelebrating ? 2 : 0, delay: 0.2 }}
-        />
-      </div>
-
       {/* Animated buddies */}
       {buddies.map((buddy) => (
         <Buddy
@@ -430,42 +401,21 @@ export const AnimatedBuddies = ({ focusedField, isCelebrating = false }: Animate
         />
       ))}
 
-      {/* Celebration text */}
+      {/* Celebration message */}
       {isCelebrating && (
         <motion.div
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          initial={{ opacity: 0, scale: 0.5 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.5 }}
-          transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 180 }}
         >
-          <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-xl">
-            <p className="text-lg font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-orange-500 to-yellow-500">
-              🎉 Bine ai venit!
+          <div className="bg-white/95 backdrop-blur-sm px-8 py-4 rounded-2xl shadow-lg">
+            <p className="text-xl font-semibold text-gray-900">
+              🎉 Welcome!
             </p>
           </div>
         </motion.div>
       )}
-
-      {/* Branding */}
-      <div className="absolute bottom-8 left-8 right-8 text-center">
-        <motion.h2
-          className="text-2xl font-display font-bold text-gray-800 dark:text-gray-200"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          StudyBuddy
-        </motion.h2>
-        <motion.p
-          className="text-sm text-gray-600 dark:text-gray-400 mt-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-        >
-          Găsește parteneri de studiu
-        </motion.p>
-      </div>
     </div>
   );
 };
