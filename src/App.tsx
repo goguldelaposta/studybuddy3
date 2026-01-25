@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { NotificationProvider } from "@/hooks/useRealtimeNotifications";
 import { EmailVerificationGuard } from "@/components/EmailVerificationGuard";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -44,8 +45,10 @@ function AppContent() {
   useServiceWorker();
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <>
+      <AuroraBackground />
+      <BrowserRouter>
+        <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/forgot-password" element={<ForgotPassword />} />
@@ -76,8 +79,9 @@ function AppContent() {
         <Route path="/uni/:uniSlug/:facultySlug/:courseId" element={<CoursePage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 
