@@ -201,8 +201,8 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
           {/* Email field */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-gray-300 text-sm font-medium">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <div className="relative group">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 transition-colors group-focus-within:text-blue-400" />
               <Input
                 id="email"
                 type="email"
@@ -211,7 +211,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => onFieldFocus("email")}
                 onBlur={() => onFieldFocus(null)}
-                className="pl-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20 transition-colors"
+                className="pl-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-[#1e2840] focus:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
               />
             </div>
             {errors.email && <p className="text-xs text-red-400">{errors.email}</p>}
@@ -220,8 +220,8 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
           {/* Password field */}
           <div className="space-y-2">
             <Label htmlFor="password" className="text-gray-300 text-sm font-medium">Parolă</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <div className="relative group">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 transition-colors group-focus-within:text-blue-400" />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -230,7 +230,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
                 onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => onFieldFocus("password")}
                 onBlur={() => onFieldFocus(null)}
-                className="pl-11 pr-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20 transition-colors"
+                className="pl-11 pr-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-[#1e2840] focus:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
               />
               <button
                 type="button"
@@ -279,15 +279,15 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
               {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="text-gray-300 text-sm font-medium">Nume complet</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <div className="relative group">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 transition-colors group-focus-within:text-blue-400" />
                   <Input
                     id="fullName"
                     type="text"
                     placeholder="ex: Ion Popescu"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="pl-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50"
+                    className="pl-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-[#1e2840] focus:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
                   />
                 </div>
                 {errors.fullName && <p className="text-xs text-red-400">{errors.fullName}</p>}
@@ -317,15 +317,15 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
               {/* Faculty */}
               <div className="space-y-2">
                 <Label htmlFor="faculty" className="text-gray-300 text-sm font-medium">Facultate</Label>
-                <div className="relative">
-                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <div className="relative group">
+                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 transition-colors group-focus-within:text-blue-400" />
                   <Input
                     id="faculty"
                     type="text"
                     placeholder="ex: Facultatea de Informatică"
                     value={faculty}
                     onChange={(e) => setFaculty(e.target.value)}
-                    className="pl-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50"
+                    className="pl-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-[#1e2840] focus:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
                   />
                 </div>
                 {errors.faculty && <p className="text-xs text-red-400">{errors.faculty}</p>}
@@ -400,7 +400,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
           {/* Submit button */}
           <Button
             type="submit"
-            className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-base shadow-lg shadow-blue-500/25 transition-all duration-300"
+            className="group w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-base shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98]"
             disabled={loading || isBlocked()}
           >
             {isBlocked() ? (
@@ -409,11 +409,14 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
                 Blocat ({formatRemainingTime()})
               </>
             ) : loading ? (
-              "Te rugăm așteaptă..."
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Te rugăm așteaptă...
+              </span>
             ) : (
               <span className="flex items-center justify-center gap-2">
                 {isSignUp ? "Creează Cont" : "Conectare"}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             )}
           </Button>
