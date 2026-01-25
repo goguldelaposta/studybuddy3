@@ -191,17 +191,17 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email field */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-white text-sm font-semibold">Email</Label>
-            <div className="relative group">
+            <Label htmlFor="email" className="text-white font-semibold">Email</Label>
+            <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <Input
                 id="email"
@@ -211,7 +211,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => onFieldFocus("email")}
                 onBlur={() => onFieldFocus(null)}
-                className="pl-12 h-14 rounded-2xl bg-[#0d1526] border-[#2a3a52] text-white placeholder:text-gray-500 focus:border-[#3a4a62] focus:ring-0"
+                className="pl-12 h-14 rounded-xl bg-[#111827] border-[#1f2937] text-white placeholder:text-gray-500 focus:border-[#374151] focus:ring-0"
               />
             </div>
             {errors.email && <p className="text-xs text-red-400">{errors.email}</p>}
@@ -219,8 +219,8 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
 
           {/* Password field */}
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-white text-sm font-semibold">Parolă</Label>
-            <div className="relative group">
+            <Label htmlFor="password" className="text-white font-semibold">Parolă</Label>
+            <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <Input
                 id="password"
@@ -230,7 +230,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
                 onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => onFieldFocus("password")}
                 onBlur={() => onFieldFocus(null)}
-                className="pl-12 pr-12 h-14 rounded-2xl bg-[#0d1526] border-[#2a3a52] text-white placeholder:text-gray-500 focus:border-[#3a4a62] focus:ring-0"
+                className="pl-12 pr-12 h-14 rounded-xl bg-[#111827] border-[#1f2937] text-white placeholder:text-gray-500 focus:border-[#374151] focus:ring-0"
               />
               <button
                 type="button"
@@ -400,7 +400,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
           {/* Submit button */}
           <Button
             type="submit"
-            className="group w-full h-14 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-400 hover:to-teal-300 text-white font-semibold text-base transition-all duration-200"
+            className="w-full h-14 rounded-xl bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-400 hover:to-teal-300 text-white font-semibold text-base transition-all duration-200"
             disabled={loading || isBlocked()}
           >
             {isBlocked() ? (
