@@ -9,8 +9,20 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") === "signup");
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0f1a] px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4"
+      />
+      
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/60 z-10" />
+      <div className="w-full max-w-md relative z-20">
         {/* Logo/Icon */}
         <motion.div 
           className="flex justify-center mb-8"
