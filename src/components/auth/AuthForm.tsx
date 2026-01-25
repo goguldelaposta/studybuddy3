@@ -197,12 +197,12 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email field */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-300 text-sm font-medium">Email</Label>
+            <Label htmlFor="email" className="text-white text-sm font-semibold">Email</Label>
             <div className="relative group">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 transition-colors group-focus-within:text-blue-400" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <Input
                 id="email"
                 type="email"
@@ -211,7 +211,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => onFieldFocus("email")}
                 onBlur={() => onFieldFocus(null)}
-                className="pl-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-[#1e2840] focus:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                className="pl-12 h-14 rounded-2xl bg-[#0d1526] border-[#2a3a52] text-white placeholder:text-gray-500 focus:border-[#3a4a62] focus:ring-0"
               />
             </div>
             {errors.email && <p className="text-xs text-red-400">{errors.email}</p>}
@@ -219,9 +219,9 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
 
           {/* Password field */}
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-gray-300 text-sm font-medium">Parolă</Label>
+            <Label htmlFor="password" className="text-white text-sm font-semibold">Parolă</Label>
             <div className="relative group">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 transition-colors group-focus-within:text-blue-400" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -230,12 +230,12 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
                 onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => onFieldFocus("password")}
                 onBlur={() => onFieldFocus(null)}
-                className="pl-11 pr-11 h-12 rounded-xl bg-[#1a2235] border-white/10 text-white placeholder:text-gray-500 transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-[#1e2840] focus:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                className="pl-12 pr-12 h-14 rounded-2xl bg-[#0d1526] border-[#2a3a52] text-white placeholder:text-gray-500 focus:border-[#3a4a62] focus:ring-0"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -387,10 +387,10 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
 
           {/* Login-only options */}
           {!isSignUp && (
-            <div className="flex justify-end">
+            <div className="flex justify-end -mt-2">
               <Link 
                 to="/auth/forgot-password" 
-                className="text-sm text-blue-400 hover:text-blue-300 hover:underline font-medium transition-colors"
+                className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
               >
                 Ai uitat parola?
               </Link>
@@ -400,7 +400,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
           {/* Submit button */}
           <Button
             type="submit"
-            className="group w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-base shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98]"
+            className="group w-full h-14 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-400 hover:to-teal-300 text-white font-semibold text-base transition-all duration-200"
             disabled={loading || isBlocked()}
           >
             {isBlocked() ? (
@@ -414,9 +414,9 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
                 Te rugăm așteaptă...
               </span>
             ) : (
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-3">
                 {isSignUp ? "Creează Cont" : "Conectare"}
-                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="w-5 h-5" />
               </span>
             )}
           </Button>
@@ -436,7 +436,7 @@ export const AuthForm = ({ isSignUp, setIsSignUp, onFieldFocus, onAuthSuccess }:
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
-              className="font-semibold text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+              className="font-semibold text-cyan-400 hover:text-cyan-300 underline transition-colors"
             >
               {isSignUp ? "Conectează-te" : "Înregistrează-te"}
             </button>
