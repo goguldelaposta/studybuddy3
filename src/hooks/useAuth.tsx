@@ -179,15 +179,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      // Always call signOut to clear any tokens from localStorage
-      // even if getSession returns null (token might still exist)
-      const { error } = await supabase.auth.signOut();
+      // Always call signOut with local scope to clear tokens
+      await supabase.auth.signOut({ scope: 'local' });
       
-      if (error) {
-        console.error('Sign out error:', error);
-      }
+      // Manually clear any remaining Supabase auth tokens from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+          localStorage.removeItem(key);
+        }
+      });
       
-      // Clear local state regardless
+      // Clear local state
       setUser(null);
       setSession(null);
       
@@ -196,11 +198,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: "Te-ai deconectat cu succes.",
       });
       
-      // Redirect to auth page
+      // Force page reload to auth
       window.location.href = '/auth';
     } catch (err) {
       console.error('Sign out error:', err);
-      // Clear state and redirect anyway
+      // Clear tokens and state even on error
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+          localStorage.removeItem(key);
+        }
+      });
       setUser(null);
       setSession(null);
       window.location.href = '/auth';
