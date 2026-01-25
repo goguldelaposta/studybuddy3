@@ -179,16 +179,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      // Check if there's an active session first
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      // Always call signOut to clear any tokens from localStorage
+      // even if getSession returns null (token might still exist)
+      const { error } = await supabase.auth.signOut();
       
-      if (currentSession) {
-        // Sign out from Supabase
-        const { error } = await supabase.auth.signOut();
-        
-        if (error) {
-          console.error('Sign out error:', error);
-        }
+      if (error) {
+        console.error('Sign out error:', error);
       }
       
       // Clear local state regardless
