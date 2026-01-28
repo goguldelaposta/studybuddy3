@@ -30,6 +30,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Spacer for fixed navbar */}
+      <div className="h-14" style={{ marginTop: 'env(safe-area-inset-top)' }} />
+      
       <Navbar
         isAuthenticated={!!user}
         user={user ? { email: user.email || "", fullName: currentUserProfile?.full_name, avatarUrl: currentUserProfile?.avatar_url || undefined } : null}
