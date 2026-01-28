@@ -13,6 +13,7 @@ import { GifPicker } from "@/components/GifPicker";
 import { MessageReactions } from "@/components/MessageReactions";
 import { ChatActionsMenu } from "@/components/ChatActionsMenu";
 import { MessageFileUpload } from "@/components/MessageFileUpload";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -59,6 +60,7 @@ export function MessageThread({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMobile = useIsMobile();
   
   const { 
     fetchReactions, 
@@ -489,8 +491,14 @@ export function MessageThread({
         )}
       </div>
 
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="border-t bg-card/50">
+      {/* Input - with bottom padding for mobile nav */}
+      <form 
+        onSubmit={handleSubmit} 
+        className="border-t bg-card/50 flex-shrink-0"
+        style={{ 
+          paddingBottom: isMobile ? 'calc(5rem + env(safe-area-inset-bottom))' : undefined 
+        }}
+      >
         {isBlocked ? (
           <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
             <Ban className="h-4 w-4" />
