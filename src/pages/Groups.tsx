@@ -72,7 +72,10 @@ const Groups = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-mobile-nav md:pb-0">
+      {/* Spacer for fixed navbar */}
+      <div className="h-14" style={{ marginTop: 'env(safe-area-inset-top)' }} />
+      
       <Navbar
         isAuthenticated={!!user}
         user={user ? { email: user.email || "", fullName: currentUserProfile?.full_name } : null}

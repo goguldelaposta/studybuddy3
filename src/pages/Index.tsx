@@ -29,7 +29,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-mobile-nav md:pb-0">
       {/* Spacer for fixed navbar */}
       <div className="h-14" style={{ marginTop: 'env(safe-area-inset-top)' }} />
       

@@ -2,12 +2,16 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { AnimatePresence } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
 import { NotificationProvider } from "@/hooks/useRealtimeNotifications";
 import { EmailVerificationGuard } from "@/components/EmailVerificationGuard";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
+import { BottomTabBar } from "@/components/BottomTabBar";
+import { PageTransition } from "@/components/PageTransition";
+import { useIsMobile } from "@/hooks/use-mobile";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -39,44 +43,65 @@ import CoursePage from "./pages/CoursePage";
 // StudyBuddy App - v2.1 PWA
 const queryClient = new QueryClient();
 
+function AnimatedRoutes() {
+  const location = useLocation();
+  const isMobile = useIsMobile();
+
+  // Pages that should show bottom tab bar (authenticated main pages)
+  const showBottomTabBar = !['/auth', '/auth/forgot-password', '/auth/reset-password', '/verify-email'].some(
+    path => location.pathname.startsWith(path)
+  );
+
+  return (
+    <>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/profile" element={<EmailVerificationGuard><PageTransition><Profile /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/profile/edit" element={<EmailVerificationGuard><PageTransition><ProfileEdit /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/messages" element={<EmailVerificationGuard><PageTransition><Messages /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/groups" element={<EmailVerificationGuard><PageTransition><Groups /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/groups/:id" element={<EmailVerificationGuard><PageTransition><GroupDetail /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/announcements" element={<EmailVerificationGuard><PageTransition><Announcements /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/study-spots" element={<EmailVerificationGuard><PageTransition><StudySpots /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/friends" element={<EmailVerificationGuard><PageTransition><Friends /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/user/:userId" element={<EmailVerificationGuard><PageTransition><ProfileView /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/admin" element={<EmailVerificationGuard><PageTransition><Admin /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/notes" element={<EmailVerificationGuard><PageTransition><Notes /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/notes/:noteId" element={<EmailVerificationGuard><PageTransition><NoteDetailPage /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/calendar" element={<EmailVerificationGuard><PageTransition><CalendarPage /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/badges" element={<EmailVerificationGuard><PageTransition><Badges /></PageTransition></EmailVerificationGuard>} />
+          <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
+          <Route path="/privacy-policy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
+          <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+          <Route path="/browse" element={<PageTransition><Index /></PageTransition>} />
+          {/* SEO Catalog Routes */}
+          <Route path="/uni" element={<PageTransition><UniversitiesIndex /></PageTransition>} />
+          <Route path="/uni/:uniSlug" element={<PageTransition><UniversityPage /></PageTransition>} />
+          <Route path="/uni/:uniSlug/:facultySlug" element={<PageTransition><FacultyPage /></PageTransition>} />
+          <Route path="/uni/:uniSlug/:facultySlug/:courseId" element={<PageTransition><CoursePage /></PageTransition>} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+        </Routes>
+      </AnimatePresence>
+      
+      {/* Bottom Tab Bar for mobile - only show on main authenticated pages */}
+      {isMobile && showBottomTabBar && <BottomTabBar />}
+    </>
+  );
+}
+
 function AppContent() {
   // Enable PWA update notifications
   useServiceWorker();
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-        <Route path="/auth/reset-password" element={<ResetPassword />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/profile" element={<EmailVerificationGuard><Profile /></EmailVerificationGuard>} />
-        <Route path="/profile/edit" element={<EmailVerificationGuard><ProfileEdit /></EmailVerificationGuard>} />
-        <Route path="/messages" element={<EmailVerificationGuard><Messages /></EmailVerificationGuard>} />
-        <Route path="/groups" element={<EmailVerificationGuard><Groups /></EmailVerificationGuard>} />
-        <Route path="/groups/:id" element={<EmailVerificationGuard><GroupDetail /></EmailVerificationGuard>} />
-        <Route path="/announcements" element={<EmailVerificationGuard><Announcements /></EmailVerificationGuard>} />
-        <Route path="/study-spots" element={<EmailVerificationGuard><StudySpots /></EmailVerificationGuard>} />
-        <Route path="/friends" element={<EmailVerificationGuard><Friends /></EmailVerificationGuard>} />
-        <Route path="/user/:userId" element={<EmailVerificationGuard><ProfileView /></EmailVerificationGuard>} />
-        <Route path="/admin" element={<EmailVerificationGuard><Admin /></EmailVerificationGuard>} />
-        <Route path="/notes" element={<EmailVerificationGuard><Notes /></EmailVerificationGuard>} />
-        <Route path="/notes/:noteId" element={<EmailVerificationGuard><NoteDetailPage /></EmailVerificationGuard>} />
-        <Route path="/calendar" element={<EmailVerificationGuard><CalendarPage /></EmailVerificationGuard>} />
-        <Route path="/badges" element={<EmailVerificationGuard><Badges /></EmailVerificationGuard>} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/browse" element={<Index />} />
-        {/* SEO Catalog Routes */}
-        <Route path="/uni" element={<UniversitiesIndex />} />
-        <Route path="/uni/:uniSlug" element={<UniversityPage />} />
-        <Route path="/uni/:uniSlug/:facultySlug" element={<FacultyPage />} />
-        <Route path="/uni/:uniSlug/:facultySlug/:courseId" element={<CoursePage />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <AnimatedRoutes />
     </BrowserRouter>
   );
 }

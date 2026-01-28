@@ -16,6 +16,7 @@ import {
 import { Users, Lock, Globe, BookOpen, Building2, Trash2 } from "lucide-react";
 import { Group } from "@/hooks/useGroups";
 import { Link } from "react-router-dom";
+import { triggerHaptic } from "@/hooks/useHapticFeedback";
 
 interface GroupCardProps {
   group: Group;
@@ -108,7 +109,10 @@ export function GroupCard({ group, onJoin, onLeave, onDelete, loading }: GroupCa
               <Button
                 variant="ghost"
                 className="text-destructive hover:text-destructive"
-                onClick={() => onLeave?.(group.id)}
+                onClick={() => {
+                  triggerHaptic('medium');
+                  onLeave?.(group.id);
+                }}
                 disabled={loading}
               >
                 Părăsește
@@ -122,6 +126,7 @@ export function GroupCard({ group, onJoin, onLeave, onDelete, loading }: GroupCa
                     size="icon"
                     className="text-destructive hover:text-destructive"
                     disabled={loading}
+                    onClick={() => triggerHaptic('light')}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -136,7 +141,10 @@ export function GroupCard({ group, onJoin, onLeave, onDelete, loading }: GroupCa
                   <AlertDialogFooter>
                     <AlertDialogCancel>Anulează</AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={() => onDelete?.(group.id)}
+                      onClick={() => {
+                        triggerHaptic('heavy');
+                        onDelete?.(group.id);
+                      }}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
                       Șterge
@@ -149,7 +157,10 @@ export function GroupCard({ group, onJoin, onLeave, onDelete, loading }: GroupCa
         ) : (
           <Button
             className="gradient-primary text-primary-foreground"
-            onClick={() => onJoin?.(group.id)}
+            onClick={() => {
+              triggerHaptic('success');
+              onJoin?.(group.id);
+            }}
             disabled={loading || (group.memberCount || 0) >= (group.max_members || 20)}
           >
             Alătură-te

@@ -136,7 +136,10 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="h-screen bg-background flex flex-col overflow-hidden pb-mobile-nav md:pb-0">
+      {/* Spacer for fixed navbar */}
+      <div className="h-14 flex-shrink-0" style={{ marginTop: 'env(safe-area-inset-top)' }} />
+      
       <Navbar
         isAuthenticated={!!user}
         user={user ? { email: user.email || "", fullName: currentUserProfile?.full_name } : null}
