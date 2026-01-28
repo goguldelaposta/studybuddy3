@@ -2,7 +2,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Users, Lock, Globe, BookOpen, Building2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Users, Lock, Globe, BookOpen, Building2, Trash2 } from "lucide-react";
 import { Group } from "@/hooks/useGroups";
 import { Link } from "react-router-dom";
 
@@ -10,10 +21,11 @@ interface GroupCardProps {
   group: Group;
   onJoin?: (groupId: string) => void;
   onLeave?: (groupId: string) => void;
+  onDelete?: (groupId: string) => void;
   loading?: boolean;
 }
 
-export function GroupCard({ group, onJoin, onLeave, loading }: GroupCardProps) {
+export function GroupCard({ group, onJoin, onLeave, onDelete, loading }: GroupCardProps) {
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -91,14 +103,49 @@ export function GroupCard({ group, onJoin, onLeave, loading }: GroupCardProps) {
         </Button>
 
         {group.isCurrentUserMember ? (
-          <Button
-            variant="ghost"
-            className="text-destructive hover:text-destructive"
-            onClick={() => onLeave?.(group.id)}
-            disabled={loading || group.currentUserRole === "admin"}
-          >
-            Părăsește
-          </Button>
+          <>
+            {group.currentUserRole !== "admin" && (
+              <Button
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
+                onClick={() => onLeave?.(group.id)}
+                disabled={loading}
+              >
+                Părăsește
+              </Button>
+            )}
+            {group.currentUserRole === "admin" && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive"
+                    disabled={loading}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Șterge grupul?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Această acțiune este ireversibilă. Grupul "{group.name}" și toți membrii vor fi eliminați permanent.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Anulează</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete?.(group.id)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Șterge
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </>
         ) : (
           <Button
             className="gradient-primary text-primary-foreground"

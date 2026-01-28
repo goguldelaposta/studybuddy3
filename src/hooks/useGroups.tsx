@@ -302,6 +302,42 @@ export function useGroups() {
     [user, toast, fetchGroups, fetchMyGroups]
   );
 
+  // Delete a group (only admin can do this)
+  const deleteGroup = useCallback(
+    async (groupId: string): Promise<boolean> => {
+      if (!user) return false;
+
+      try {
+        const { error } = await supabase
+          .from("groups")
+          .delete()
+          .eq("id", groupId);
+
+        if (error) throw error;
+
+        toast({
+          title: "Grup șters",
+          description: "Grupul a fost șters cu succes.",
+        });
+
+        // Refresh groups
+        fetchGroups();
+        fetchMyGroups();
+
+        return true;
+      } catch (error: any) {
+        console.error("Error deleting group:", error);
+        toast({
+          title: "Eroare",
+          description: "Nu am putut șterge grupul.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    },
+    [user, toast, fetchGroups, fetchMyGroups]
+  );
+
   // Fetch group members
   const fetchGroupMembers = useCallback(
     async (groupId: string): Promise<GroupMember[]> => {
@@ -402,6 +438,7 @@ export function useGroups() {
     createGroup,
     joinGroup,
     leaveGroup,
+    deleteGroup,
     fetchGroupMembers,
     fetchGroupById,
   };

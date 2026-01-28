@@ -14,7 +14,7 @@ const Groups = () => {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const { currentUserProfile } = useProfiles();
-  const { groups, myGroups, loading, createGroup, joinGroup, leaveGroup } = useGroups();
+  const { groups, myGroups, loading, createGroup, joinGroup, leaveGroup, deleteGroup } = useGroups();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -35,6 +35,12 @@ const Groups = () => {
   const handleLeaveGroup = async (groupId: string) => {
     setActionLoading(true);
     await leaveGroup(groupId);
+    setActionLoading(false);
+  };
+
+  const handleDeleteGroup = async (groupId: string) => {
+    setActionLoading(true);
+    await deleteGroup(groupId);
     setActionLoading(false);
   };
 
@@ -138,6 +144,7 @@ const Groups = () => {
                     group={group}
                     onJoin={handleJoinGroup}
                     onLeave={handleLeaveGroup}
+                    onDelete={handleDeleteGroup}
                     loading={actionLoading}
                   />
                 ))}
@@ -166,6 +173,7 @@ const Groups = () => {
                     group={group}
                     onJoin={handleJoinGroup}
                     onLeave={handleLeaveGroup}
+                    onDelete={handleDeleteGroup}
                     loading={actionLoading}
                   />
                 ))}
