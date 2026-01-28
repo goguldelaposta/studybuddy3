@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Users, ArrowRight, BookOpen, Code, Lightbulb, MapPin } from "lucide-react";
+import { triggerHaptic } from "@/hooks/useHapticFeedback";
 
 interface HeroSectionProps {
   onGetStarted: () => void;
@@ -63,7 +64,10 @@ export const HeroSection = ({
             <Button 
               size="lg" 
               className="gradient-primary text-primary-foreground h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:opacity-90 transition-all duration-300 w-full sm:w-auto" 
-              onClick={onGetStarted}
+              onClick={() => {
+                triggerHaptic('medium');
+                onGetStarted();
+              }}
             >
               <Users className="w-5 h-5 mr-2 flex-shrink-0" />
               {isAuthenticated ? "Creează Profil" : "Începe Gratuit"}
@@ -73,7 +77,10 @@ export const HeroSection = ({
               variant="outline" 
               size="lg" 
               className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold w-full sm:w-auto" 
-              onClick={onBrowse}
+              onClick={() => {
+                triggerHaptic('light');
+                onBrowse();
+              }}
             >
               Explorează Studenți
             </Button>
