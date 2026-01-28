@@ -491,12 +491,12 @@ export function MessageThread({
         )}
       </div>
 
-      {/* Input - with bottom padding for mobile nav */}
+      {/* Input - with bottom padding for mobile nav + safe area */}
       <form 
         onSubmit={handleSubmit} 
         className="border-t bg-card/50 flex-shrink-0"
         style={{ 
-          paddingBottom: isMobile ? 'calc(5rem + env(safe-area-inset-bottom))' : undefined 
+          paddingBottom: isMobile ? 'calc(4.5rem + env(safe-area-inset-bottom))' : undefined 
         }}
       >
         {isBlocked ? (
