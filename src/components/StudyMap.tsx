@@ -59,20 +59,7 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
       refreshExpiredTiles: false,
     });
 
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      'top-right'
-    );
-
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-      }),
-      'top-right'
-    );
+    // Navigation controls removed for cleaner UI
 
     map.current.on('load', () => {
       setMapLoaded(true);
