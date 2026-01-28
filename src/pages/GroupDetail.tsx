@@ -147,7 +147,7 @@ const GroupDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <Navbar
         isAuthenticated={!!user}
         user={user ? { email: user.email || "", fullName: currentUserProfile?.full_name } : null}

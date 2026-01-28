@@ -47,10 +47,14 @@ function AnimatedRoutes() {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  // Pages that should show bottom tab bar (authenticated main pages)
-  const showBottomTabBar = !['/auth', '/auth/forgot-password', '/auth/reset-password', '/verify-email'].some(
-    path => location.pathname.startsWith(path)
-  );
+  // Pages that should NOT show bottom tab bar
+  const authRoutes = ['/auth', '/auth/forgot-password', '/auth/reset-password', '/verify-email'];
+  const isAuthRoute = authRoutes.some(path => location.pathname.startsWith(path));
+  
+  // Hide tab bar for chat/detail routes (group detail pages)
+  const isGroupDetailRoute = /^\/groups\/[^/]+$/.test(location.pathname);
+  
+  const showBottomTabBar = !isAuthRoute && !isGroupDetailRoute;
 
   return (
     <>
