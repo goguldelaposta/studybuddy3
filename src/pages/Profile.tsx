@@ -67,7 +67,7 @@ const Profile = () => {
           {/* Header with Settings Button */}
           <div className="flex items-center justify-between mb-8">
             <h1 className="font-display text-3xl font-bold">Profilul Meu</h1>
-            <Button asChild variant="outline" className="gap-2">
+            <Button asChild variant="outline" className="gap-2 min-h-[44px]" haptic="light">
               <Link to="/profile/edit">
                 <Settings className="w-4 h-4" />
                 Setări

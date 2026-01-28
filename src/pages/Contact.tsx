@@ -9,6 +9,7 @@ import { ArrowLeft, Send, Mail, MessageSquare, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
+import { triggerHaptic } from "@/hooks/useHapticFeedback";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -65,10 +66,10 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8 pb-mobile-nav md:pb-8">
       <div className="max-w-2xl mx-auto">
         <Link to="/">
-          <Button variant="ghost" className="mb-6">
+          <Button variant="ghost" className="mb-6 min-h-[44px]" haptic="light">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Înapoi
           </Button>
@@ -141,8 +142,9 @@ const Contact = () => {
 
               <Button 
                 type="submit" 
-                className="w-full gradient-primary text-primary-foreground"
+                className="w-full gradient-primary text-primary-foreground min-h-[48px]"
                 disabled={isSubmitting}
+                onClick={() => !isSubmitting && triggerHaptic('medium')}
               >
                 {isSubmitting ? (
                   <>

@@ -491,12 +491,12 @@ export function MessageThread({
         )}
       </div>
 
-      {/* Input - with bottom padding for mobile nav + safe area */}
+      {/* Input - with safe area padding for mobile */}
       <form 
         onSubmit={handleSubmit} 
         className="border-t bg-card/50 flex-shrink-0"
         style={{ 
-          paddingBottom: isMobile ? 'calc(4.5rem + env(safe-area-inset-bottom))' : undefined 
+          paddingBottom: isMobile ? 'env(safe-area-inset-bottom)' : undefined 
         }}
       >
         {isBlocked ? (
@@ -539,8 +539,14 @@ export function MessageThread({
                 placeholder={replyingTo ? "Scrie răspunsul..." : "Scrie un mesaj..."}
                 className="flex-1"
               />
-              <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-                <Send className="h-4 w-4" />
+              <Button 
+                type="submit" 
+                size="icon" 
+                disabled={!newMessage.trim()}
+                className="h-11 w-11 min-h-[44px] min-w-[44px]"
+                haptic="light"
+              >
+                <Send className="h-5 w-5" />
               </Button>
             </div>
           </div>

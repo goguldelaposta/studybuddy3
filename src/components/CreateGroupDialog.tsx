@@ -23,6 +23,7 @@ import {
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CreateGroupData } from "@/hooks/useGroups";
+import { triggerHaptic } from "@/hooks/useHapticFeedback";
 
 interface CreateGroupDialogProps {
   onCreateGroup: (data: CreateGroupData) => Promise<string | null>;
@@ -99,7 +100,10 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gradient-primary text-primary-foreground gap-2">
+        <Button 
+          className="gradient-primary text-primary-foreground gap-2 min-h-[44px]"
+          onClick={() => triggerHaptic('light')}
+        >
           <Plus className="h-4 w-4" />
           Creează Grup
         </Button>
@@ -202,13 +206,15 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={loading}
+              className="min-h-[44px]"
             >
               Anulează
             </Button>
             <Button
               type="submit"
-              className="gradient-primary text-primary-foreground"
+              className="gradient-primary text-primary-foreground min-h-[44px]"
               disabled={loading || !name.trim()}
+              onClick={() => triggerHaptic('success')}
             >
               {loading ? "Se creează..." : "Creează Grup"}
             </Button>
