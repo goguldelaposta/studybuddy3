@@ -33,15 +33,15 @@ export const Navbar = ({
     }
     return email?.charAt(0).toUpperCase() || "U";
   };
-  return <nav className="sticky top-0 z-50 glass border-b border-border/50">
-    <div className="container">
-      <div className="flex items-center justify-between h-16">
+  return <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="container px-4">
+      <div className="flex items-center justify-between h-14 min-h-[56px]">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center shadow-soft group-hover:shadow-elevated group-hover:scale-110 transition-all duration-300 ease-out">
-            <BookOpen className="w-6 h-6 text-primary-foreground" />
+        <Link to="/" className="flex items-center gap-2 group min-h-[44px]">
+          <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-soft group-hover:shadow-elevated group-hover:scale-105 transition-all duration-300 ease-out">
+            <BookOpen className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent leading-none">
+          <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent leading-none">
             StudyBuddy
           </span>
         </Link>
@@ -202,91 +202,97 @@ export const Navbar = ({
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="flex items-center gap-1 md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
-          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && <div className="md:hidden py-4 border-t border-border/50 animate-fade-in">
-        <div className="flex flex-col gap-2">
-          <Link to="/" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-            Acasă
-          </Link>
-          <Link to="/browse" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-            Explorează
-          </Link>
-          {isAuthenticated ? <>
-            <Link to="/groups" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-              Grupuri
+      {/* Mobile Menu - Full screen overlay */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 top-[calc(56px+env(safe-area-inset-top))] bg-background/95 backdrop-blur-lg z-40 overflow-y-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          <div className="flex flex-col gap-1 p-4">
+            <Link to="/" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+              Acasă
             </Link>
-            <Link to="/announcements" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-              Anunțuri
+            <Link to="/browse" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+              Explorează
             </Link>
-            <Link to="/study-spots" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-              Locuri de studiu
-            </Link>
-            <Link to="/notes" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-              Notițe
-            </Link>
-            <Link to="/uni" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-              Universități
-            </Link>
-            <Link to="/calendar" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-              Calendar
-            </Link>
-            <Link to="/messages" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg flex items-center justify-between" onClick={() => setMobileMenuOpen(false)}>
-              Mesaje
-              {unreadCount > 0 && (
-                <Badge className="h-5 min-w-5 px-1 text-xs gradient-primary text-primary-foreground">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </Badge>
-              )}
-            </Link>
-            <Link to="/friends" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg flex items-center justify-between" onClick={() => setMobileMenuOpen(false)}>
-              Prieteni
-              {friendRequestCount > 0 && (
-                <Badge className="h-5 min-w-5 px-1 text-xs bg-destructive text-destructive-foreground">
-                  {friendRequestCount > 99 ? "99+" : friendRequestCount}
-                </Badge>
-              )}
-            </Link>
-            <Link to="/profile" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-              Profilul Meu
-            </Link>
-            <Link to="/contact" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg" onClick={() => setMobileMenuOpen(false)}>
-              Contact
-            </Link>
-            {isAdmin && (
-              <Link to="/admin" className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg text-amber-600 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                <Shield className="w-4 h-4" />
-                Administrare
+            {isAuthenticated ? <>
+              <Link to="/groups" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                Grupuri
               </Link>
+              <Link to="/announcements" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                Anunțuri
+              </Link>
+              <Link to="/study-spots" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                Locuri de studiu
+              </Link>
+              <Link to="/notes" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                Notițe
+              </Link>
+              <Link to="/uni" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                Universități
+              </Link>
+              <Link to="/calendar" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                Calendar
+              </Link>
+              <Link to="/messages" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center justify-between" onClick={() => setMobileMenuOpen(false)}>
+                Mesaje
+                {unreadCount > 0 && (
+                  <Badge className="h-6 min-w-6 px-2 text-sm gradient-primary text-primary-foreground">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </Badge>
+                )}
+              </Link>
+              <Link to="/friends" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center justify-between" onClick={() => setMobileMenuOpen(false)}>
+                Prieteni
+                {friendRequestCount > 0 && (
+                  <Badge className="h-6 min-w-6 px-2 text-sm bg-destructive text-destructive-foreground">
+                    {friendRequestCount > 99 ? "99+" : friendRequestCount}
+                  </Badge>
+                )}
+              </Link>
+              <Link to="/profile" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                Profilul Meu
+              </Link>
+              <Link to="/contact" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                Contact
+              </Link>
+              {isAdmin && (
+                <Link to="/admin" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center gap-2 text-amber-600" onClick={() => setMobileMenuOpen(false)}>
+                  <Shield className="w-5 h-5" />
+                  Administrare
+                </Link>
+              )}
+              <div className="mt-4 pt-4 border-t border-border">
+                <Button variant="ghost" className="w-full justify-start text-destructive h-12 text-base" onClick={() => {
+                  onSignOut();
+                  setMobileMenuOpen(false);
+                }}>
+                  <LogOut className="w-5 h-5 mr-3" />
+                  Deconectare
+                </Button>
+              </div>
+            </> : (
+              <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-border">
+                <Button variant="outline" asChild className="h-12 text-base">
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                    Autentificare
+                  </Link>
+                </Button>
+                <Button asChild className="h-12 text-base gradient-primary text-primary-foreground">
+                  <Link to="/auth?mode=signup" onClick={() => setMobileMenuOpen(false)}>
+                    Înregistrare
+                  </Link>
+                </Button>
+              </div>
             )}
-            <Button variant="ghost" className="justify-start text-destructive" onClick={() => {
-              onSignOut();
-              setMobileMenuOpen(false);
-            }}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Deconectare
-            </Button>
-          </> : <div className="flex gap-2 px-4 pt-2">
-            <Button variant="outline" asChild className="flex-1">
-              <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                Autentificare
-              </Link>
-            </Button>
-            <Button asChild className="flex-1 gradient-primary text-primary-foreground">
-              <Link to="/auth?mode=signup" onClick={() => setMobileMenuOpen(false)}>
-                Înregistrare
-              </Link>
-            </Button>
-          </div>}
+          </div>
         </div>
-      </div>}
+      )}
     </div>
   </nav>;
 };
