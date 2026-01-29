@@ -158,7 +158,14 @@ export const useProfiles = () => {
         })
       );
 
-      let filteredProfiles = profilesWithRelations;
+      // De-duplicate profiles based on unique id
+      const uniqueProfilesMap = new Map<string, ProfileWithRelations>();
+      profilesWithRelations.forEach((profile) => {
+        if (!uniqueProfilesMap.has(profile.id)) {
+          uniqueProfilesMap.set(profile.id, profile);
+        }
+      });
+      let filteredProfiles = Array.from(uniqueProfilesMap.values());
       
       if (filters?.skills && filters.skills.length > 0) {
         filteredProfiles = filteredProfiles.filter((p) =>
