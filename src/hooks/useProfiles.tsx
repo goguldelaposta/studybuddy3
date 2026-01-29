@@ -158,13 +158,26 @@ export const useProfiles = () => {
         })
       );
 
-      // De-duplicate profiles based on unique id
+      // De-duplicate profiles.
+      // Prefer user_id (one profile per auth user). Fall back to id for seed/anonymous rows.
+      // If duplicates exist, keep the most recently updated.
       const uniqueProfilesMap = new Map<string, ProfileWithRelations>();
-      profilesWithRelations.forEach((profile) => {
-        if (!uniqueProfilesMap.has(profile.id)) {
-          uniqueProfilesMap.set(profile.id, profile);
+      for (const profile of profilesWithRelations) {
+        const key = profile.user_id || profile.id;
+        const existing = uniqueProfilesMap.get(key);
+
+        if (!existing) {
+          uniqueProfilesMap.set(key, profile);
+          continue;
         }
-      });
+
+        const existingUpdated = new Date(existing.updated_at).getTime();
+        const incomingUpdated = new Date(profile.updated_at).getTime();
+        if (incomingUpdated >= existingUpdated) {
+          uniqueProfilesMap.set(key, profile);
+        }
+      }
+
       let filteredProfiles = Array.from(uniqueProfilesMap.values());
       
       if (filters?.skills && filters.skills.length > 0) {
