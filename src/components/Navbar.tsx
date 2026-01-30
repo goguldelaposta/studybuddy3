@@ -33,9 +33,10 @@ export const Navbar = ({
     }
     return email?.charAt(0).toUpperCase() || "U";
   };
-  return <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-    <div className="container px-4">
-      <div className="flex items-center justify-between h-14 min-h-[56px]">
+  // Only apply safe-area padding on mobile (using CSS media query via class)
+  return <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50 safe-top-mobile">
+    <div className="container px-4 md:px-6">
+      <div className="flex items-center justify-between h-14 md:h-16 min-h-[56px] md:min-h-[64px]">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group min-h-[44px]">
           <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-soft group-hover:shadow-elevated group-hover:scale-105 transition-all duration-300 ease-out">

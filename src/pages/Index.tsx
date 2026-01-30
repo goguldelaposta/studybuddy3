@@ -30,8 +30,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-mobile-nav md:pb-0">
-      {/* Spacer for fixed navbar */}
-      <div className="h-14" style={{ marginTop: 'env(safe-area-inset-top)' }} />
+      {/* Spacer for fixed navbar - only use safe-area on mobile */}
+      <div className="h-14 md:h-16" />
       
       <Navbar
         isAuthenticated={!!user}

@@ -63,7 +63,7 @@ export const HeroSection = ({
           >
             <Button 
               size="lg" 
-              className="gradient-primary text-primary-foreground h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:opacity-90 transition-all duration-300 w-full sm:w-auto" 
+              className="gradient-primary text-primary-foreground h-11 md:h-12 px-6 md:px-8 text-base md:text-lg font-semibold shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:opacity-90 transition-all duration-300 w-full sm:w-auto" 
               onClick={() => {
                 triggerHaptic('medium');
                 onGetStarted();
@@ -76,7 +76,7 @@ export const HeroSection = ({
             <Button 
               variant="outline" 
               size="lg" 
-              className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold w-full sm:w-auto" 
+              className="h-11 md:h-12 px-6 md:px-8 text-base md:text-lg font-semibold w-full sm:w-auto" 
               onClick={() => {
                 triggerHaptic('light');
                 onBrowse();
