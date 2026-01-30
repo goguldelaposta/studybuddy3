@@ -149,8 +149,19 @@
   }
 }
 
-/* Safe area utilities */
+/* Safe area utilities - MOBILE ONLY */
 @layer utilities {
+  /* Mobile-only safe area classes */
+  .safe-top-mobile {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  @media (min-width: 768px) {
+    .safe-top-mobile {
+      padding-top: 0;
+    }
+  }
+  
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }
@@ -184,9 +195,15 @@
     padding-right: env(safe-area-inset-right);
   }
   
-  /* Bottom tab bar spacing for mobile */
+  /* Bottom tab bar spacing for mobile only */
   .pb-mobile-nav {
     padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+  
+  @media (min-width: 768px) {
+    .pb-mobile-nav {
+      padding-bottom: 0;
+    }
   }
 }
 
