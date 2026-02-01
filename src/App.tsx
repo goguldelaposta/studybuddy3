@@ -92,9 +92,6 @@ function AnimatedRoutes() {
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </AnimatePresence>
-      
-      {/* Bottom Tab Bar for mobile - only show on main authenticated pages */}
-      {isMobile && showBottomTabBar && <BottomTabBar />}
     </>
   );
 }

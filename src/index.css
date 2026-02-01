@@ -115,9 +115,6 @@
 @layer base {
   * {
     @apply border-border;
-    -webkit-tap-highlight-color: transparent;
-    /* Prevent text selection on double tap */
-    -webkit-touch-callout: none;
   }
 
   html {
@@ -128,13 +125,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Outfit', sans-serif;
-    /* Prevent pull-to-refresh and overscroll */
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
-    /* Ensure minimum height respects safe areas */
     min-height: 100vh;
-    min-height: 100dvh;
-    min-height: -webkit-fill-available;
   }
 
   h1, h2, h3, h4, h5, h6 {

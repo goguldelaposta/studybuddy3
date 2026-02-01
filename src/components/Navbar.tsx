@@ -33,10 +33,9 @@ export const Navbar = ({
     }
     return email?.charAt(0).toUpperCase() || "U";
   };
-  // Only apply safe-area padding on mobile (using CSS media query via class)
-  return <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50 safe-top-mobile">
-    <div className="container px-4 md:px-6">
-      <div className="flex items-center justify-between h-14 md:h-16 min-h-[56px] md:min-h-[64px]">
+  return <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <div className="container px-4">
+      <div className="flex items-center justify-between h-14">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group min-h-[44px]">
           <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-soft group-hover:shadow-elevated group-hover:scale-105 transition-all duration-300 ease-out">
@@ -213,7 +212,7 @@ export const Navbar = ({
 
       {/* Mobile Menu - Full screen overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[calc(56px+env(safe-area-inset-top))] bg-background/95 backdrop-blur-lg z-40 overflow-y-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="md:hidden fixed inset-0 top-14 bg-background z-40 overflow-y-auto">
           <div className="flex flex-col gap-1 p-4">
             <Link to="/" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
               Acasă
