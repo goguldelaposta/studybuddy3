@@ -210,9 +210,9 @@ export const Navbar = ({
         </div>
       </div>
 
-      {/* Mobile Menu - Full screen overlay */}
+      {/* Mobile Menu - Dropdown below navbar */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-14 bg-background z-40 overflow-y-auto">
+        <div className="md:hidden absolute left-0 right-0 top-full bg-background border-b border-border shadow-lg max-h-[calc(100vh-56px)] overflow-y-auto">
           <div className="flex flex-col gap-1 p-4">
             <Link to="/" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
               Acasă
