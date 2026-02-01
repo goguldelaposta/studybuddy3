@@ -1,5 +1,5 @@
 // Service Worker for StudyBuddy PWA
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v1.1.0';
 const CACHE_NAME = `studybuddy-${CACHE_VERSION}`;
 
 // Install event - do NOT skipWaiting automatically
