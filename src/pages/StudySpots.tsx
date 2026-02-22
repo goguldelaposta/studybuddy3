@@ -70,7 +70,7 @@ export default function StudySpots() {
       
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-16 z-40">
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative z-40">
           <div className="container py-4">
             <div className="flex items-center gap-3 mb-4">
               <MapPin className="h-6 w-6 text-primary" />
