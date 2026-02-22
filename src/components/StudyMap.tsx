@@ -4,7 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { StudyLocation, TYPE_ICONS, TYPE_LABELS } from '@/hooks/useStudyLocations';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
-import { Box, Layers } from 'lucide-react';
+import { Box, Layers, LocateFixed, Loader2 } from 'lucide-react';
 
 interface StudyMapProps {
   locations: StudyLocation[];
@@ -19,6 +19,8 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
   const markers = useRef<mapboxgl.Marker[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [is3D, setIs3D] = useState(true);
+  const [locating, setLocating] = useState(false);
+  const userMarker = useRef<mapboxgl.Marker | null>(null);
   const { resolvedTheme } = useTheme();
 
   // Toggle between 2D and 3D view
@@ -31,6 +33,38 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
       pitch: newIs3D ? 56 : 0,
       duration: 500,
     });
+  };
+
+  const handleGeolocate = () => {
+    if (!map.current || !navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { longitude, latitude } = pos.coords;
+        
+        // Remove old user marker
+        userMarker.current?.remove();
+        
+        // Create pulsing dot marker
+        const el = document.createElement('div');
+        el.className = 'user-location-marker';
+        el.innerHTML = `<div style="width:16px;height:16px;background:hsl(217,91%,60%);border:3px solid white;border-radius:50%;box-shadow:0 0 0 6px hsla(217,91%,60%,0.3);"></div>`;
+        
+        userMarker.current = new mapboxgl.Marker({ element: el })
+          .setLngLat([longitude, latitude])
+          .addTo(map.current!);
+        
+        map.current!.flyTo({
+          center: [longitude, latitude],
+          zoom: 15,
+          duration: 1000,
+          essential: true,
+        });
+        setLocating(false);
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   // Custom Mapbox style
@@ -146,16 +180,29 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
       
       {/* 2D/3D Toggle Button */}
       {mapLoaded && (
-        <Button
-          onClick={toggle3D}
-          variant="secondary"
-          size="sm"
-          className="absolute top-2 left-2 z-10 gap-2 shadow-md bg-background/90 backdrop-blur-sm"
-          title={is3D ? 'Comută la vizualizare 2D' : 'Comută la vizualizare 3D'}
-        >
-          {is3D ? <Layers className="h-4 w-4" /> : <Box className="h-4 w-4" />}
-          <span className="text-xs font-medium">{is3D ? '2D' : '3D'}</span>
-        </Button>
+        <div className="absolute top-2 left-2 z-10 flex flex-col gap-2">
+          <Button
+            onClick={toggle3D}
+            variant="secondary"
+            size="sm"
+            className="gap-2 shadow-md bg-background/90 backdrop-blur-sm"
+            title={is3D ? 'Comută la vizualizare 2D' : 'Comută la vizualizare 3D'}
+          >
+            {is3D ? <Layers className="h-4 w-4" /> : <Box className="h-4 w-4" />}
+            <span className="text-xs font-medium">{is3D ? '2D' : '3D'}</span>
+          </Button>
+          <Button
+            onClick={handleGeolocate}
+            variant="secondary"
+            size="sm"
+            className="gap-2 shadow-md bg-background/90 backdrop-blur-sm"
+            title="Locația mea"
+            disabled={locating}
+          >
+            {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
+            <span className="text-xs font-medium">Locația mea</span>
+          </Button>
+        </div>
       )}
     </div>
   );
