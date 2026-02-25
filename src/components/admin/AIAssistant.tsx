@@ -32,8 +32,8 @@ interface ProviderConfig {
 const PROVIDERS: Record<Provider, ProviderConfig> = {
     gemini: {
         name: "Google Gemini",
-        model: "gemini-2.0-flash",
-        description: "Gemini 2.0 Flash",
+        model: "gemini-1.5-flash-latest",
+        description: "Gemini 1.5 Flash",
         free: true,
         keyPlaceholder: "AIza...",
         keyLink: "https://aistudio.google.com/app/apikey",
@@ -131,7 +131,7 @@ export const AIAssistant = () => {
             ? `\n\nStatistici live: ${stats.users} useri, ${stats.groups} grupuri, ${stats.messages} mesaje.`
             : "";
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
