@@ -63,18 +63,17 @@ export default function StudySpots() {
   const typeFilters: LocationType[] = ['cafe', 'library', 'bookstore', 'coworking', 'university', 'other'];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       <Navbar 
         isAuthenticated={!!user} 
         user={{ email: user.email || "", fullName: undefined, avatarUrl: undefined }}
         onSignOut={handleSignOut} 
       />
       
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative z-40">
-          <div className="container py-3">
-            {/* Filter buttons */}
+      <div className="flex-1 flex flex-col pt-14">
+        {/* Filter buttons */}
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative z-40">
+          <div className="px-4 py-2">
             <ScrollArea className="w-full whitespace-nowrap">
               <div className="flex gap-2 items-center">
                 <Button
@@ -104,8 +103,8 @@ export default function StudySpots() {
           </div>
         </div>
 
-        {/* Map container */}
-        <div className="flex-1 relative" style={{ minHeight: 'calc(100vh - 180px)' }}>
+        {/* Map container - fills remaining space */}
+        <div className="flex-1 relative">
           {loading ? (
             <div className="absolute inset-0 flex items-center justify-center bg-muted">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

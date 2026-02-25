@@ -241,7 +241,7 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, onUser
   }
 
   return (
-    <div className="relative w-full h-full" style={{ minHeight: 'calc(100vh - 180px)' }}>
+    <div className="relative w-full h-full">
       <div ref={mapContainer} className="absolute inset-0" />
       
       {/* 2D/3D Toggle Button */}
