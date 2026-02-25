@@ -72,21 +72,11 @@ export default function StudySpots() {
       
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative z-40">
-          <div className="container py-4">
-            <div className="flex items-center gap-3 mb-4">
-              <MapPin className="h-6 w-6 text-primary" />
-              <div>
-                <h1 className="text-2xl font-bold">Locuri de Studiu</h1>
-                <p className="text-sm text-muted-foreground">
-                  Găsește cafenele, biblioteci și spații ideale pentru a studia
-                </p>
-              </div>
-            </div>
-
+         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative z-40">
+          <div className="container py-3">
             {/* Filter buttons */}
             <ScrollArea className="w-full whitespace-nowrap">
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Button
                   variant={selectedType === null ? "default" : "outline"}
                   size="sm"
