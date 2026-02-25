@@ -130,17 +130,31 @@ export const AIAssistant = () => {
         const statsCtx = Object.keys(stats).length > 0
             ? `\n\nStatistici live: ${stats.users} useri, ${stats.groups} grupuri, ${stats.messages} mesaje.`
             : "";
+        const fullSystemContext = SYSTEM_CONTEXT + statsCtx;
+
+        const contents = history.slice(1).map(m => ({
+            role: m.role === "assistant" ? "model" : "user",
+            parts: [{ text: m.content }]
+        }));
+
+        // Prepend system context to the first user message
+        if (contents.length === 0 || contents[0].role === "model") {
+            // If no history or first message is from assistant, prepend to current userText
+            contents.push({ role: "user", parts: [{ text: fullSystemContext + "\n\n" + userText }] });
+        } else {
+            // If first message is from user, prepend to it
+            contents[0].parts[0].text = fullSystemContext + "\n\n" + contents[0].parts[0].text;
+            contents.push({ role: "user", parts: [{ text: userText }] });
+        }
+
+
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    system_instruction: { parts: [{ text: SYSTEM_CONTEXT + statsCtx }] },
-                    contents: [
-                        ...history.slice(1).map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
-                        { role: "user", parts: [{ text: userText }] }
-                    ],
+                    contents: contents,
                     generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
                 })
             }
