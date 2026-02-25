@@ -246,27 +246,25 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, onUser
       
       {/* 2D/3D Toggle Button */}
       {mapLoaded && (
-        <div className="absolute top-2 left-2 z-10 flex flex-col gap-2">
+        <div className="absolute top-4 left-4 z-10 flex gap-2">
           <Button
             onClick={toggle3D}
             variant="secondary"
-            size="sm"
-            className="gap-2 shadow-md bg-background/90 backdrop-blur-sm"
+            size="icon"
+            className="h-9 w-9 shadow-md bg-background/90 backdrop-blur-sm"
             title={is3D ? 'Comută la vizualizare 2D' : 'Comută la vizualizare 3D'}
           >
             {is3D ? <Layers className="h-4 w-4" /> : <Box className="h-4 w-4" />}
-            <span className="text-xs font-medium">{is3D ? '2D' : '3D'}</span>
           </Button>
           <Button
             onClick={handleGeolocate}
             variant="secondary"
-            size="sm"
-            className="gap-2 shadow-md bg-background/90 backdrop-blur-sm"
+            size="icon"
+            className="h-9 w-9 shadow-md bg-background/90 backdrop-blur-sm"
             title="Locația mea"
             disabled={locating}
           >
             {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
-            <span className="text-xs font-medium">Locația mea</span>
           </Button>
         </div>
       )}

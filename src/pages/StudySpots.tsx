@@ -153,7 +153,7 @@ export default function StudySpots() {
           )}
 
           {/* Location count badge */}
-          <div className="absolute top-4 left-4 bg-background/95 backdrop-blur rounded-full px-4 py-2 shadow-lg">
+          <div className="absolute top-4 right-4 bg-background/95 backdrop-blur rounded-full px-4 py-2 shadow-lg z-10">
             <span className="text-sm font-medium">
               {locations.length} locuri găsite
             </span>
