@@ -10,10 +10,11 @@ interface StudyMapProps {
   locations: StudyLocation[];
   selectedLocation: StudyLocation | null;
   onSelectLocation: (location: StudyLocation | null) => void;
+  onUserLocated?: (position: { latitude: number; longitude: number } | null) => void;
   mapboxToken: string;
 }
 
-export function StudyMap({ locations, selectedLocation, onSelectLocation, mapboxToken }: StudyMapProps) {
+export function StudyMap({ locations, selectedLocation, onSelectLocation, onUserLocated, mapboxToken }: StudyMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
@@ -124,6 +125,7 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
           duration: 1000,
           essential: true,
         });
+        onUserLocated?.({ latitude, longitude });
         setLocating(false);
       },
       () => setLocating(false),
