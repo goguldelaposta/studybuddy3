@@ -35,6 +35,31 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
     });
   };
 
+  // Haversine distance in meters
+  const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371000;
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+
+  // Create GeoJSON circle polygon
+  const createCircle = (center: [number, number], radiusM: number, points = 64) => {
+    const coords: [number, number][] = [];
+    const km = radiusM / 1000;
+    for (let i = 0; i <= points; i++) {
+      const angle = (i / points) * 2 * Math.PI;
+      const dx = km * Math.cos(angle);
+      const dy = km * Math.sin(angle);
+      const lat = center[1] + (dy / 111.32);
+      const lng = center[0] + (dx / (111.32 * Math.cos((center[1] * Math.PI) / 180)));
+      coords.push([lng, lat]);
+    }
+    return { type: 'Feature' as const, geometry: { type: 'Polygon' as const, coordinates: [coords] }, properties: {} };
+  };
+
   const handleGeolocate = () => {
     if (!map.current || !navigator.geolocation) return;
     setLocating(true);
@@ -53,10 +78,49 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, mapbox
         userMarker.current = new mapboxgl.Marker({ element: el })
           .setLngLat([longitude, latitude])
           .addTo(map.current!);
+
+        // Calculate radius to nearest study location (min 300m, max 3km)
+        let radiusM = 1500;
+        if (locations.length > 0) {
+          const distances = locations.map(l => getDistance(latitude, longitude, l.latitude, l.longitude));
+          const nearest = Math.min(...distances);
+          radiusM = Math.max(300, Math.min(nearest * 1.2, 3000));
+        }
+
+        // Add/update radius circle on map
+        const m = map.current!;
+        const circleData = createCircle([longitude, latitude], radiusM);
+        if (m.getSource('user-radius')) {
+          (m.getSource('user-radius') as mapboxgl.GeoJSONSource).setData(circleData as any);
+        } else {
+          m.addSource('user-radius', { type: 'geojson', data: circleData as any });
+          m.addLayer({
+            id: 'user-radius-fill',
+            type: 'fill',
+            source: 'user-radius',
+            paint: { 'fill-color': 'hsl(217, 91%, 60%)', 'fill-opacity': 0.08 },
+          });
+          m.addLayer({
+            id: 'user-radius-border',
+            type: 'line',
+            source: 'user-radius',
+            paint: { 'line-color': 'hsl(217, 91%, 60%)', 'line-width': 2, 'line-opacity': 0.4, 'line-dasharray': [3, 2] },
+          });
+        }
+
+        // Add distance label popup
+        const distLabel = radiusM >= 1000 ? `${(radiusM / 1000).toFixed(1)} km` : `${Math.round(radiusM)} m`;
+        const nearestCount = locations.filter(l => getDistance(latitude, longitude, l.latitude, l.longitude) <= radiusM).length;
         
-        map.current!.flyTo({
+        // Show info popup at user location
+        new mapboxgl.Popup({ offset: 20, closeButton: true, className: 'radius-popup' })
+          .setLngLat([longitude, latitude])
+          .setHTML(`<div class="p-2 text-center"><div class="font-semibold text-sm">📍 Locația ta</div><div class="text-xs text-gray-600 mt-1">Rază: ${distLabel}</div><div class="text-xs text-gray-600">${nearestCount} ${nearestCount === 1 ? 'loc' : 'locuri'} în apropiere</div></div>`)
+          .addTo(m);
+        
+        m.flyTo({
           center: [longitude, latitude],
-          zoom: 15,
+          zoom: 14,
           duration: 1000,
           essential: true,
         });
