@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { StudyMap } from "@/components/StudyMap";
 import { LocationCard } from "@/components/LocationCard";
+import { NearbyLocationsList } from "@/components/NearbyLocationsList";
 import { useStudyLocations, LocationType, TYPE_LABELS, StudyLocation } from "@/hooks/useStudyLocations";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -24,6 +25,7 @@ export default function StudySpots() {
   const { locations, loading, selectedType, setSelectedType } = useStudyLocations();
   const [selectedLocation, setSelectedLocation] = useState<StudyLocation | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>("");
+  const [userPosition, setUserPosition] = useState<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
     // Get mapbox token from edge function
@@ -123,6 +125,7 @@ export default function StudySpots() {
               locations={locations}
               selectedLocation={selectedLocation}
               onSelectLocation={setSelectedLocation}
+              onUserLocated={setUserPosition}
               mapboxToken={mapboxToken}
             />
           )}
@@ -133,6 +136,18 @@ export default function StudySpots() {
               <LocationCard
                 location={selectedLocation}
                 onClose={() => setSelectedLocation(null)}
+              />
+            </div>
+          )}
+
+          {/* Nearby locations list */}
+          {userPosition && !selectedLocation && (
+            <div className="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50">
+              <NearbyLocationsList
+                locations={locations}
+                userPosition={userPosition}
+                onSelectLocation={(loc) => setSelectedLocation(loc)}
+                onClose={() => setUserPosition(null)}
               />
             </div>
           )}
