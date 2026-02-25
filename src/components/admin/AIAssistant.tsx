@@ -32,7 +32,7 @@ interface ProviderConfig {
 const PROVIDERS: Record<Provider, ProviderConfig> = {
     gemini: {
         name: "Google Gemini",
-        model: "gemini-1.5-flash-latest",
+        model: "gemini-1.5-flash",
         description: "Gemini 1.5 Flash",
         free: true,
         keyPlaceholder: "AIza...",
@@ -149,7 +149,7 @@ export const AIAssistant = () => {
 
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
+            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
