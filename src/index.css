@@ -4,6 +4,42 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html,
+  body {
+    overscroll-behavior-y: none;
+    /* Prevent rubber-banding on whole page if desired, or keep it */
+    user-select: none;
+    /* App-like feel, disable text selection globaly mostly */
+  }
+
+  /* Allow text selection in specific areas if needed */
+  input,
+  textarea,
+  .selectable-text {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 /* StudyMate Design System - Fresh Academic Vibes */
 
 @layer base {
@@ -128,7 +164,12 @@
     min-height: 100vh;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Outfit', sans-serif;
     @apply font-bold tracking-tight;
   }
@@ -274,6 +315,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -284,6 +326,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -294,6 +337,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -301,9 +345,12 @@
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }

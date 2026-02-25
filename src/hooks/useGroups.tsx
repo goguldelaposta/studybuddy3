@@ -9,12 +9,18 @@ export interface Group {
   description: string | null;
   subject_id: string | null;
   university_id: string | null;
+  course_id?: string | null; // Added
   created_by: string;
   avatar_url: string | null;
   is_public: boolean;
   max_members: number | null;
   created_at: string;
   updated_at: string;
+  course?: {
+    id: string;
+    name: string;
+    faculty_id: string;
+  };
   subject?: {
     id: string;
     name: string;
@@ -70,7 +76,7 @@ export function useGroups() {
         .from("groups")
         .select(`
           *,
-          subject:subjects(id, name, faculty),
+          course:courses(id, name, faculty_id),
           university:universities(id, name, short_name)
         `)
         .eq("is_public", true)
@@ -137,7 +143,7 @@ export function useGroups() {
         .from("groups")
         .select(`
           *,
-          subject:subjects(id, name, faculty),
+          course:courses(id, name, faculty_id),
           university:universities(id, name, short_name)
         `)
         .in("id", groupIds)
@@ -183,8 +189,8 @@ export function useGroups() {
           .insert({
             name: data.name,
             description: data.description || null,
-            subject_id: data.subject_id || null,
-            university_id: data.university_id || null,
+            course_id: data.subject_id || null, // Using subject_id field to pass course_id for now
+            university_id: data.university_id || null, // Keeping this for reference, though course implies uni
             created_by: user.id,
             is_public: data.is_public ?? true,
             max_members: data.max_members || 20,

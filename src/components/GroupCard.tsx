@@ -73,10 +73,10 @@ export function GroupCard({ group, onJoin, onLeave, onDelete, loading }: GroupCa
         )}
 
         <div className="flex flex-wrap gap-2">
-          {group.subject && (
+          {(group.course || group.subject) && (
             <Badge variant="secondary" className="gap-1">
               <BookOpen className="h-3 w-3" />
-              {group.subject.name}
+              {group.course?.name || group.subject?.name}
             </Badge>
           )}
           {group.university && (

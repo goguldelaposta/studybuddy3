@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, GraduationCap, Sparkles, BookOpen, Building, Calendar, Trophy } from "lucide-react";
+import { Settings, GraduationCap, Sparkles, BookOpen, Building, Calendar, Trophy, Users, Megaphone, MapPin, FileText, ChevronRight, LogOut } from "lucide-react";
 import { ProfileBadge } from "@/components/ProfileBadge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Profile = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -142,8 +143,8 @@ const Profile = () => {
                   <CardContent>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {userBadges.map((ub, index) => (
-                        <div 
-                          key={ub.id} 
+                        <div
+                          key={ub.id}
                           className="flex flex-col items-center gap-2 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                         >
                           <ProfileBadge
@@ -209,6 +210,59 @@ const Profile = () => {
               )}
             </div>
           )}
+
+          {/* Mobile Menu / App Navigation Section */}
+          <div className="mt-8 mb-20 space-y-6">
+            <h2 className="font-display text-xl font-bold px-1">Meniu Aplicație</h2>
+
+            <Card className="shadow-card border-border/50 overflow-hidden">
+              <div className="divide-y divide-border/50">
+                {/* Theme Toggle Row */}
+                <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <span className="font-medium">Mod Întunecat / Luminos</span>
+                  </div>
+                  <ThemeToggle />
+                </div>
+
+                {/* Navigation Links */}
+                {[
+                  { icon: Users, label: "Prieteni", path: "/friends", color: "text-blue-500", bg: "bg-blue-500/10" },
+                  { icon: Megaphone, label: "Anunțuri", path: "/announcements", color: "text-orange-500", bg: "bg-orange-500/10" },
+                  { icon: MapPin, label: "Locuri de studiu", path: "/study-spots", color: "text-green-500", bg: "bg-green-500/10" },
+                  { icon: FileText, label: "Notițe", path: "/notes", color: "text-purple-500", bg: "bg-purple-500/10" },
+                  { icon: Calendar, label: "Calendar", path: "/calendar", color: "text-pink-500", bg: "bg-pink-500/10" },
+                ].map((item) => (
+                  <Link key={item.path} to={item.path} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${item.bg} ${item.color}`}>
+                        <item.icon className="w-5 h-5" />
+                      </div>
+                      <span className="font-medium">{item.label}</span>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  </Link>
+                ))}
+
+                {/* Logout Row */}
+                <button
+                  onClick={signOut}
+                  className="w-full flex items-center justify-between p-4 hover:bg-red-500/10 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-red-500/10 text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                      <LogOut className="w-5 h-5" />
+                    </div>
+                    <span className="font-medium text-red-500">Deconectare</span>
+                  </div>
+                </button>
+              </div>
+            </Card>
+          </div>
+
         </div>
       </div>
     </div>

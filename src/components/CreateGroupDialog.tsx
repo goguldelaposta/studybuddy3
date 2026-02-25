@@ -44,30 +44,66 @@ interface Subject {
 export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [universities, setUniversities] = useState<University[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
 
+  // Catalogs
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [faculties, setFaculties] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
+
+  // Form State
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [universityId, setUniversityId] = useState<string>("");
-  const [subjectId, setSubjectId] = useState<string>("");
+  const [facultyId, setFacultyId] = useState<string>("");
+  const [courseId, setCourseId] = useState<string>("");
   const [isPublic, setIsPublic] = useState(true);
   const [maxMembers, setMaxMembers] = useState(20);
 
-  // Fetch universities and subjects
+  // 1. Fetch Universities on mount
   useEffect(() => {
-    const fetchData = async () => {
-      const [uniRes, subRes] = await Promise.all([
-        supabase.from("universities").select("*").order("name"),
-        supabase.from("subjects").select("*").order("name"),
-      ]);
-
-      if (uniRes.data) setUniversities(uniRes.data);
-      if (subRes.data) setSubjects(subRes.data);
+    const fetchUniversities = async () => {
+      const { data } = await supabase.from("universities").select("*").order("name");
+      if (data) setUniversities(data);
     };
-
-    fetchData();
+    fetchUniversities();
   }, []);
+
+  // 2. Fetch Faculties when University changes
+  useEffect(() => {
+    if (!universityId) {
+      setFaculties([]);
+      return;
+    }
+    const fetchFaculties = async () => {
+      const { data } = await supabase
+        .from("faculties")
+        .select("*")
+        .eq("university_id", universityId)
+        .order("name");
+      if (data) setFaculties(data);
+    };
+    fetchFaculties();
+    setFacultyId("");
+    setCourseId("");
+  }, [universityId]);
+
+  // 3. Fetch Courses when Faculty changes
+  useEffect(() => {
+    if (!facultyId) {
+      setCourses([]);
+      return;
+    }
+    const fetchCourses = async () => {
+      const { data } = await supabase
+        .from("courses")
+        .select("*")
+        .eq("faculty_id", facultyId)
+        .order("name");
+      if (data) setCourses(data);
+    };
+    fetchCourses();
+    setCourseId("");
+  }, [facultyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +114,7 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
       name: name.trim(),
       description: description.trim() || undefined,
       university_id: universityId || undefined,
-      subject_id: subjectId || undefined,
+      subject_id: courseId || undefined, // We pass course_id as subject_id to reuse the interface for now
       is_public: isPublic,
       max_members: maxMembers,
     });
@@ -90,7 +126,8 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
       setName("");
       setDescription("");
       setUniversityId("");
-      setSubjectId("");
+      setFacultyId("");
+      setCourseId("");
       setIsPublic(true);
       setMaxMembers(20);
       setOpen(false);
@@ -140,33 +177,52 @@ export function CreateGroupDialog({ onCreateGroup }: CreateGroupDialogProps) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
+              {/* University */}
               <div className="grid gap-2">
                 <Label htmlFor="university">Universitate</Label>
                 <Select value={universityId} onValueChange={setUniversityId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selectează..." />
+                    <SelectValue placeholder="Selectează Universitatea..." />
                   </SelectTrigger>
                   <SelectContent>
                     {universities.map((uni) => (
                       <SelectItem key={uni.id} value={uni.id}>
-                        {uni.short_name}
+                        {uni.short_name} - {uni.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
+              {/* Faculty */}
               <div className="grid gap-2">
-                <Label htmlFor="subject">Materie</Label>
-                <Select value={subjectId} onValueChange={setSubjectId}>
+                <Label htmlFor="faculty">Facultate</Label>
+                <Select value={facultyId} onValueChange={setFacultyId} disabled={!universityId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selectează..." />
+                    <SelectValue placeholder="Selectează Facultatea..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {subjects.map((sub) => (
-                      <SelectItem key={sub.id} value={sub.id}>
-                        {sub.name}
+                    {faculties.map((fac) => (
+                      <SelectItem key={fac.id} value={fac.id}>
+                        {fac.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Course */}
+              <div className="grid gap-2">
+                <Label htmlFor="course">Materie / Curs</Label>
+                <Select value={courseId} onValueChange={setCourseId} disabled={!facultyId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selectează Materia..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {courses.map((course) => (
+                      <SelectItem key={course.id} value={course.id}>
+                        {course.name} (An {course.year})
                       </SelectItem>
                     ))}
                   </SelectContent>

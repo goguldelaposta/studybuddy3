@@ -23,8 +23,8 @@ import { UserProfileEditor } from "@/components/admin/UserProfileEditor";
 import { UniversitiesManagement } from "@/components/admin/UniversitiesManagement";
 import { SubjectsManagement } from "@/components/admin/SubjectsManagement";
 import { SkillsManagement } from "@/components/admin/SkillsManagement";
-import { 
-  Shield, Users, Search, Loader2, Trash2, 
+import {
+  Shield, Users, Search, Loader2, Trash2,
   Crown, ShieldCheck, User as UserIcon, AlertTriangle,
   Flag, Ban, Megaphone, UserX, LayoutDashboard, Edit, Building2, BookOpen, Lightbulb, Mail, ShieldAlert, ShieldBan, Send, Award, Sparkles, FileText
 } from "lucide-react";
@@ -35,6 +35,7 @@ import { IPWhitelistManagement } from "@/components/admin/IPWhitelistManagement"
 import { AutomatedEmailsLog } from "@/components/admin/AutomatedEmailsLog";
 import { BadgesManagement } from "@/components/admin/BadgesManagement";
 import ContentSeeding from "@/components/admin/ContentSeeding";
+import { AIAssistant } from "@/components/admin/AIAssistant";
 import { useBlockedIPsNotifications } from "@/hooks/useBlockedIPsNotifications";
 import { useModeration } from "@/hooks/useModeration";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -86,7 +87,7 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  
+
   // Suspension dialog state
   const { suspendUser, refreshSuspensions } = useModeration();
   const [showSuspendDialog, setShowSuspendDialog] = useState(false);
@@ -157,7 +158,7 @@ const Admin = () => {
     if (!userToSuspend || !suspensionReason) return;
 
     setActionLoading(userToSuspend.user_id);
-    
+
     let suspendedUntil: string | undefined;
     if (suspensionDuration !== "permanent") {
       const date = new Date();
@@ -171,7 +172,7 @@ const Admin = () => {
     }
 
     const result = await suspendUser(userToSuspend.user_id, suspensionReason, suspendedUntil);
-    
+
     if (result.success) {
       toast({
         title: "Utilizator suspendat",
@@ -275,6 +276,7 @@ const Admin = () => {
             <TabsTrigger value="whitelist" className="gap-2"><ShieldCheck className="w-4 h-4" /><span className="hidden sm:inline">Whitelist</span></TabsTrigger>
             <TabsTrigger value="badges" className="gap-2"><Award className="w-4 h-4" /><span className="hidden sm:inline">Insigne</span></TabsTrigger>
             <TabsTrigger value="content" className="gap-2"><FileText className="w-4 h-4" /><span className="hidden sm:inline">Conținut</span></TabsTrigger>
+            <TabsTrigger value="ai-assistant" className="gap-2"><Sparkles className="w-4 h-4" /><span className="hidden sm:inline">AI Assistant</span></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard"><AdminDashboard /></TabsContent>
@@ -332,8 +334,8 @@ const Admin = () => {
                                     <>
                                       {/* Suspend button - visible for admin/mod, not for self */}
                                       {u.user_id !== user?.id && (
-                                        <Button 
-                                          size="sm" 
+                                        <Button
+                                          size="sm"
                                           variant="outline"
                                           className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                           onClick={() => {
@@ -399,6 +401,7 @@ const Admin = () => {
           <TabsContent value="whitelist"><IPWhitelistManagement /></TabsContent>
           <TabsContent value="badges"><BadgesManagement /></TabsContent>
           <TabsContent value="content"><ContentSeeding /></TabsContent>
+          <TabsContent value="ai-assistant"><AIAssistant /></TabsContent>
         </Tabs>
 
         {/* Suspension Dialog */}

@@ -17,7 +17,7 @@ import { Search } from "lucide-react";
 
 const Messages = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, signOut, loading: authLoading } = useAuth();
   const { currentUserProfile } = useProfiles();
   const {
@@ -68,10 +68,17 @@ const Messages = () => {
     await fetchMessages(conversationId);
     setShowMobileThread(true);
     setShowSearch(false);
+
+    // Update URL so MobileNav knows to hide itself
+    const selectedConv = conversations.find(c => c.id === conversationId);
+    if (selectedConv?.otherParticipant?.user_id) {
+      setSearchParams({ with: selectedConv.otherParticipant.user_id });
+    }
+
     // Mark messages as read and refresh unread count immediately
     await markMessagesAsRead(conversationId);
     refreshUnreadCount();
-  }, [fetchMessages, markMessagesAsRead, refreshUnreadCount]);
+  }, [fetchMessages, markMessagesAsRead, refreshUnreadCount, conversations, setSearchParams]);
 
   const handleSearchResultClick = (conversationId: string) => {
     handleSelectConversation(conversationId);
@@ -86,6 +93,7 @@ const Messages = () => {
   const handleBack = () => {
     setActiveConversationId(null);
     setShowMobileThread(false);
+    setSearchParams({}); // Clear URL params
   };
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId) || null;

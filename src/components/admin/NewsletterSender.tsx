@@ -63,7 +63,7 @@ export const NewsletterSender = () => {
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewNewsletter, setPreviewNewsletter] = useState<{ subject: string; message: string } | null>(null);
-  
+
   // Schedule state
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
@@ -306,7 +306,7 @@ export const NewsletterSender = () => {
         title: "Newsletter programat!",
         description: `Email-ul va fi trimis pe ${format(sendAt, "d MMMM yyyy 'la ora' HH:mm", { locale: ro })}.`,
       });
-      
+
       setSubject("");
       setMessage("");
       setIsScheduled(false);
@@ -430,7 +430,7 @@ export const NewsletterSender = () => {
                 Salvează ca Template
               </Button>
             </div>
-            
+
             {loadingTemplates ? (
               <div className="flex items-center justify-center py-2">
                 <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -604,7 +604,7 @@ export const NewsletterSender = () => {
               <Eye className="w-4 h-4 mr-2" />
               Previzualizare
             </Button>
-            
+
             {isScheduled ? (
               <Button
                 onClick={handleScheduleNewsletter}
@@ -762,7 +762,7 @@ export const NewsletterSender = () => {
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium truncate text-sm">{newsletter.subject}</h4>
                     <p className="text-xs text-muted-foreground">
-                      Trimis pe {format(parseISO(newsletter.sent_at!), "d MMM yyyy, HH:mm", { locale: ro })} • 
+                      Trimis pe {format(parseISO(newsletter.sent_at!), "d MMM yyyy, HH:mm", { locale: ro })} •
                       {newsletter.sent_count} destinatari
                       {newsletter.failed_count > 0 && ` • ${newsletter.failed_count} eșuate`}
                     </p>
@@ -790,7 +790,7 @@ export const NewsletterSender = () => {
               Salvează acest newsletter ca template pentru reutilizare rapidă
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label htmlFor="template-name">Numele Template-ului</Label>
@@ -802,7 +802,7 @@ export const NewsletterSender = () => {
                 disabled={savingTemplate}
               />
             </div>
-            
+
             <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
               <p className="text-muted-foreground">
                 <strong>Subiect:</strong> {subject}
@@ -849,7 +849,7 @@ export const NewsletterSender = () => {
               Așa va arăta email-ul trimis către utilizatori
             </DialogDescription>
           </DialogHeader>
-          
+
           {previewNewsletter && (
             <div className="mt-4 space-y-4">
               {/* Email Header Preview */}
@@ -870,34 +870,73 @@ export const NewsletterSender = () => {
                 </div>
               </div>
 
-              {/* Email Body Preview */}
-              <div className="border rounded-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-primary-foreground text-center">
-                  <h2 className="text-xl font-bold">📚 StudyBuddy</h2>
+              {/* Email Body Preview - Full branded template */}
+              <div className="border rounded-lg overflow-hidden text-sm">
+                {/* Header */}
+                <div style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #0d9488 100%)', padding: '36px 32px 48px', textAlign: 'center' }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <span style={{ fontSize: '22px', fontWeight: 800, color: '#fff' }}>📚 StudyBuddy</span>
+                  </div>
+                  <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', color: '#fff', fontSize: '11px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', padding: '5px 14px', borderRadius: '100px', marginBottom: '16px' }}>✨ Noutăți din comunitate</div>
+                  <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#fff', margin: '0 0 10px', lineHeight: 1.2 }}>{previewNewsletter.subject}</h2>
+                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', margin: 0 }}>Platforma de colaborare academică pentru studenții din România.</p>
                 </div>
-                <div className="p-6 bg-background">
-                  <div 
-                    className="prose prose-sm max-w-none text-foreground leading-relaxed [&_a]:text-primary [&_a]:underline"
-                    dangerouslySetInnerHTML={{ 
+
+                {/* Body */}
+                <div style={{ padding: '28px 32px 24px', background: '#fff' }}>
+                  <p style={{ fontSize: '15px', fontWeight: 600, color: '#1e2a4a', margin: '0 0 10px' }}>Salut! 👋</p>
+                  <div
+                    className="prose prose-sm max-w-none text-foreground leading-relaxed"
+                    style={{ fontSize: '14px', color: '#4b5a7a', marginBottom: '24px', lineHeight: 1.7 }}
+                    dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(previewNewsletter.message, {
                         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'a', 'ul', 'ol', 'li'],
                         ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
-                      }) 
+                      })
                     }}
                   />
-                  
-                  <Separator className="my-6" />
-                  
-                  {/* Footer */}
-                  <div className="text-center text-sm text-muted-foreground space-y-2">
-                    <p>Cu drag,<br /><strong>Echipa StudyBuddy</strong></p>
-                    <p className="text-xs mt-4">
-                      Acest email a fost trimis de pe platforma StudyBuddy.<br />
-                      © {new Date().getFullYear()} StudyBuddy. Toate drepturile rezervate.
-                    </p>
+
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#1e2a4a', margin: '0 0 12px' }}>🚀 Ce poți face pe StudyBuddy</p>
+
+                  {[
+                    { icon: '👥', color: 'linear-gradient(135deg,#2563eb,#3b82f6)', title: 'Grupuri de studiu pe cursuri', desc: 'Găsește sau creează grupuri organizate pe facultate și materie.' },
+                    { icon: '💬', color: 'linear-gradient(135deg,#0d9488,#14b8a6)', title: 'Mesagerie în timp real', desc: 'Comunică direct cu colegii din grup — tot în aplicație.' },
+                    { icon: '🚧', color: 'linear-gradient(135deg,#f97316,#fb923c)', title: 'Aplicații native — în lucru!', desc: 'Lucrăm activ pentru iOS, Android și PC. Lansarea se apropie!' },
+                    { icon: '🔒', color: 'linear-gradient(135deg,#7c3aed,#a855f7)', title: 'Autentificare sigură', desc: 'Cont securizat cu email. Datele tale sunt protejate.' },
+                  ].map((f) => (
+                    <div key={f.title} style={{ background: '#f8faff', border: '1px solid #e2e8f8', borderRadius: '12px', padding: '14px 16px', marginBottom: '8px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <div style={{ width: '36px', height: '36px', minWidth: '36px', borderRadius: '8px', background: f.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>{f.icon}</div>
+                      <div>
+                        <p style={{ fontSize: '13px', fontWeight: 700, color: '#1e2a4a', margin: '0 0 2px' }}>{f.title}</p>
+                        <p style={{ fontSize: '12px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{f.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Tip */}
+                  <div style={{ background: '#fffbeb', borderLeft: '4px solid #f59e0b', borderRadius: '0 10px 10px 0', padding: '12px 16px', margin: '20px 0' }}>
+                    <p style={{ fontSize: '12px', fontWeight: 700, color: '#92400e', margin: '0 0 3px' }}>💡 Sfatul săptămânii</p>
+                    <p style={{ fontSize: '12px', color: '#78350f', margin: 0, lineHeight: 1.5 }}>Grupurile de studiu cu 3-5 membri s-au dovedit a fi cele mai eficiente!</p>
+                  </div>
+
+                  {/* CTA */}
+                  <div style={{ textAlign: 'center', margin: '24px 0' }}>
+                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#1e2a4a', margin: '0 0 6px' }}>Ești gata să înveți mai bine?</p>
+                    <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 16px' }}>Accesează acum platforma și alătură-te unui grup de studiu.</p>
+                    <span style={{ display: 'inline-block', background: 'linear-gradient(135deg,#2563eb,#0d9488)', color: '#fff', fontSize: '13px', fontWeight: 700, padding: '12px 32px', borderRadius: '100px' }}>Deschide StudyBuddy →</span>
+                    <p style={{ fontSize: '11px', color: '#94a3b8', margin: '10px 0 0' }}>Gratuit pentru toți studenții din România 🇷🇴</p>
                   </div>
                 </div>
+
+                {/* Footer */}
+                <div style={{ background: '#f8faff', borderTop: '1px solid #e2e8f8', padding: '20px 32px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '15px', fontWeight: 800, color: '#2563eb', margin: '0 0 8px' }}>📚 StudyBuddy</p>
+                  <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>
+                    © {new Date().getFullYear()} StudyBuddy · Platformă de colaborare academică pentru România 🇷🇴
+                  </p>
+                </div>
               </div>
+
 
               <div className="flex justify-end gap-3 pt-4">
                 <Button variant="outline" onClick={() => setPreviewOpen(false)}>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>StudyBuddy Newsletter</title>
+    <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', Arial, sans-serif;
+            background-color: #f0f4ff;
+            color: #1e2a4a;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        .wrapper {
+            width: 100%;
+            background-color: #f0f4ff;
+            padding: 40px 16px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 48px -12px rgba(37, 99, 235, 0.18);
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #0d9488 100%);
+            padding: 48px 40px 56px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 32px;
+            background: #ffffff;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+        }
+
+        /* ── BODY ── */
+        .body {
+            padding: 40px 40px 32px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e2a4a;
+            margin-bottom: 12px;
+        }
+
+        .intro {
+            font-size: 15px;
+            color: #4b5a7a;
+            line-height: 1.7;
+            margin-bottom: 36px;
+        }
+
+        /* ── FEATURE CARDS ── */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e2a4a;
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
+
+        .features {
+            display: block;
+            margin-bottom: 36px;
+        }
+
+        .feature-card {
+            background: #f8faff;
+            border: 1px solid #e2e8f8;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .icon-blue {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+        }
+
+        .icon-teal {
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+        }
+
+        .icon-coral {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+        }
+
+        .icon-purple {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+        }
+
+        .feature-content h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e2a4a;
+            margin-bottom: 4px;
+        }
+
+        .feature-content p {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* ── STATS ── */
+        .stats {
+            background: linear-gradient(135deg, #2563eb 0%, #0d9488 100%);
+            border-radius: 20px;
+            padding: 28px 24px;
+            margin-bottom: 36px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            display: block;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-divider {
+            width: 1px;
+            background: rgba(255, 255, 255, 0.25);
+            margin: 0 8px;
+        }
+
+        /* ── CTA ── */
+        .cta-section {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .cta-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1e2a4a;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .cta-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #2563eb 0%, #0d9488 100%);
+            color: #ffffff !important;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 16px 40px;
+            border-radius: 100px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.4);
+        }
+
+        .cta-note {
+            display: block;
+            margin-top: 14px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* ── DIVIDER ── */
+        .divider {
+            border: none;
+            border-top: 1px solid #e2e8f8;
+            margin: 0 0 32px;
+        }
+
+        /* ── TIP BOX ── */
+        .tip-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            border-radius: 0 12px 12px 0;
+            padding: 16px 20px;
+            margin-bottom: 36px;
+        }
+
+        .tip-box-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+
+        .tip-box-text {
+            font-size: 13px;
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            background: #f8faff;
+            border-top: 1px solid #e2e8f8;
+            padding: 28px 40px;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2563eb, #0d9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .footer-links {
+            margin-bottom: 16px;
+        }
+
+        .footer-links a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13px;
+            margin: 0 10px;
+        }
+
+        .footer-links a:hover {
+            color: #2563eb;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.7;
+        }
+
+        .footer-text a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 600px) {
+            .header {
+                padding: 36px 24px 48px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .body {
+                padding: 32px 24px 24px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .stat-divider {
+                display: none;
+            }
+
+            .cta-button {
+                padding: 14px 32px;
+            }
+
+            .footer {
+                padding: 24px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="container">
+
+            <!-- HEADER -->
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">📚</div>
+                    <span class="logo-text">StudyBuddy</span>
+                </div>
+                <div class="badge">✨ Noutăți din comunitate</div>
+                <h1>Învățarea e mai ușoară<br />împreună!</h1>
+                <p>Bine ai venit în comunitatea StudyBuddy —<br />platforma creată pentru studenții din România.</p>
+            </div>
+
+            <!-- BODY -->
+            <div class="body">
+
+                <p class="greeting">Salut! 👋</p>
+                <p class="intro">
+                    Suntem bucuroși că faci parte din comunitatea noastră în creștere.
+                    StudyBuddy este platforma unde studenții din România se conectează,
+                    formează grupuri de studiu și se ajută reciproc să treacă peste
+                    sesiunile de examene. Iată ce e nou și ce te poate ajuta:
+                </p>
+
+
+
+                <!-- FEATURES -->
+                <p class="section-title">🚀 Ce poți face pe StudyBuddy</p>
+                <div class="features">
+
+                    <div class="feature-card">
+                        <div class="feature-icon icon-blue">👥</div>
+                        <div class="feature-content">
+                            <h3>Grupuri de studiu pe cursuri</h3>
+                            <p>Găsește sau creează grupuri organizate pe facultate și materie. Studiați sincronizat,
+                                împărtășiți note și resurse.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon icon-teal">💬</div>
+                        <div class="feature-content">
+                            <h3>Mesagerie în timp real</h3>
+                            <p>Comunică direct cu colegii din grup. Schimb de idei, clarificări și sprijin reciproc —
+                                tot în aplicație.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon icon-coral">🚧</div>
+                        <div class="feature-content">
+                            <h3>Aplicații native — în lucru!</h3>
+                            <p>Lucrăm activ la aplicațiile native pentru <strong>iOS</strong>, <strong>Android</strong>
+                                și <strong>PC</strong>. Lansarea se apropie — rămâi pe fază!</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon icon-purple">🔒</div>
+                        <div class="feature-content">
+                            <h3>Autentificare sigură</h3>
+                            <p>Cont securizat cu adresa de email. Datele tale sunt protejate și confidențiale.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TIP -->
+                <div class="tip-box">
+                    <p class="tip-box-title">💡 Sfatul săptămânii</p>
+                    <p class="tip-box-text">
+                        Grupurile de studiu cu 3-5 membri s-au dovedit a fi cele mai eficiente!
+                        Caută colegi de la aceeași facultate și materie și stabiliți sesiuni fixe de studiu.
+                    </p>
+                </div>
+
+                <hr class="divider" />
+
+                <!-- CTA -->
+                <div class="cta-section">
+                    <p class="cta-title">Ești gata să înveți mai bine?</p>
+                    <p class="cta-subtitle">
+                        Accesează acum platforma, alătură-te unui grup de studiu<br />
+                        sau creează-ți propriul grup pentru colegii tăi.
+                    </p>
+                    <a href="https://studybuddy.ro" class="cta-button">
+                        Deschide StudyBuddy →
+                    </a>
+                    <span class="cta-note">Gratuit pentru toți studenții din România 🇷🇴</span>
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="footer">
+                <span class="footer-logo">📚 StudyBuddy</span>
+                <div class="footer-links">
+                    <a href="https://studybuddy.ro">Website</a>
+                    <a href="https://studybuddy.ro/groups">Grupuri</a>
+                    <a href="https://studybuddy.ro/messages">Mesaje</a>
+                    <a href="mailto:contact@studybuddy.ro">Contact</a>
+                </div>
+                <p class="footer-text">
+                    Ai primit acest email deoarece te-ai abonat la newsletter-ul StudyBuddy.<br />
+                    <a href="#">Dezabonează-te</a> · <a href="#">Politică de confidențialitate</a>
+                    <br /><br />
+                    © 2026 StudyBuddy · Platformă de colaborare academică pentru România 🇷🇴
+                </p>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>
