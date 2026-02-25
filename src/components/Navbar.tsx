@@ -51,9 +51,6 @@ export const Navbar = ({
           <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Acasă
           </Link>
-          <Link to="/browse" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Explorează
-          </Link>
           <Link to="/notes" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Notițe
           </Link>
@@ -216,9 +213,6 @@ export const Navbar = ({
           <div className="flex flex-col gap-1 p-4">
             <Link to="/" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
               Acasă
-            </Link>
-            <Link to="/browse" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
-              Explorează
             </Link>
             {isAuthenticated ? <>
               <Link to="/groups" className="px-4 py-3 text-base font-medium hover:bg-muted rounded-xl active:bg-muted/80 transition-colors min-h-[48px] flex items-center" onClick={() => setMobileMenuOpen(false)}>
