@@ -32,8 +32,8 @@ interface ProviderConfig {
 const PROVIDERS: Record<Provider, ProviderConfig> = {
     gemini: {
         name: "Google Gemini",
-        model: "gemini-1.5-flash",
-        description: "Gemini 1.5 Flash",
+        model: "gemini-2.0-flash",
+        description: "Gemini 2.0 Flash",
         free: true,
         keyPlaceholder: "AIza...",
         keyLink: "https://aistudio.google.com/app/apikey",
@@ -131,7 +131,7 @@ export const AIAssistant = () => {
             ? `\n\nStatistici live: ${stats.users} useri, ${stats.groups} grupuri, ${stats.messages} mesaje.`
             : "";
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -330,8 +330,8 @@ export const AIAssistant = () => {
                                 {msg.role === "assistant" ? <Bot className="w-4 h-4 text-white" /> : <User className="w-4 h-4 text-primary-foreground" />}
                             </div>
                             <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "user"
-                                    ? "bg-primary text-primary-foreground rounded-tr-sm"
-                                    : "bg-muted rounded-tl-sm"
+                                ? "bg-primary text-primary-foreground rounded-tr-sm"
+                                : "bg-muted rounded-tl-sm"
                                 }`}>
                                 {msg.content}
                                 <p className={`text-xs mt-1 ${msg.role === "user" ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
