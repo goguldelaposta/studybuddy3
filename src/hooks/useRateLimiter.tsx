@@ -40,7 +40,7 @@ export const useRateLimiter = (config: Partial<RateLimiterConfig> = {}) => {
   });
 
   const [remainingTime, setRemainingTime] = useState<number>(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Persist state to localStorage
   useEffect(() => {
