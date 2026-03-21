@@ -70,7 +70,6 @@ export function useGroups() {
         .from("groups")
         .select(`
           *,
-          course:courses(id, name, faculty_id),
           university:universities(id, name, short_name)
         `)
         .eq("is_public", true)
