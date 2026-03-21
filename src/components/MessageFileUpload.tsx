@@ -24,6 +24,10 @@ export function MessageFileUpload({ userId, conversationId, onFileUploaded }: Me
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  const ALLOWED_FILE_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+  const ALLOWED_FILE_EXTENSIONS = ['pdf', 'doc', 'docx', 'txt'];
+
   const uploadFile = async (file: File, type: "image" | "file") => {
     if (file.size > MAX_FILE_SIZE) {
       toast({
@@ -31,6 +35,16 @@ export function MessageFileUpload({ userId, conversationId, onFileUploaded }: Me
         description: "Dimensiunea maximă este 10MB.",
         variant: "destructive",
       });
+      return;
+    }
+
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    if (type === 'image' && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast({ title: "Tip nepermis", description: "Sunt permise doar JPG, PNG, GIF, WebP.", variant: "destructive" });
+      return;
+    }
+    if (type === 'file' && !ALLOWED_FILE_TYPES.includes(file.type) && !ALLOWED_FILE_EXTENSIONS.includes(ext)) {
+      toast({ title: "Tip nepermis", description: "Sunt permise doar PDF, DOC, DOCX, TXT.", variant: "destructive" });
       return;
     }
 
@@ -56,7 +70,6 @@ export function MessageFileUpload({ userId, conversationId, onFileUploaded }: Me
         description: "Fișierul a fost trimis cu succes.",
       });
     } catch (error: any) {
-      console.error("Error uploading file:", error);
       toast({
         title: "Eroare",
         description: "Nu am putut încărca fișierul.",
@@ -95,6 +108,7 @@ export function MessageFileUpload({ userId, conversationId, onFileUploaded }: Me
       <input
         ref={fileInputRef}
         type="file"
+        accept=".pdf,.doc,.docx,.txt"
         className="hidden"
         onChange={handleFileSelect}
       />

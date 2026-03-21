@@ -113,7 +113,7 @@ export const AIAssistant = () => {
                 supabase.from("messages").select("*", { count: "exact", head: true }),
             ]);
             setStats({ users: users || 0, groups: groups || 0, messages: msgs || 0 });
-        } catch (e) { console.error(e); }
+        } catch (_e) { }
     };
 
     const saveApiKey = () => {

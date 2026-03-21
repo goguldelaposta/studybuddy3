@@ -126,6 +126,7 @@ export const ProfileForm = ({
               id="fullName"
               placeholder="Ion Popescu"
               value={formData.fullName}
+              maxLength={80}
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
               required
             />
@@ -198,6 +199,7 @@ export const ProfileForm = ({
               id="bio"
               placeholder="Spune-le celorlalți despre interesele, obiectivele și proiectele tale..."
               value={formData.bio}
+              maxLength={500}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               rows={3}
             />

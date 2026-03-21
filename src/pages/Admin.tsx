@@ -115,8 +115,7 @@ const Admin = () => {
       });
 
       setUsers(usersWithRoles);
-    } catch (error) {
-      console.error("Error fetching users:", error);
+    } catch (_error) {
     } finally {
       setLoading(false);
     }
@@ -445,8 +444,9 @@ const Admin = () => {
                     <label className="text-sm font-medium">Motiv suspendare *</label>
                     <Textarea
                       value={suspensionReason}
-                      onChange={(e) => setSuspensionReason(e.target.value)}
+                      onChange={(e) => setSuspensionReason(e.target.value.slice(0, 500))}
                       placeholder="Descrie motivul suspendării..."
+                      maxLength={500}
                       className="mt-1"
                     />
                   </div>

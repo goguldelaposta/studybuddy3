@@ -231,12 +231,22 @@
   .pb-mobile-nav {
     padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
-  
+
   @media (min-width: 768px) {
     .pb-mobile-nav {
       padding-bottom: 0;
     }
   }
+
+  /* Spacer pentru navbar — pe native adaugă și safe area top */
+  .navbar-spacer {
+    height: 3.5rem;
+  }
+}
+
+/* Pe native Capacitor, primul div.h-14 din pagini devine spacer cu safe area inclus */
+.capacitor-native .h-14:first-child {
+  height: calc(3.5rem + env(safe-area-inset-top)) !important;
 }
 
 @layer utilities {

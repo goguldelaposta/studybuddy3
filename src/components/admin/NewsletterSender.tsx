@@ -91,7 +91,7 @@ export const NewsletterSender = () => {
       if (error) throw error;
       setTemplates((data as NewsletterTemplate[]) || []);
     } catch (error) {
-      console.error("Error fetching templates:", error);
+      // silent failure
     } finally {
       setLoadingTemplates(false);
     }
@@ -107,7 +107,7 @@ export const NewsletterSender = () => {
       if (error) throw error;
       setScheduledNewsletters((data as ScheduledNewsletter[]) || []);
     } catch (error) {
-      console.error("Error fetching scheduled newsletters:", error);
+      // silent failure
     } finally {
       setLoadingScheduled(false);
     }
@@ -158,7 +158,7 @@ export const NewsletterSender = () => {
       setSaveTemplateOpen(false);
       fetchTemplates();
     } catch (error: unknown) {
-      console.error("Error saving template:", error);
+      // silent failure
       const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
       toast({
         title: "Eroare",
@@ -194,7 +194,7 @@ export const NewsletterSender = () => {
       });
       fetchTemplates();
     } catch (error: unknown) {
-      console.error("Error deleting template:", error);
+      // silent failure
       const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
       toast({
         title: "Eroare",
@@ -234,7 +234,7 @@ export const NewsletterSender = () => {
         throw new Error(data?.error || "Eroare la trimiterea newsletter-ului");
       }
     } catch (error: unknown) {
-      console.error("Error sending newsletter:", error);
+      // silent failure
       const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
       toast({
         title: "Eroare",
@@ -314,7 +314,7 @@ export const NewsletterSender = () => {
       setScheduleTime("09:00");
       fetchScheduledNewsletters();
     } catch (error: unknown) {
-      console.error("Error scheduling newsletter:", error);
+      // silent failure
       const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
       toast({
         title: "Eroare",
@@ -357,7 +357,7 @@ export const NewsletterSender = () => {
         throw new Error(data?.error || "Eroare la trimiterea newsletter-ului");
       }
     } catch (error: unknown) {
-      console.error("Error sending scheduled newsletter:", error);
+      // silent failure
       const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
       toast({
         title: "Eroare",
@@ -384,7 +384,7 @@ export const NewsletterSender = () => {
       });
       fetchScheduledNewsletters();
     } catch (error: unknown) {
-      console.error("Error deleting scheduled newsletter:", error);
+      // silent failure
       const errorMessage = error instanceof Error ? error.message : "Eroare necunoscută";
       toast({
         title: "Eroare",

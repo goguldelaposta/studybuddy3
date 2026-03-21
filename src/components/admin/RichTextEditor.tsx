@@ -65,7 +65,14 @@ export const RichTextEditor = ({ content, onChange, placeholder = "Scrie mesajul
       return;
     }
 
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+    // Block javascript: and data: URLs to prevent XSS
+    const normalizedUrl = url.trim().toLowerCase();
+    if (normalizedUrl.startsWith('javascript:') || normalizedUrl.startsWith('data:') || normalizedUrl.startsWith('vbscript:')) {
+      return;
+    }
+
+    const safeUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+    editor.chain().focus().extendMarkRange("link").setLink({ href: safeUrl }).run();
   }, [editor]);
 
   if (!editor) {

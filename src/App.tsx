@@ -10,8 +10,10 @@ import { NotificationProvider } from "@/hooks/useRealtimeNotifications";
 import { EmailVerificationGuard } from "@/components/EmailVerificationGuard";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import { NativeHeader } from "@/components/NativeHeader";
 import { PageTransition } from "@/components/PageTransition";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Capacitor } from "@capacitor/core";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -56,8 +58,12 @@ function AnimatedRoutes() {
   
   const showBottomTabBar = !isAuthRoute && !isGroupDetailRoute;
 
+  const isNative = Capacitor.isNativePlatform();
+
   return (
     <>
+      {/* Pe native: header cu meniu + safe area sus */}
+      {isNative && !isAuthRoute && <NativeHeader />}
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<PageTransition><Index /></PageTransition>} />

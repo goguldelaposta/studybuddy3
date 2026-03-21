@@ -99,7 +99,6 @@ export const AvatarUpload = ({
         description: "Poza de profil a fost actualizată.",
       });
     } catch (error) {
-      console.error("Error uploading avatar:", error);
       toast({
         title: "Eroare",
         description: "Nu s-a putut încărca imaginea. Încearcă din nou.",
@@ -134,7 +133,6 @@ export const AvatarUpload = ({
         description: "Poza de profil a fost ștearsă.",
       });
     } catch (error) {
-      console.error("Error removing avatar:", error);
       toast({
         title: "Eroare",
         description: "Nu s-a putut șterge imaginea.",

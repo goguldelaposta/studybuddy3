@@ -32,10 +32,26 @@ export function NotesUploadDialog({ onUploadComplete }: { onUploadComplete: () =
         year: "",
     });
 
+    const ALLOWED_FILE_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'image/webp'];
+    const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'webp'];
+    const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
+        const selectedFile = e.target.files?.[0];
+        if (!selectedFile) return;
+
+        const ext = selectedFile.name.split('.').pop()?.toLowerCase() || '';
+        if (!ALLOWED_FILE_TYPES.includes(selectedFile.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
+            toast({ title: "Tip de fișier nepermis", description: "Sunt permise doar PDF, DOCX, JPG, PNG.", variant: "destructive" });
+            e.target.value = '';
+            return;
         }
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            toast({ title: "Fișier prea mare", description: "Dimensiunea maximă este 20MB.", variant: "destructive" });
+            e.target.value = '';
+            return;
+        }
+        setFile(selectedFile);
     };
 
     const handleUpload = async () => {
@@ -126,6 +142,7 @@ export function NotesUploadDialog({ onUploadComplete }: { onUploadComplete: () =
                             id="title"
                             placeholder="ex: Curs 1 - Analiză Matematică"
                             value={formData.title}
+                            maxLength={100}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
                     </div>
@@ -135,6 +152,7 @@ export function NotesUploadDialog({ onUploadComplete }: { onUploadComplete: () =
                         <Input
                             id="subject"
                             placeholder="ex: Matematică"
+                            maxLength={80}
                             value={formData.subject}
                             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                         />
@@ -146,6 +164,7 @@ export function NotesUploadDialog({ onUploadComplete }: { onUploadComplete: () =
                             <Input
                                 id="faculty"
                                 placeholder="ex: Automatică"
+                                maxLength={80}
                                 value={formData.faculty}
                                 onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}
                             />
@@ -156,6 +175,8 @@ export function NotesUploadDialog({ onUploadComplete }: { onUploadComplete: () =
                                 id="year"
                                 type="number"
                                 placeholder="ex: 1"
+                                min={1}
+                                max={6}
                                 value={formData.year}
                                 onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                             />
@@ -167,17 +188,19 @@ export function NotesUploadDialog({ onUploadComplete }: { onUploadComplete: () =
                         <Textarea
                             id="description"
                             placeholder="Scurtă descriere a conținutului..."
+                            maxLength={500}
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="file">Fișier (PDF, DOCX, JPG) *</Label>
+                        <Label htmlFor="file">Fișier (PDF, DOCX, JPG, PNG) *</Label>
                         <div className="flex items-center gap-2">
                             <Input
                                 id="file"
                                 type="file"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
                                 onChange={handleFileChange}
                                 className="cursor-pointer"
                             />

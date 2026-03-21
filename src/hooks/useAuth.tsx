@@ -133,7 +133,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             .eq('user_id', data.user.id);
 
           if (profileError) {
-            console.error('Failed to save profile data:', profileError);
+            // Silent fail — profile update is non-critical at signup
           }
         }
       }
@@ -209,8 +209,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Force page reload to auth
       window.location.href = '/auth';
-    } catch (err) {
-      console.error('Sign out error:', err);
+    } catch (_err) {
       // Clear tokens and state even on error
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('sb-') && key.endsWith('-auth-token')) {

@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Capacitor } from "@capacitor/core";
 
 interface NavbarProps {
   isAuthenticated: boolean;
@@ -33,6 +34,9 @@ export const Navbar = ({
     }
     return email?.charAt(0).toUpperCase() || "U";
   };
+  // Pe native (iOS/Android) Navbar-ul web nu se afișează — există BottomTabBar
+  if (Capacitor.isNativePlatform()) return null;
+
   return <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
     <div className="container px-4">
       <div className="flex items-center justify-between h-14">

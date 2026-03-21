@@ -100,15 +100,18 @@ export const StudentCard = ({
       <CardContent className="p-6">
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">
-          <Avatar 
-            className="h-14 w-14 ring-2 ring-primary/10 ring-offset-2 cursor-pointer hover:ring-primary/30 transition-all"
+          <div
+            className="flex-shrink-0 rounded-full overflow-hidden cursor-pointer ring-2 ring-primary/10 ring-offset-2 hover:ring-primary/30 transition-all"
+            style={{ width: '3.5rem', height: '3.5rem' }}
             onClick={() => userId && navigate(`/user/${userId}`)}
           >
-            <AvatarImage src={avatarUrl} alt={fullName} />
-            <AvatarFallback className="gradient-primary text-primary-foreground font-display font-semibold">
-              {getInitials(fullName)}
-            </AvatarFallback>
-          </Avatar>
+            <Avatar className="w-full h-full rounded-full">
+              <AvatarImage src={avatarUrl} alt={fullName} className="object-cover w-full h-full" />
+              <AvatarFallback className="gradient-primary text-primary-foreground font-display font-semibold w-full h-full">
+                {getInitials(fullName)}
+              </AvatarFallback>
+            </Avatar>
+          </div>
           <div className="flex-1 min-w-0">
             <h3 
               className="font-display font-bold text-lg text-foreground truncate cursor-pointer hover:text-primary transition-colors"
