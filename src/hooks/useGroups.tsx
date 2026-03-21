@@ -9,18 +9,12 @@ export interface Group {
   description: string | null;
   subject_id: string | null;
   university_id: string | null;
-  course_id?: string | null; // Added
   created_by: string;
   avatar_url: string | null;
   is_public: boolean;
   max_members: number | null;
   created_at: string;
   updated_at: string;
-  course?: {
-    id: string;
-    name: string;
-    faculty_id: string;
-  };
   subject?: {
     id: string;
     name: string;
@@ -76,7 +70,6 @@ export function useGroups() {
         .from("groups")
         .select(`
           *,
-          course:courses(id, name, faculty_id),
           university:universities(id, name, short_name)
         `)
         .eq("is_public", true)
@@ -143,7 +136,6 @@ export function useGroups() {
         .from("groups")
         .select(`
           *,
-          course:courses(id, name, faculty_id),
           university:universities(id, name, short_name)
         `)
         .in("id", groupIds)
