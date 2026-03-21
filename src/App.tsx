@@ -14,6 +14,7 @@ import { NativeHeader } from "@/components/NativeHeader";
 import { PageTransition } from "@/components/PageTransition";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Capacitor } from "@capacitor/core";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -102,14 +103,34 @@ function AnimatedRoutes() {
   );
 }
 
+function GeoGuard({ children }: { children: React.ReactNode }) {
+  const isNative = Capacitor.isNativePlatform();
+
+  useEffect(() => {
+    if (isNative) return; // Nu bloca pe app-ul nativ
+    fetch('https://ipapi.co/json/', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.continent_code && data.continent_code !== 'EU') {
+          window.location.replace('/blocked.html');
+        }
+      })
+      .catch(() => {}); // Fail open — dacă API-ul nu răspunde, lasă utilizatorul să intre
+  }, []);
+
+  return <>{children}</>;
+}
+
 function AppContent() {
   // Enable PWA update notifications
   useServiceWorker();
 
   return (
-    <BrowserRouter>
-      <AnimatedRoutes />
-    </BrowserRouter>
+    <GeoGuard>
+      <BrowserRouter>
+        <AnimatedRoutes />
+      </BrowserRouter>
+    </GeoGuard>
   );
 }
 
