@@ -9,18 +9,12 @@ export interface Group {
   description: string | null;
   subject_id: string | null;
   university_id: string | null;
-  course_id?: string | null; // Added
   created_by: string;
   avatar_url: string | null;
   is_public: boolean;
   max_members: number | null;
   created_at: string;
   updated_at: string;
-  course?: {
-    id: string;
-    name: string;
-    faculty_id: string;
-  };
   subject?: {
     id: string;
     name: string;
