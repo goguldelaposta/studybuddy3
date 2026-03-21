@@ -70,7 +70,7 @@ export const useModeration = () => {
             .from("profiles")
             .select("full_name, email")
             .eq("user_id", report.reporter_id)
-            .single();
+            .maybeSingle();
 
           let reportedUserProfile = null;
           if (report.reported_user_id) {
@@ -78,7 +78,7 @@ export const useModeration = () => {
               .from("profiles")
               .select("full_name, email")
               .eq("user_id", report.reported_user_id)
-              .single();
+              .maybeSingle();
             reportedUserProfile = profile;
           }
 
@@ -114,13 +114,13 @@ export const useModeration = () => {
             .from("profiles")
             .select("full_name, email")
             .eq("user_id", suspension.user_id)
-            .single();
+            .maybeSingle();
 
           const { data: suspendedByProfile } = await supabase
             .from("profiles")
             .select("full_name")
             .eq("user_id", suspension.suspended_by)
-            .single();
+            .maybeSingle();
 
           return {
             ...suspension,

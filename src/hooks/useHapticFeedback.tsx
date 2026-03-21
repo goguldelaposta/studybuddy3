@@ -1,4 +1,6 @@
 import { useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 
 type HapticStyle = 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error';
 
@@ -11,17 +13,49 @@ const vibrationPatterns: Record<HapticStyle, number | number[]> = {
   error: [30, 50, 30, 50, 30],
 };
 
+async function triggerNativeHaptic(style: HapticStyle) {
+  try {
+    switch (style) {
+      case 'light':
+        await Haptics.impact({ style: ImpactStyle.Light });
+        break;
+      case 'medium':
+        await Haptics.impact({ style: ImpactStyle.Medium });
+        break;
+      case 'heavy':
+        await Haptics.impact({ style: ImpactStyle.Heavy });
+        break;
+      case 'success':
+        await Haptics.notification({ type: NotificationType.Success });
+        break;
+      case 'warning':
+        await Haptics.notification({ type: NotificationType.Warning });
+        break;
+      case 'error':
+        await Haptics.notification({ type: NotificationType.Error });
+        break;
+    }
+  } catch {
+    console.debug('Haptic feedback not available');
+  }
+}
+
+function triggerWebHaptic(style: HapticStyle) {
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(vibrationPatterns[style]);
+    } catch {
+      console.debug('Haptic feedback not available');
+    }
+  }
+}
+
 export function useHapticFeedback() {
   const trigger = useCallback((style: HapticStyle = 'light') => {
-    // Check if vibration API is available
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      try {
-        const pattern = vibrationPatterns[style];
-        navigator.vibrate(pattern);
-      } catch (error) {
-        // Silently fail if vibration is not supported
-        console.debug('Haptic feedback not available');
-      }
+    if (Capacitor.isNativePlatform()) {
+      triggerNativeHaptic(style);
+    } else {
+      triggerWebHaptic(style);
     }
   }, []);
 
@@ -45,12 +79,9 @@ export function useHapticFeedback() {
 
 // Standalone function for use outside React components
 export function triggerHaptic(style: HapticStyle = 'light') {
-  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-    try {
-      const pattern = vibrationPatterns[style];
-      navigator.vibrate(pattern);
-    } catch (error) {
-      console.debug('Haptic feedback not available');
-    }
+  if (Capacitor.isNativePlatform()) {
+    triggerNativeHaptic(style);
+  } else {
+    triggerWebHaptic(style);
   }
 }

@@ -110,7 +110,7 @@ const Index = () => {
                       userId={profile.user_id || undefined}
                       privacySettings={profile.privacy_settings}
                       userBadges={profile.userBadges}
-                      onConnect={(id) => console.log("Connect to:", id)}
+                      onConnect={(id) => navigate(`/user/${id}`)}
                     />
                   </div>
                 ))}

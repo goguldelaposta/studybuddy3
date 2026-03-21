@@ -128,7 +128,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     // Check current permission state first
     const currentPermission = Notification.permission;
-    console.log("Current notification permission:", currentPermission);
 
     // If already denied, show instructions
     if (currentPermission === "denied") {
@@ -154,7 +153,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     // Permission is "default" - need to request
     try {
       const permission = await Notification.requestPermission();
-      console.log("New notification permission:", permission);
       
       setDesktopNotificationsEnabled(permission === "granted");
       

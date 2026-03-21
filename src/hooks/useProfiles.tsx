@@ -117,46 +117,57 @@ export const useProfiles = () => {
 
       if (error) throw error;
 
-      const profilesWithRelations = await Promise.all(
-        (profilesData || []).map(async (profile) => {
-          const [skillsResult, subjectsResult, universityResult, badgesResult] = await Promise.all([
-            supabase
-              .from("profile_skills")
-              .select("skill_id, skills(name)")
-              .eq("profile_id", profile.id),
-            supabase
-              .from("profile_subjects")
-              .select("subject_id, subjects(name)")
-              .eq("profile_id", profile.id),
-            profile.university_id 
-              ? supabase.from("universities").select("*").eq("id", profile.university_id).single()
-              : Promise.resolve({ data: null }),
-            profile.user_id
-              ? supabase
-                  .from("user_badges")
-                  .select("*, badge:badges(*)")
-                  .eq("user_id", profile.user_id)
-              : Promise.resolve({ data: null }),
-          ]);
+      const allProfiles = profilesData || [];
+      if (allProfiles.length === 0) {
+        setProfiles([]);
+        return;
+      }
 
-          const mappedBadges: UserBadge[] = (badgesResult.data || []).map((ub: any) => ({
-            id: ub.id,
-            user_id: ub.user_id,
-            badge_id: ub.badge_id,
-            earned_at: ub.earned_at,
-            badge: ub.badge as BadgeType,
-          }));
+      const profileIds = allProfiles.map((p) => p.id);
+      const userIds = allProfiles.map((p) => p.user_id).filter(Boolean) as string[];
 
-          return {
-            ...profile,
-            skills: skillsResult.data?.map((ps: any) => ps.skills?.name).filter(Boolean) || [],
-            subjects: subjectsResult.data?.map((ps: any) => ps.subjects?.name).filter(Boolean) || [],
-            university: universityResult.data || undefined,
-            privacy_settings: (profile.privacy_settings as unknown as PrivacySettingsData) || getDefaultPrivacySettings(),
-            userBadges: mappedBadges,
-          };
-        })
-      );
+      // Batch fetch — 4 queries total instead of N*4
+      const [skillsResult, subjectsResult, universitiesResult, badgesResult] = await Promise.all([
+        supabase.from("profile_skills").select("profile_id, skills(name)").in("profile_id", profileIds),
+        supabase.from("profile_subjects").select("profile_id, subjects(name)").in("profile_id", profileIds),
+        supabase.from("universities").select("*"),
+        userIds.length > 0
+          ? supabase.from("user_badges").select("*, badge:badges(*)").in("user_id", userIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      // Build lookup maps
+      const skillsByProfile = new Map<string, string[]>();
+      (skillsResult.data || []).forEach((ps: { profile_id: string; skills: { name: string } | null }) => {
+        const arr = skillsByProfile.get(ps.profile_id) ?? [];
+        if (ps.skills?.name) arr.push(ps.skills.name);
+        skillsByProfile.set(ps.profile_id, arr);
+      });
+
+      const subjectsByProfile = new Map<string, string[]>();
+      (subjectsResult.data || []).forEach((ps: { profile_id: string; subjects: { name: string } | null }) => {
+        const arr = subjectsByProfile.get(ps.profile_id) ?? [];
+        if (ps.subjects?.name) arr.push(ps.subjects.name);
+        subjectsByProfile.set(ps.profile_id, arr);
+      });
+
+      const universitiesMap = new Map((universitiesResult.data || []).map((u) => [u.id, u]));
+
+      const badgesByUser = new Map<string, UserBadge[]>();
+      (badgesResult.data || []).forEach((ub: any) => {
+        const arr = badgesByUser.get(ub.user_id) ?? [];
+        arr.push({ id: ub.id, user_id: ub.user_id, badge_id: ub.badge_id, earned_at: ub.earned_at, badge: ub.badge as BadgeType });
+        badgesByUser.set(ub.user_id, arr);
+      });
+
+      const profilesWithRelations = allProfiles.map((profile) => ({
+        ...profile,
+        skills: skillsByProfile.get(profile.id) || [],
+        subjects: subjectsByProfile.get(profile.id) || [],
+        university: profile.university_id ? universitiesMap.get(profile.university_id) : undefined,
+        privacy_settings: (profile.privacy_settings as unknown as PrivacySettingsData) || getDefaultPrivacySettings(),
+        userBadges: badgesByUser.get(profile.user_id) || [],
+      }));
 
       // De-duplicate profiles.
       // Prefer user_id (one profile per auth user). Fall back to id for seed/anonymous rows.

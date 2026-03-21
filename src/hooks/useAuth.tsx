@@ -2,6 +2,15 @@ import { useState, useEffect, createContext, useContext, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Capacitor } from '@capacitor/core';
+
+// Pe mobile nativ folosim deep link scheme în loc de http
+function getRedirectUrl(path: string): string {
+  if (Capacitor.isNativePlatform()) {
+    return `studybuddy:/${path}`;
+  }
+  return `${window.location.origin}${path}`;
+}
 
 interface SignUpProfileData {
   fullName: string;
@@ -73,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, gdprConsent: boolean = false, profileData?: SignUpProfileData) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = getRedirectUrl('/');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -216,7 +225,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/auth/reset-password`;
+      const redirectUrl = getRedirectUrl('/auth/reset-password');
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });

@@ -97,7 +97,7 @@ export function useGroups() {
             .select("role")
             .eq("group_id", group.id)
             .eq("user_id", user.id)
-            .single();
+            .maybeSingle();
 
           return {
             ...group,
@@ -365,7 +365,7 @@ export function useGroups() {
               .from("profiles")
               .select("id, full_name, avatar_url, faculty")
               .eq("user_id", member.user_id)
-              .single();
+              .maybeSingle();
 
             return {
               ...member,
@@ -411,7 +411,7 @@ export function useGroups() {
           .select("role")
           .eq("group_id", groupId)
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
 
         return {
           ...group,

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 
 export function useServiceWorker() {
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
@@ -15,7 +16,8 @@ export function useServiceWorker() {
   }, [waitingWorker]);
 
   useEffect(() => {
-    if (!('serviceWorker' in navigator)) return;
+    // Service workers nu funcționează în aplicații native Capacitor
+    if (!('serviceWorker' in navigator) || Capacitor.isNativePlatform()) return;
 
     const registerSW = async () => {
       try {

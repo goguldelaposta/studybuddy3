@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import DOMPurify from 'dompurify';
 import { StudyLocation, TYPE_ICONS, TYPE_LABELS } from '@/hooks/useStudyLocations';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -198,13 +199,13 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, onUser
       el.style.cursor = 'pointer';
 
       const popup = new mapboxgl.Popup({ offset: 25, closeButton: false })
-        .setHTML(`
+        .setHTML(DOMPurify.sanitize(`
           <div class="p-3 min-w-[180px]">
             <div class="font-bold text-sm mb-1">${location.name}</div>
             <div class="text-xs text-gray-600">${TYPE_LABELS[location.type]}</div>
             <div class="text-xs text-gray-500 mt-1">${location.address}</div>
           </div>
-        `);
+        `));
 
       const marker = new mapboxgl.Marker({ element: el })
         .setLngLat([location.longitude, location.latitude])

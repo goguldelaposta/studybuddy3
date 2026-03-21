@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Settings, GraduationCap, Sparkles, BookOpen, Building, Calendar, Trophy, Users, Megaphone, MapPin, FileText, ChevronRight, LogOut } from "lucide-react";
 import { ProfileBadge } from "@/components/ProfileBadge";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -30,7 +31,20 @@ const Profile = () => {
     }
   }, [user, authLoading, loading, currentUserProfile, navigate]);
 
-  if (authLoading || !user || loading) return null;
+  if (authLoading || !user || loading) {
+    return (
+      <div className="min-h-screen bg-background pb-mobile-nav md:pb-0">
+        <div className="h-14" style={{ marginTop: 'env(safe-area-inset-top)' }} />
+        <div className="container max-w-2xl py-8 space-y-4">
+          <Skeleton className="h-32 w-32 rounded-full mx-auto" />
+          <Skeleton className="h-8 w-48 mx-auto" />
+          <Skeleton className="h-4 w-64 mx-auto" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+        </div>
+      </div>
+    );
+  }
 
   const university = universities.find((u) => u.id === currentUserProfile?.university_id);
 

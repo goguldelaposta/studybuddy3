@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
@@ -42,6 +42,7 @@ export function useMessages() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
   const [typingChannel, setTypingChannel] = useState<ReturnType<typeof supabase.channel> | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch all conversations for the current user
   const fetchConversations = useCallback(async () => {
@@ -69,7 +70,7 @@ export function useMessages() {
             .from("profiles")
             .select("id, user_id, full_name, avatar_url, faculty")
             .eq("user_id", otherParticipantId)
-            .single();
+            .maybeSingle();
 
           // Get last message
           const { data: lastMsg } = await supabase
@@ -78,7 +79,7 @@ export function useMessages() {
             .eq("conversation_id", convo.id)
             .order("created_at", { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
           // Get unread count
           const { count } = await supabase
@@ -128,7 +129,6 @@ export function useMessages() {
         return;
       }
 
-      console.log(`Marked ${data?.length || 0} messages as read in conversation ${conversationId}`);
 
       // Immediately update local conversation state to clear the badge
       setConversations((prev) =>
@@ -340,9 +340,10 @@ export function useMessages() {
         if (payload.payload.userId !== user.id) {
           setIsOtherUserTyping(payload.payload.isTyping);
           
-          // Auto-clear typing indicator after 3 seconds
+          // Auto-clear typing indicator after 3 seconds (clear previous to avoid stacking)
           if (payload.payload.isTyping) {
-            setTimeout(() => setIsOtherUserTyping(false), 3000);
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = setTimeout(() => setIsOtherUserTyping(false), 3000);
           }
         }
       })
