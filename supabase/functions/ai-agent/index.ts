@@ -98,7 +98,7 @@ async function executeTool(
 
     if (name === "create_announcement") {
         const { title, content, type = "info" } = args as { title: string; content: string; type?: string };
-        const { error } = await supabase.from("announcements").insert({ title, content, type, is_active: true });
+        const { error } = await supabase.from("announcements").insert({ title, content, type, is_active: true, user_id: "00000000-0000-0000-0000-000000000000", description: content, category: "general" } as any);
         const success = !error;
         const result = success ? `Anunț creat: "${title}"` : `Eroare: ${error?.message}`;
         actionLog.push({ action: "create_announcement", result, success });
