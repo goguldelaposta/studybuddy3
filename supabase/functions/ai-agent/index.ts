@@ -152,7 +152,7 @@ async function executeTool(
     return { error: `Tool necunoscut: ${name}` };
 }
 
-async function runAgent(supabase: ReturnType<typeof createClient>) {
+async function runAgent(supabase: any) {
     const actionLog: Array<{ action: string; result: string; success: boolean }> = [];
     const now = new Date();
     const dayNames = ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"];
