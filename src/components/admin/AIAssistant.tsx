@@ -17,7 +17,7 @@ interface Message {
     timestamp: Date;
 }
 
-type Provider = "gemini" | "openai" | "groq";
+type Provider = "gemini" | "openai" | "groq" | "anthropic";
 
 interface ProviderConfig {
     name: string;
@@ -56,6 +56,15 @@ const PROVIDERS: Record<Provider, ProviderConfig> = {
         keyPlaceholder: "gsk_...",
         keyLink: "https://console.groq.com/keys",
         color: "from-orange-500 to-red-500",
+    },
+    anthropic: {
+        name: "Anthropic Claude",
+        model: "claude-3-5-sonnet-20241022",
+        description: "Claude 3.5 Sonnet",
+        free: false,
+        keyPlaceholder: "sk-ant-...",
+        keyLink: "https://console.anthropic.com/settings/keys",
+        color: "from-indigo-500 to-purple-500",
     },
 };
 
@@ -199,6 +208,26 @@ export const AIAssistant = () => {
         return data.choices?.[0]?.message?.content || "Fără răspuns.";
     };
 
+    const callAnthropic = async (key: string, history: Message[], userText: string) => {
+        const statsCtx = Object.keys(stats).length > 0
+            ? ` Statistici live: ${stats.users} useri, ${stats.groups} grupuri, ${stats.messages} mesaje.`
+            : "";
+        const response = await supabase.functions.invoke('chat-anthropic', {
+            body: {
+                messages: [
+                    ...history.slice(1).map(m => ({ role: m.role, content: m.content })),
+                    { role: "user", content: userText }
+                ],
+                systemContext: SYSTEM_CONTEXT + statsCtx,
+                apiKey: key
+            }
+        });
+        if (response.error) {
+            throw new Error(response.error.message || "Eroare Edge Function (Anthropic)");
+        }
+        return response.data?.reply || "Fără răspuns.";
+    };
+
     const sendMessage = async (text?: string) => {
         const messageText = text || input.trim();
         if (!messageText) return;
@@ -220,7 +249,8 @@ export const AIAssistant = () => {
             let aiText = "";
             if (provider === "gemini") aiText = await callGemini(savedKey, currentMessages, messageText);
             else if (provider === "openai") aiText = await callOpenAI(savedKey, currentMessages, messageText);
-            else aiText = await callGroq(savedKey, currentMessages, messageText);
+            else if (provider === "groq") aiText = await callGroq(savedKey, currentMessages, messageText);
+            else aiText = await callAnthropic(savedKey, currentMessages, messageText);
 
             setMessages(prev => [...prev, { role: "assistant", content: aiText, timestamp: new Date() }]);
         } catch (error: unknown) {
@@ -256,6 +286,7 @@ export const AIAssistant = () => {
                                 <SelectItem value="gemini">🔵 Gemini Flash</SelectItem>
                                 <SelectItem value="openai">🟢 GPT-4o Mini</SelectItem>
                                 <SelectItem value="groq">🟠 Groq Llama 3</SelectItem>
+                                <SelectItem value="anthropic">🟪 Claude 3.5 Sonnet</SelectItem>
                             </SelectContent>
                         </Select>
                         <div className="flex items-center gap-1">

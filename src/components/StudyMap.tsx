@@ -148,9 +148,8 @@ export function StudyMap({ locations, selectedLocation, onSelectLocation, onUser
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: getMapStyle(),
-      center: [26.1025, 44.4268], // București
-      zoom: 15.62,
-      pitch: 56,
+      center: [24.9668, 45.9432], // Centrul României (orientativ)
+      zoom: 6.5, // Zoom care cuprinde marile orașe      pitch: 56,
       bearing: 0,
       antialias: false, // Disable for better performance
       attributionControl: false,
