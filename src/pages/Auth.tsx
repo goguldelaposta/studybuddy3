@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AuthForm } from "@/components/auth/AuthForm";
+import { AuthBackground } from "@/components/auth/AuthBackground";
 import { Users } from "lucide-react";
 
 const Auth = () => {
@@ -18,20 +19,9 @@ const Auth = () => {
         paddingRight: 'max(1rem, env(safe-area-inset-right))'
       }}
     >
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0"
-        src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4"
-      />
+      <AuthBackground />
       
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-purple-900/30 to-black/60 backdrop-blur-sm z-10" />
-      
-      <div className="w-full max-w-md relative z-20">
+      <div className="w-full max-w-md relative z-10">
         {/* Logo/Icon */}
         <motion.div 
           className="flex justify-center mb-6"
