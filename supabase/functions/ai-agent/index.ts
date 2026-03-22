@@ -73,7 +73,7 @@ const TOOLS = [{
 async function executeTool(
     name: string,
     args: Record<string, unknown>,
-    supabase: ReturnType<typeof createClient>,
+    supabase: any,
     actionLog: Array<{ action: string; result: string; success: boolean }>
 ): Promise<unknown> {
     console.log(`Tool: ${name}`, args);
@@ -98,7 +98,7 @@ async function executeTool(
 
     if (name === "create_announcement") {
         const { title, content, type = "info" } = args as { title: string; content: string; type?: string };
-        const { error } = await supabase.from("announcements").insert({ title, content, type, is_active: true });
+        const { error } = await supabase.from("announcements").insert({ title, content, type, is_active: true, user_id: "00000000-0000-0000-0000-000000000000", description: content, category: "general" } as any);
         const success = !error;
         const result = success ? `Anunț creat: "${title}"` : `Eroare: ${error?.message}`;
         actionLog.push({ action: "create_announcement", result, success });
@@ -152,7 +152,7 @@ async function executeTool(
     return { error: `Tool necunoscut: ${name}` };
 }
 
-async function runAgent(supabase: ReturnType<typeof createClient>) {
+async function runAgent(supabase: any) {
     const actionLog: Array<{ action: string; result: string; success: boolean }> = [];
     const now = new Date();
     const dayNames = ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"];
