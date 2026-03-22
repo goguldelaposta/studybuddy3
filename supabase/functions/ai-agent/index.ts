@@ -73,7 +73,7 @@ const TOOLS = [{
 async function executeTool(
     name: string,
     args: Record<string, unknown>,
-    supabase: ReturnType<typeof createClient>,
+    supabase: any,
     actionLog: Array<{ action: string; result: string; success: boolean }>
 ): Promise<unknown> {
     console.log(`Tool: ${name}`, args);
