@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Users, ArrowRight, BookOpen, Code, Lightbulb, MapPin, Sparkles } from "lucide-react";
 import { triggerHaptic } from "@/hooks/useHapticFeedback";
 import { motion } from "framer-motion";
+import { Suspense, lazy } from "react";
+
+const StudyScene3D = lazy(() => import("@/components/StudyScene3D").then(m => ({ default: m.StudyScene3D })));
 
 interface HeroSectionProps {
   onGetStarted: () => void;
