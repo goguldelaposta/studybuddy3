@@ -20,8 +20,13 @@ export const HeroSection = ({
   return (
     <section className="relative overflow-hidden min-h-[90vh] flex items-center">
 
+      {/* 3D Study Scene */}
+      <Suspense fallback={null}>
+        <StudyScene3D />
+      </Suspense>
+
       {/* Animated gradient blobs */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="absolute inset-0 z-[1] pointer-events-none">
         <motion.div
           className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full dark:opacity-20 opacity-10 blur-[120px]"
           style={{ background: "radial-gradient(circle, #6d28d9, #4f46e5)" }}
